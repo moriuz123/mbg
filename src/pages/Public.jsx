@@ -25,9 +25,9 @@ function Public() {
       {/* HERO SECTION - BOLD & GLOWING */}
       <section style={{ 
         position: 'relative', 
-        backgroundColor: '#020617',
+        backgroundColor: '#0d160f',
         backgroundImage: `
-          radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.4) 0%, transparent 70%),
+          radial-gradient(circle at 50% 0%, rgba(48, 109, 41, 0.5) 0%, transparent 70%),
           url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
         `,
         color: '#ffffff',
@@ -59,7 +59,7 @@ function Public() {
           
           <button 
             onClick={() => setIsPollOpen(!isPollOpen)}
-            style={{ position: 'absolute', left: '-48px', top: '50%', transform: 'translateY(-50%)', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '1rem 0.5rem', borderRadius: '0.5rem 0 0 0.5rem', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', boxShadow: '-4px 0 10px rgba(0,0,0,0.2)' }}
+            style={{ position: 'absolute', left: '-48px', top: '50%', transform: 'translateY(-50%)', backgroundColor: '#306d29', color: '#ffffff', border: 'none', padding: '1rem 0.5rem', borderRadius: '0.5rem 0 0 0.5rem', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', boxShadow: '-4px 0 10px rgba(0,0,0,0.2)' }}
           >
             <MessageSquare size={20} />
             <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontWeight: 700, letterSpacing: '0.1em', fontSize: '0.75rem' }}>POLLING</span>
@@ -95,7 +95,7 @@ function Public() {
         
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center', width: '100%' }}>
           <div className="badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', margin: '0 auto 2.5rem auto', color: '#ffffff', backdropFilter: 'blur(10px)' }}>
-            <span style={{ width: '8px', height: '8px', backgroundColor: '#3b82f6', borderRadius: '50%', boxShadow: '0 0 10px #3b82f6' }}></span>
+            <span style={{ width: '8px', height: '8px', backgroundColor: '#4c8538', borderRadius: '50%', boxShadow: '0 0 10px #4c8538' }}></span>
             Portal Resmi Pemerintahan Lebak
           </div>
           
@@ -127,7 +127,7 @@ function Public() {
                 placeholder="Cari data penggilingan, sebaran sekolah, pengaduan..." 
                 style={{ width: '100%', padding: '1.25rem 1.5rem 1.25rem 4rem', borderRadius: '9999px', border: '2px solid rgba(255,255,255,0.8)', fontSize: '1rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a', transition: 'border-color 0.3s' }}
               />
-              <button type="submit" style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', padding: '0.875rem 2.25rem', backgroundColor: '#2563eb', color: '#ffffff', borderRadius: '9999px', border: 'none', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 10px rgba(37,99,235,0.4)' }}>
+              <button type="submit" style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', padding: '0.875rem 2.25rem', backgroundColor: '#306d29', color: '#ffffff', borderRadius: '9999px', border: 'none', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 10px rgba(48,109,41,0.4)' }}>
                 Telusuri
               </button>
             </form>
@@ -141,11 +141,11 @@ function Public() {
           <div className="stats-bar" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(16px)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.8)', padding: '1.5rem 2rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1000px', margin: '0 auto' }}>
             
             <div style={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
-              <div style={{ width: '48px', height: '48px', backgroundColor: '#eff6ff', color: '#2563eb', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px -1px rgba(37,99,235,0.1)' }}>
+              <div style={{ width: '48px', height: '48px', backgroundColor: '#fbf5dd', color: '#306d29', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px -1px rgba(48,109,41,0.1)' }}>
                 <Users size={24} />
               </div>
               <div>
-                <h3 style={{ fontSize: '2rem', fontWeight: 900, background: 'linear-gradient(to right, #1e3a8a, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1 }}>45.2K</h3>
+                <h3 style={{ fontSize: '2rem', fontWeight: 900, background: 'linear-gradient(to right, #0d530e, #306d29)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1 }}>45.2K</h3>
                 <p style={{ color: '#64748b', fontWeight: 600, marginTop: '0.375rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Siswa Penerima</p>
               </div>
             </div>
@@ -197,7 +197,7 @@ function Public() {
             
             {/* Left Content */}
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 700, marginBottom: '1.5rem' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: '#fbf5dd', color: '#306d29', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 700, marginBottom: '1.5rem' }}>
                 <CheckCircle2 size={16} /> Program Prioritas Nasional
               </div>
               <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', marginBottom: '1.5rem', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
@@ -213,9 +213,9 @@ function Public() {
 
             {/* Right Content / Visual */}
             <div style={{ position: 'relative', padding: '1rem' }}>
-              <div style={{ position: 'absolute', top: '0', left: '0', right: '2rem', bottom: '2rem', backgroundColor: '#eff6ff', borderRadius: '1.5rem', zIndex: 0 }}></div>
+              <div style={{ position: 'absolute', top: '0', left: '0', right: '2rem', bottom: '2rem', backgroundColor: '#fbf5dd', borderRadius: '1.5rem', zIndex: 0 }}></div>
               <div style={{ position: 'relative', zIndex: 10, backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '1.5rem', padding: '3rem 2.5rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.05)', marginLeft: '2rem', marginTop: '2rem' }}>
-                <div style={{ fontSize: '5rem', color: '#bfdbfe', lineHeight: 0.5, fontFamily: 'serif', position: 'absolute', top: '2.5rem', left: '1.5rem' }}>"</div>
+                <div style={{ fontSize: '5rem', color: '#e7e1b1', lineHeight: 0.5, fontFamily: 'serif', position: 'absolute', top: '2.5rem', left: '1.5rem' }}>"</div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem', lineHeight: 1.4, position: 'relative', zIndex: 11, marginTop: '1.5rem' }}>
                   Kita tidak boleh membiarkan satu anak pun tertinggal. Gizi yang baik hari ini adalah investasi mutlak untuk masa depan kejayaan bangsa Indonesia.
                 </h3>
@@ -295,7 +295,7 @@ function Public() {
             {/* PENGGILINGAN BENTO ITEM */}
             <div style={{ gridColumn: 'span 1', backgroundColor: '#ffffff', borderRadius: '2rem', padding: '2rem', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
-                <div style={{ width: '40px', height: '40px', backgroundColor: '#eff6ff', color: '#2563eb', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '40px', height: '40px', backgroundColor: '#fbf5dd', color: '#306d29', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <MapPin size={20} />
                 </div>
                 <div>
@@ -371,11 +371,11 @@ function Public() {
             </div>
 
             {/* COMPLAINT MINI PROMO */}
-            <div style={{ gridColumn: 'span 1', background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', color: '#ffffff', borderRadius: '2rem', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-              <ShieldCheck size={40} color="#93c5fd" style={{ marginBottom: '1rem' }} />
+            <div style={{ gridColumn: 'span 1', background: 'linear-gradient(135deg, #306d29 0%, #0d530e 100%)', color: '#ffffff', borderRadius: '2rem', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+              <ShieldCheck size={40} color="#bbce75" style={{ marginBottom: '1rem' }} />
               <h4 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>Ada Kejanggalan?</h4>
-              <p style={{ fontSize: '0.9375rem', color: '#bfdbfe', marginBottom: '1.5rem' }}>Bantu kami menjaga kualitas makanan anak-anak kita.</p>
-              <a href="#pengaduan" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#ffffff', color: '#1e40af', borderRadius: '9999px', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}>Buat Laporan</a>
+              <p style={{ fontSize: '0.9375rem', color: '#e7e1b1', marginBottom: '1.5rem' }}>Bantu kami menjaga kualitas makanan anak-anak kita.</p>
+              <a href="#pengaduan" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#ffffff', color: '#306d29', borderRadius: '9999px', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}>Buat Laporan</a>
             </div>
 
           </div>
@@ -388,7 +388,7 @@ function Public() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4rem', alignItems: 'center' }}>
             
             <div style={{ flex: '1 1 400px' }}>
-              <h2 style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a', marginBottom: '1rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}>Layanan <br/><span style={{ color: '#2563eb' }}>Pengaduan</span></h2>
+              <h2 style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a', marginBottom: '1rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}>Layanan <br/><span style={{ color: '#306d29' }}>Pengaduan</span></h2>
               <p style={{ fontSize: '1.125rem', color: '#64748b', marginBottom: '3rem', lineHeight: 1.6 }}>
                 Identitas pelapor dijamin kerahasiaannya. Laporan Anda langsung diteruskan ke sistem antrean Inspektorat Daerah.
               </p>
@@ -457,7 +457,7 @@ function Public() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ backgroundColor: '#0f172a', paddingTop: '5rem', paddingBottom: '2rem', borderTop: '4px solid #3b82f6', color: '#f8fafc' }}>
+      <footer style={{ backgroundColor: '#0f172a', paddingTop: '5rem', paddingBottom: '2rem', borderTop: '4px solid #306d29', color: '#f8fafc' }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem', marginBottom: '4rem' }}>
             {/* Kolom 1: Branding */}
@@ -491,7 +491,7 @@ function Public() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li><a href="#pengaduan" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Pusat Pengaduan</a></li>
                 <li><a href="#" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Panduan Pengguna</a></li>
-                <li><Link to="/login" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }} className="hover-text-white">Portal Admin Internal <ArrowRight size={14} /></Link></li>
+                <li><Link to="/login" style={{ color: '#4c8538', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }} className="hover-text-white">Portal Admin Internal <ArrowRight size={14} /></Link></li>
               </ul>
             </div>
 
@@ -500,15 +500,15 @@ function Public() {
               <h4 style={{ color: '#ffffff', fontSize: '1rem', fontWeight: 700, marginBottom: '1.5rem' }}>Pusat Informasi</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#94a3b8', fontSize: '0.875rem' }}>
-                  <MapPin size={18} style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.125rem' }} />
+                  <MapPin size={18} style={{ color: '#4c8538', flexShrink: 0, marginTop: '0.125rem' }} />
                   <span>Kompleks Perkantoran Pemkab Lebak, Jl. Alun-Alun Rangkasbitung, Banten.</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#94a3b8', fontSize: '0.875rem' }}>
-                  <Phone size={18} style={{ color: '#3b82f6', flexShrink: 0 }} />
+                  <Phone size={18} style={{ color: '#4c8538', flexShrink: 0 }} />
                   <span>(0252) 1234567</span>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#94a3b8', fontSize: '0.875rem' }}>
-                  <Mail size={18} style={{ color: '#3b82f6', flexShrink: 0 }} />
+                  <Mail size={18} style={{ color: '#4c8538', flexShrink: 0 }} />
                   <span>mbg@lebakkab.go.id</span>
                 </li>
               </ul>

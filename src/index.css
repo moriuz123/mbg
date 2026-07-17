@@ -1,18 +1,18 @@
 :root {
-  /* Blue Color Palette */
-  --primary-50: #eff6ff;
-  --primary-100: #dbeafe;
-  --primary-200: #bfdbfe;
-  --primary-300: #93c5fd;
-  --primary-400: #60a5fa;
-  --primary-500: #3b82f6;
-  --primary-600: #2563eb;
-  --primary-700: #1d4ed8;
-  --primary-800: #1e40af;
-  --primary-900: #1e3a8a;
+  /* Green/Nature Color Palette */
+  --primary-50: #fbf5dd;
+  --primary-100: #f1eac1;
+  --primary-200: #e7e1b1;
+  --primary-300: #bbce75;
+  --primary-400: #749e47;
+  --primary-500: #4c8538;
+  --primary-600: #306d29;
+  --primary-700: #225e1e;
+  --primary-800: #175816;
+  --primary-900: #0d530e;
   
   /* Accents & UI Colors */
-  --bg-color: #f8fafc;
+  --bg-color: #fafbf5;
   --surface-color: #ffffff;
   --surface-glass: rgba(255, 255, 255, 0.85);
   --text-primary: #0f172a;
@@ -27,7 +27,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+  --shadow-glow: 0 0 20px rgba(48, 109, 41, 0.3);
 
   /* Border Radius */
   --radius-sm: 0.375rem;
@@ -54,8 +54,8 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   background-image: 
-    radial-gradient(at 0% 0%, hsla(217,100%,94%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 100%, hsla(210,100%,94%,1) 0, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(48,64%,93%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 100%, hsla(69,25%,85%,1) 0, transparent 50%);
   background-attachment: fixed;
   min-height: 100vh;
 }
