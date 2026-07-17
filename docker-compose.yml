@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:5173" # Port 8080 pada host akan dihubungkan ke port 5173 di dalam container
+    volumes:
+      - .:/app
+      - /app/node_modules # Mencegah node_modules di lokal menimpa yang ada di container
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Mengaktifkan polling untuk hot-reload di Docker (berguna di beberapa OS)
