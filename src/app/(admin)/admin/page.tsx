@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, Utensils, Factory, LayoutDashboard, TrendingUp, Activity } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 function Home() {
   return (
@@ -14,10 +14,10 @@ function Home() {
           Pantau seluruh rantai pasok Program Makan Bergizi Gratis di Kabupaten Lebak mulai dari hulu (Penggilingan Gabah) hingga hilir (Dapur SPPG Tersertifikasi).
         </p>
         <div className="flex justify-center gap-4">
-          <Link to="/penggilingan" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}>
+          <Link href="/penggilingan" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}>
             <Factory size={18} /> Pantau Pre-Market
           </Link>
-          <Link to="/sppg" className="btn btn-ghost" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', color: '#334155' }}>
+          <Link href="/sppg" className="btn btn-ghost" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', color: '#334155' }}>
             <Utensils size={18} /> Pantau Post-Market
           </Link>
         </div>

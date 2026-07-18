@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Database, Plus, Edit2, Trash2, X } from 'lucide-react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate } from 'next/navigation';
 
 const initialMasterData = {
   sumberGabah: [

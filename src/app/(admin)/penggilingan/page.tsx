@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Wheat, Plus, Factory, TrendingUp, X } from 'lucide-react';
 

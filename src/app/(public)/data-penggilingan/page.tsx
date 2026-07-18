@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ArrowLeft, Wheat, Factory, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 const initialGabah = [
   { id: 1, periode: 'Minggu 1, Juli 2026', sumber: 'Petani Lokal - Desa Rangkasbitung', volume: 5000 },
@@ -20,7 +22,7 @@ function PublicPenggilingan() {
 
   return (
     <div className="container py-8 animate-fade-in">
-      <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: '2rem' }}>
+      <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: '2rem' }}>
         <ArrowLeft size={18} /> Kembali ke Beranda
       </Link>
 

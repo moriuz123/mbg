@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ShoppingCart, PieChart, FlaskConical, Users, Plus, X } from 'lucide-react';
 

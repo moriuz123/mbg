@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ArrowLeft, ShoppingCart, PieChart, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 const initialBahanPangan = [
   { id: 1, jenis: 'Beras Premium', volumeBeli: 3000, volumePakai: 2800, sumber: 'Penggilingan Rangkasbitung', cp: 'Bpk. Budi (0812345)' },
@@ -22,7 +24,7 @@ function PublicSPPG() {
 
   return (
     <div className="container py-8 animate-fade-in">
-      <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: '2rem' }}>
+      <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: '2rem' }}>
         <ArrowLeft size={18} /> Kembali ke Beranda
       </Link>
 

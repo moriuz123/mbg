@@ -1,14 +1,33 @@
-import React from 'react';
-import { Lock, User, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+'use client';
 
-function Login() {
-  const navigate = useNavigate();
+import React, { useState } from 'react';
+import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { authClient } from '@/lib/auth-client';
 
-  const handleLogin = (e) => {
+export default function Login() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulasi login sukses langsung ke dashboard admin
-    navigate('/admin');
+    setLoading(true);
+    setError('');
+
+    const { data, error } = await authClient.signIn.email({
+        email,
+        password
+    });
+
+    if (error) {
+        setError(error.message || 'Login gagal. Periksa kembali kredensial Anda.');
+        setLoading(false);
+    } else {
+        router.push('/admin');
+    }
   };
 
   return (
@@ -27,22 +46,30 @@ function Login() {
           <p className="text-muted mt-2 text-sm">Masuk untuk mengakses Dasbor Pengawasan</p>
         </div>
 
+        {error && (
+            <div style={{ padding: '0.75rem', backgroundColor: '#fef2f2', color: '#ef4444', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                {error}
+            </div>
+        )}
+
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label className="text-sm font-medium mb-2" style={{ display: 'block' }} htmlFor="username">
-              NIP / Username
+            <label className="text-sm font-medium mb-2" style={{ display: 'block' }} htmlFor="email">
+              Email Petugas
             </label>
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }}>
-                <User size={18} />
+                <Mail size={18} />
               </div>
               <input
-                id="username"
-                name="username"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', outline: 'none' }}
-                placeholder="Masukkan NIP Anda"
+                placeholder="admin@lebakkab.go.id"
               />
             </div>
           </div>
@@ -59,6 +86,8 @@ function Login() {
                 id="password"
                 name="password"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', outline: 'none' }}
                 placeholder="••••••••"
@@ -82,17 +111,11 @@ function Login() {
             </a>
           </div>
 
-          <button type="submit" className="btn btn-primary w-full py-4" style={{ padding: '0.75rem', fontSize: '1rem' }}>
-            Masuk Dasbor <ArrowRight size={18} />
+          <button type="submit" disabled={loading} className="btn btn-primary w-full py-4" style={{ padding: '0.75rem', fontSize: '1rem', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Memverifikasi...' : <><span style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}>Masuk Dasbor <ArrowRight size={18} /></span></>}
           </button>
         </form>
-        
-        <div className="text-center mt-6 text-sm text-muted">
-          Untuk simulasi prototipe, klik Masuk Dasbor menggunakan data apa saja.
-        </div>
       </div>
     </div>
   );
 }
-
-export default Login;

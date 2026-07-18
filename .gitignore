@@ -1,0 +1,6 @@
+
+.next/
+.env.local
+drizzle/
+npm-log.txt
+build-log.txt

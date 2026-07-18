@@ -5,9 +5,28 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:5173" # Port 8080 pada host akan dihubungkan ke port 5173 di dalam container
+      - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules # Mencegah node_modules di lokal menimpa yang ada di container
+      - /app/node_modules
     environment:
-      - CHOKIDAR_USEPOLLING=true # Mengaktifkan polling untuk hot-reload di Docker (berguna di beberapa OS)
+      - CHOKIDAR_USEPOLLING=true
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/mbg
+      - BETTER_AUTH_SECRET=secret_for_local_development_only
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mbg
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

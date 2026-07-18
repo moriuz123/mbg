@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ArrowRight, Utensils, ShieldCheck, MapPin, CheckCircle2, ChevronRight, Phone, Mail, Clock, Activity, Users, Home as HomeIcon, Search, Facebook, Twitter, Instagram, Youtube, MessageSquare } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 function Public() {
   const [formPengaduan, setFormPengaduan] = useState({ nama: '', lokasi: '', kategori: 'Kualitas Makanan', pesan: '' });
@@ -323,7 +325,7 @@ function Public() {
                   </tbody>
                 </table>
               </div>
-              <Link to="/data-penggilingan" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '1rem', color: '#0f172a', fontWeight: 700, textDecoration: 'none', transition: 'background 0.2s', border: '1px solid #e2e8f0' }}>
+              <Link href="/data-penggilingan" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '1rem', color: '#0f172a', fontWeight: 700, textDecoration: 'none', transition: 'background 0.2s', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '0.875rem' }}>Lihat Data Transaksi</span>
                 <ChevronRight size={18} color="#94a3b8" />
               </Link>
@@ -364,7 +366,7 @@ function Public() {
                   </tbody>
                 </table>
               </div>
-              <Link to="/data-sppg" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '1rem', color: '#0f172a', fontWeight: 700, textDecoration: 'none', transition: 'background 0.2s', border: '1px solid #e2e8f0' }}>
+              <Link href="/data-sppg" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '1rem', color: '#0f172a', fontWeight: 700, textDecoration: 'none', transition: 'background 0.2s', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '0.875rem' }}>Lihat Data Suplai</span>
                 <ChevronRight size={18} color="#94a3b8" />
               </Link>
@@ -480,8 +482,8 @@ function Public() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li><a href="/" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Beranda Utama</a></li>
                 <li><a href="#transparansi" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Buku Induk Keterbukaan</a></li>
-                <li><Link to="/data-penggilingan" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Data Pre Market</Link></li>
-                <li><Link to="/data-sppg" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Data Post Market</Link></li>
+                <li><Link href="/data-penggilingan" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Data Pre Market</Link></li>
+                <li><Link href="/data-sppg" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Data Post Market</Link></li>
               </ul>
             </div>
 
@@ -491,7 +493,7 @@ function Public() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li><a href="#pengaduan" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Pusat Pengaduan</a></li>
                 <li><a href="#" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', fontSize: '0.875rem' }} className="hover-text-white">Panduan Pengguna</a></li>
-                <li><Link to="/login" style={{ color: '#4c8538', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }} className="hover-text-white">Portal Admin Internal <ArrowRight size={14} /></Link></li>
+                <li><Link href="/login" style={{ color: '#4c8538', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }} className="hover-text-white">Portal Admin Internal <ArrowRight size={14} /></Link></li>
               </ul>
             </div>
 
