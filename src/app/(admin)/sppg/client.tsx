@@ -4,33 +4,19 @@ import React, { useState, useTransition } from 'react';
 import { ShoppingCart, PieChart, FlaskConical, Users, Plus, X, Loader2 } from 'lucide-react';
 import { addBahanPangan, addRapidTest } from '@/app/actions/sppg';
 
-const masterJenisPangan = [
-  "Beras Premium",
-  "Daging Ayam",
-  "Daging Sapi",
-  "Telur Ayam",
-  "Sayur Mayur",
-  "Buah-buahan",
-  "Ikan Nila"
-];
-
-const masterDistributor = [
-  "Penggilingan Rangkasbitung",
-  "Peternakan Cibadak",
-  "Pasar Induk Lebak",
-  "KUD Maja",
-  "Agen Telur Berkah"
-];
-
-const masterParameterUji = [
-  "Pestisida",
-  "Formalin",
-  "Boraks",
-  "Rhodamin B",
-  "E. Coli"
-];
-
-export default function SPPGClient({ bahanPangan, rapidTest }: { bahanPangan: any[], rapidTest: any[] }) {
+export default function SPPGClient({ 
+  bahanPangan, 
+  rapidTest,
+  jenisPanganOptions,
+  distributorOptions,
+  parameterUjiOptions
+}: { 
+  bahanPangan: any[], 
+  rapidTest: any[],
+  jenisPanganOptions: any[],
+  distributorOptions: any[],
+  parameterUjiOptions: any[]
+}) {
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState('pembelian');
 
@@ -239,8 +225,8 @@ export default function SPPGClient({ bahanPangan, rapidTest }: { bahanPangan: an
                       required 
                     >
                       <option value="" disabled>-- Pilih Jenis Pangan --</option>
-                      {masterJenisPangan.map((item, idx) => (
-                        <option key={idx} value={item}>{item}</option>
+                      {jenisPanganOptions.map((item) => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
                       ))}
                     </select>
                   </div>
@@ -275,8 +261,8 @@ export default function SPPGClient({ bahanPangan, rapidTest }: { bahanPangan: an
                       required 
                     >
                       <option value="" disabled>-- Pilih Distributor --</option>
-                      {masterDistributor.map((item, idx) => (
-                        <option key={idx} value={item}>{item}</option>
+                      {distributorOptions.map((item) => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
                       ))}
                     </select>
                   </div>
@@ -312,8 +298,8 @@ export default function SPPGClient({ bahanPangan, rapidTest }: { bahanPangan: an
                       required 
                     >
                       <option value="" disabled>-- Pilih Bahan --</option>
-                      {masterJenisPangan.map((item, idx) => (
-                        <option key={idx} value={item}>{item}</option>
+                      {jenisPanganOptions.map((item) => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
                       ))}
                     </select>
                   </div>
@@ -326,8 +312,8 @@ export default function SPPGClient({ bahanPangan, rapidTest }: { bahanPangan: an
                       required 
                     >
                       <option value="" disabled>-- Pilih Parameter --</option>
-                      {masterParameterUji.map((item, idx) => (
-                        <option key={idx} value={item}>{item}</option>
+                      {parameterUjiOptions.map((item) => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
                       ))}
                     </select>
                   </div>

@@ -4,21 +4,17 @@ import React, { useState, useTransition } from 'react';
 import { Wheat, Plus, Factory, TrendingUp, X, Loader2 } from 'lucide-react';
 import { addGabah, addDistribusi } from '@/app/actions/penggilingan';
 
-const masterSumberGabah = [
-  "Petani Lokal - Desa Rangkasbitung",
-  "KUD Lebak",
-  "Kelompok Tani Makmur",
-  "Koperasi Jaya"
-];
-
-const masterLokusSPPG = [
-  "SPPG Rangkasbitung",
-  "SPPG Cibadak",
-  "SPPG Kalanganyar",
-  "SPPG Maja"
-];
-
-export default function PenggilinganClient({ gabahData, distribusiData }: { gabahData: any[], distribusiData: any[] }) {
+export default function PenggilinganClient({ 
+  gabahData, 
+  distribusiData,
+  sumberGabahOptions,
+  lokusSppgOptions
+}: { 
+  gabahData: any[], 
+  distribusiData: any[],
+  sumberGabahOptions: any[],
+  lokusSppgOptions: any[]
+}) {
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState('gabah');
 
@@ -227,11 +223,11 @@ export default function PenggilinganClient({ gabahData, distribusiData }: { gaba
                 >
                   <option value="" disabled>-- Pilih {activeTab === 'gabah' ? 'Sumber Gabah' : 'SPPG Tujuan'} --</option>
                   {activeTab === 'gabah' 
-                    ? masterSumberGabah.map((item, idx) => (
-                        <option key={idx} value={item}>{item}</option>
+                    ? sumberGabahOptions.map((item) => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
                       ))
-                    : masterLokusSPPG.map((item, idx) => (
-                        <option key={idx} value={item}>{item}</option>
+                    : lokusSppgOptions.map((item) => (
+                        <option key={item.id} value={item.name}>{item.name}</option>
                       ))
                   }
                 </select>
