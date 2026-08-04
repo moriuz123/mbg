@@ -1,6 +1,7 @@
 import AdminSidebar from '@/components/AdminSidebar';
 import Link from 'next/link';
 import { LogOut } from 'lucide-react';
+import { LogoutButtonHeader } from '@/components/LogoutButton';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,9 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--primary-100)', color: 'var(--primary-700)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem' }}>
                 PI
               </div>
-              <Link href="/" title="Keluar Sistem" style={{ color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.375rem', borderRadius: '50%', transition: 'all 0.2s', textDecoration: 'none' }}>
-                <LogOut size={18} />
-              </Link>
+              <LogoutButtonHeader />
             </div>
           </div>
         </header>

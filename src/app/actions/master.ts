@@ -3,33 +3,16 @@
 import { db } from "@/db";
 import { 
   masterDistributor, 
-  masterJenisPangan, 
-  masterParameterUji, 
-  masterSumberGabah, 
-  masterLokusSppg 
+  masterJenisPangan 
 } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 const tableMap = {
-  'sumber-gabah': masterSumberGabah,
-  'lokus-sppg': masterLokusSppg,
   'jenis-pangan': masterJenisPangan,
   'distributor': masterDistributor,
-  'parameter-uji': masterParameterUji,
 };
 
-export async function getMasterData(tabId: string) {
-  const table = tableMap[tabId as keyof typeof tableMap];
-  if (!table) return [];
-
-  return await db.query[tableMap[tabId as keyof typeof tableMap]._schema.table].findMany({
-    orderBy: [desc(table.createdAt)]
-  });
-}
-
-// Since dynamic query properties might not be strongly typed in this version of drizzle-orm, 
-// a safer approach is to query explicitly using select():
 export async function getMasterDataSafe(tabId: keyof typeof tableMap) {
   const table = tableMap[tabId];
   if (!table) return [];

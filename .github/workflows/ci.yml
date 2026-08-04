@@ -1,0 +1,59 @@
+name: MBG Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  test-and-build:
+    name: Typecheck, Lint, and Build
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mbg_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Type Checking
+        run: npx tsc --noEmit
+
+      - name: Build Next.js App
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mbg_test
+          BETTER_AUTH_SECRET: github_actions_secret_key_123
+          REDIS_URL: redis://localhost:6379
+        run: npm run build
+
+      # Uncomment di bawah ini jika E2E Testing menggunakan Playwright sudah dibuat
+      # - name: Run E2E Tests
+      #   run: npx playwright test

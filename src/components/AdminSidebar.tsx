@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, Wheat, MapPin, ShoppingCart, Truck, FlaskConical } from 'lucide-react';
+import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { LogoutButtonSidebar } from './LogoutButton';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -26,11 +27,23 @@ export default function AdminSidebar() {
         <Link href="/admin" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname === '/admin' ? 600 : 500, backgroundColor: pathname === '/admin' ? 'var(--primary-50)' : 'transparent', color: pathname === '/admin' ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
           <Home size={20} /> Dasbor Utama
         </Link>
-        <Link href="/penggilingan" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname === '/penggilingan' ? 600 : 500, backgroundColor: pathname === '/penggilingan' ? 'var(--primary-50)' : 'transparent', color: pathname === '/penggilingan' ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
-          <Factory size={20} /> Penggilingan (Pre)
+        <Link href="/admin/sppg" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname.includes('/admin/sppg') ? 600 : 500, backgroundColor: pathname.includes('/admin/sppg') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('/admin/sppg') ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <LayoutDashboard size={20} /> Data SPPG
         </Link>
-        <Link href="/sppg" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname === '/sppg' ? 600 : 500, backgroundColor: pathname === '/sppg' ? 'var(--primary-50)' : 'transparent', color: pathname === '/sppg' ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
-          <LayoutDashboard size={20} /> SPPG (Post)
+        <Link href="/admin/sekolah" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname.includes('/admin/sekolah') ? 600 : 500, backgroundColor: pathname.includes('/admin/sekolah') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('/admin/sekolah') ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <GraduationCap size={20} /> Data Sekolah
+        </Link>
+        <Link href="/admin/penggilingan" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname.includes('/admin/penggilingan') ? 600 : 500, backgroundColor: pathname.includes('/admin/penggilingan') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('/admin/penggilingan') ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <Factory size={20} /> Penggilingan Gabah
+        </Link>
+        <Link href="/admin/supply-chain" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname.includes('/admin/supply-chain') ? 600 : 500, backgroundColor: pathname.includes('/admin/supply-chain') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('/admin/supply-chain') ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <Package size={20} /> Rantai Pasok
+        </Link>
+        <Link href="/admin/manajemen-menu" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname.includes('/admin/manajemen-menu') ? 600 : 500, backgroundColor: pathname.includes('/admin/manajemen-menu') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('/admin/manajemen-menu') ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <LayoutDashboard size={20} /> Manajemen Menu
+        </Link>
+        <Link href="/admin/rapid-test" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontWeight: pathname.includes('/admin/rapid-test') ? 600 : 500, backgroundColor: pathname.includes('/admin/rapid-test') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('/admin/rapid-test') ? 'var(--primary-700)' : '#475569', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <Activity size={20} /> Uji Rapid Test
         </Link>
         
         <button 
@@ -51,28 +64,20 @@ export default function AdminSidebar() {
           paddingLeft: '1.5rem', 
           marginTop: '0.25rem' 
         }}>
-          <Link href="/master-data/sumber-gabah" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('sumber-gabah') ? 600 : 500, backgroundColor: pathname.includes('sumber-gabah') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('sumber-gabah') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
-            <Wheat size={20} /> Sumber Gabah
-          </Link>
-          <Link href="/master-data/lokus-sppg" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('lokus-sppg') ? 600 : 500, backgroundColor: pathname.includes('lokus-sppg') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('lokus-sppg') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
-            <MapPin size={20} /> Lokus SPPG
-          </Link>
-          <Link href="/master-data/jenis-pangan" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('jenis-pangan') ? 600 : 500, backgroundColor: pathname.includes('jenis-pangan') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('jenis-pangan') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <Link href="/admin/master-data/jenis-pangan" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('jenis-pangan') ? 600 : 500, backgroundColor: pathname.includes('jenis-pangan') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('jenis-pangan') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
             <ShoppingCart size={20} /> Jenis Pangan
           </Link>
-          <Link href="/master-data/distributor" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('distributor') ? 600 : 500, backgroundColor: pathname.includes('distributor') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('distributor') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
+          <Link href="/admin/master-data/distributor" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('distributor') ? 600 : 500, backgroundColor: pathname.includes('distributor') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('distributor') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
             <Truck size={20} /> Distributor
           </Link>
-          <Link href="/master-data/parameter-uji" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('parameter-uji') ? 600 : 500, backgroundColor: pathname.includes('parameter-uji') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('parameter-uji') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
-            <FlaskConical size={20} /> Parameter Uji
+          <Link href="/admin/master-data/pemasok" className={`flex items-center gap-3`} style={{ padding: '0.875rem 1rem', borderRadius: '0.5rem', fontSize: '1rem', fontWeight: pathname.includes('pemasok') ? 600 : 500, backgroundColor: pathname.includes('pemasok') ? 'var(--primary-50)' : 'transparent', color: pathname.includes('pemasok') ? 'var(--primary-700)' : '#64748b', transition: 'all 0.2s', textDecoration: 'none' }}>
+            <Truck size={20} /> Pemasok
           </Link>
         </div>
       </div>
 
       <div style={{ marginTop: 'auto', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', borderRadius: '0.5rem', color: '#ef4444', backgroundColor: '#fef2f2', fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s' }}>
-          <LogOut size={18} /> Keluar Sistem
-        </Link>
+        <LogoutButtonSidebar />
       </div>
     </aside>
   );
