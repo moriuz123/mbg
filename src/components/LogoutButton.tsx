@@ -21,7 +21,7 @@ export function LogoutButtonSidebar() {
   return (
     <button 
       onClick={handleLogout} 
-      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', borderRadius: '0.5rem', color: '#ef4444', backgroundColor: '#fef2f2', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+      className="flex items-center justify-center gap-2 w-full p-3 rounded-xl text-red-600 bg-red-50 font-semibold hover:bg-red-100 transition-colors shadow-sm"
     >
       <LogOut size={18} /> Keluar Sistem
     </button>
@@ -45,7 +45,7 @@ export function LogoutButtonHeader() {
     <button 
       onClick={handleLogout}
       title="Keluar Sistem" 
-      style={{ color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.375rem', borderRadius: '50%', transition: 'all 0.2s', border: 'none', background: 'transparent', cursor: 'pointer' }}
+      className="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
     >
       <LogOut size={18} />
     </button>

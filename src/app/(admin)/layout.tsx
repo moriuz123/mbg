@@ -1,31 +1,61 @@
 import AdminSidebar from '@/components/AdminSidebar';
 import Link from 'next/link';
-import { LogOut } from 'lucide-react';
+import { LogOut, Bell, Search } from 'lucide-react';
 import { LogoutButtonHeader } from '@/components/LogoutButton';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const userRole = session?.user?.role || 'publik';
+
   return (
-    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
-      <AdminSidebar />
-      <main className="admin-main" style={{ flex: 1, marginLeft: '280px', padding: '2rem 3rem', display: 'flex', flexDirection: 'column', maxWidth: '1400px' }}>
-        <header className="admin-header flex justify-between items-center mb-8 pb-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
-          <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>Portal Pengawasan</h2>
-            <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0, marginTop: '0.25rem' }}>Selamat datang kembali, Petugas Inspeksi.</p>
+    <div className="flex min-h-screen bg-slate-50 font-sans selection:bg-primary-100 selection:text-primary-900">
+      <AdminSidebar userRole={userRole} />
+      <main className="flex-1 lg:ml-[280px] flex flex-col min-w-0 transition-all duration-300">
+        
+        {/* Top Header - Enterprise Style */}
+        <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-100/80 rounded-full w-full max-w-md border border-slate-200/50 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
+              <Search size={18} className="text-slate-400" />
+              <input type="text" placeholder="Cari data, menu, atau laporan..." className="bg-transparent border-none outline-none w-full text-sm text-slate-700 placeholder:text-slate-400" />
+            </div>
           </div>
-          <div className="flex gap-4 items-center">
-            <span className="hide-on-mobile" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.75rem', backgroundColor: '#dcfce7', color: '#166534', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600 }}>
-              <span style={{ width: '6px', height: '6px', backgroundColor: '#16a34a', borderRadius: '50%' }}></span> Sesi Aktif
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0.5rem 0.25rem 0.25rem', backgroundColor: '#f8fafc', borderRadius: '9999px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--primary-100)', color: 'var(--primary-700)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem' }}>
-                PI
+
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-100">
+                <Bell size={20} />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+              </button>
+            </div>
+            
+            <div className="h-8 w-px bg-slate-200"></div>
+            
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col items-end hidden md:flex">
+                <span className="text-sm font-bold text-slate-700 leading-tight">Petugas Inspeksi</span>
+                <span className="text-xs font-medium text-emerald-600 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Sesi Aktif
+                </span>
               </div>
-              <LogoutButtonHeader />
+              <div className="flex items-center gap-2 p-1 pr-3 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full border border-slate-200 cursor-pointer">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary-600 to-primary-400 text-white flex items-center justify-center font-bold text-sm shadow-inner">
+                  PI
+                </div>
+                <LogoutButtonHeader />
+              </div>
             </div>
           </div>
         </header>
-        <div style={{ flex: 1 }}>{children}</div>
+
+        {/* Page Content */}
+        <div className="flex-1 p-8 max-w-7xl mx-auto w-full">
+          {children}
+        </div>
       </main>
     </div>
   );

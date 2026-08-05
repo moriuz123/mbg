@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, X, GraduationCap, MapPin, Users, Trash2 } from 'lucide-react';
+import { Plus, X, GraduationCap, MapPin, Users, Trash2, Edit2 } from 'lucide-react';
 import { createSekolah, deleteSekolah } from './actions';
-import { v4 as uuidv4 } from 'uuid';
 
-export default function SekolahClientUI({ initialData }: { initialData: any[] }) {
+export default function SekolahClientUI({ initialData, categories }: { initialData: any[], categories: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -15,11 +14,15 @@ export default function SekolahClientUI({ initialData }: { initialData: any[] })
     
     const formData = new FormData(e.currentTarget);
     const data = {
-      id: uuidv4(),
       namaSekolah: formData.get('namaSekolah') as string,
-      jenjang: formData.get('jenjang') as string,
-      alamat: formData.get('alamat') as string,
-      jumlahSiswa: formData.get('jumlahSiswa') as string,
+      npsn: formData.get('npsn') as string,
+      kategoriId: parseInt(formData.get('kategoriId') as string),
+      alamatSekolah: formData.get('alamatSekolah') as string,
+      namaKepalaSekolah: formData.get('namaKepalaSekolah') as string,
+      noHpKepalaSekolah: formData.get('noHpKepalaSekolah') as string,
+      jumlahSiswaLaki: parseInt(formData.get('jumlahSiswaLaki') as string) || 0,
+      jumlahSiswaPerempuan: parseInt(formData.get('jumlahSiswaPerempuan') as string) || 0,
+      tahunAjaranLast: formData.get('tahunAjaranLast') as string,
     };
 
     const res = await createSekolah(data);
@@ -32,7 +35,7 @@ export default function SekolahClientUI({ initialData }: { initialData: any[] })
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete(id: number) {
     if (confirm('Yakin ingin menghapus data sekolah ini?')) {
       await deleteSekolah(id);
     }
@@ -40,118 +43,157 @@ export default function SekolahClientUI({ initialData }: { initialData: any[] })
 
   return (
     <>
-      <button 
-        onClick={() => setIsOpen(true)}
-        style={{ 
-          backgroundColor: '#306d29', color: '#ffffff', border: 'none', borderRadius: '0.5rem', 
-          padding: '0.75rem 1.25rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem',
-          cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(48,109,41,0.2)'
-        }}
-      >
-        <Plus size={20} /> Tambah Sekolah
-      </button>
+      <div className="flex justify-end mb-4">
+        <button 
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl font-semibold shadow-md shadow-primary-600/20 hover:bg-primary-700 transition-all hover:-translate-y-0.5"
+        >
+          <Plus size={20} /> Tambah Sekolah
+        </button>
+      </div>
 
       {/* MODAL FORM */}
       {isOpen && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: '1rem', width: '100%', maxWidth: '500px', padding: '2rem', position: 'relative' }}>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-2xl p-8 relative shadow-2xl my-8">
             <button 
               onClick={() => setIsOpen(false)}
-              style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
             >
               <X size={24} />
             </button>
-            <h2 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 700 }}>Tambah Data Sekolah</h2>
+            <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">Tambah Data Sekolah</h2>
             
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Nama Sekolah</label>
-                <input required name="namaSekolah" type="text" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }} placeholder="Contoh: SDN 1 Rangkasbitung" />
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Nama Sekolah *</label>
+                  <input required name="namaSekolah" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="Contoh: SDN 1 Rangkasbitung" />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">NPSN</label>
+                  <input name="npsn" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="Nomor Pokok Sekolah Nasional" />
+                </div>
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Jenjang Pendidikan</label>
-                <select required name="jenjang" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', backgroundColor: '#fff' }}>
-                  <option value="">Pilih Jenjang...</option>
-                  <option value="PAUD/TK">PAUD / TK</option>
-                  <option value="SD/MI">SD / MI</option>
-                  <option value="SMP/MTS">SMP / MTs</option>
-                  <option value="SMA/SMK">SMA / SMK / MA</option>
-                  <option value="Pondok Pesantren">Pondok Pesantren</option>
-                </select>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Kategori / Jenjang *</label>
+                  <select required name="kategoriId" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all">
+                    <option value="">Pilih Kategori...</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.namaKategori}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Tahun Ajaran</label>
+                  <input name="tahunAjaranLast" type="text" defaultValue="2025/2026" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="2025/2026" />
+                </div>
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Jumlah Siswa</label>
-                <input required name="jumlahSiswa" type="number" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }} placeholder="Contoh: 250" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Jumlah Siswa Laki-Laki *</label>
+                  <input required name="jumlahSiswaLaki" type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="0" />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Jumlah Siswa Perempuan *</label>
+                  <input required name="jumlahSiswaPerempuan" type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="0" />
+                </div>
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Nama Kepala Sekolah</label>
+                  <input name="namaKepalaSekolah" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="Nama Lengkap" />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">No. HP Kepala Sekolah</label>
+                  <input name="noHpKepalaSekolah" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="08..." />
+                </div>
+              </div>
+
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Alamat Lengkap</label>
-                <textarea required name="alamat" rows={3} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }} placeholder="Alamat lengkap sekolah..."></textarea>
+                <label className="block mb-2 text-sm font-semibold text-slate-700">Alamat Lengkap Sekolah</label>
+                <textarea name="alamatSekolah" rows={3} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="Alamat lengkap sekolah..."></textarea>
               </div>
               
               <button 
                 type="submit" 
                 disabled={isSubmitting}
-                style={{ 
-                  marginTop: '1rem', width: '100%', padding: '0.875rem', backgroundColor: '#306d29', 
-                  color: '#fff', border: 'none', borderRadius: '0.5rem', fontWeight: 600, cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  opacity: isSubmitting ? 0.7 : 1
-                }}
+                className={`mt-4 w-full p-4 bg-primary-600 text-white rounded-xl font-bold transition-all shadow-md shadow-primary-600/20 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary-700 hover:-translate-y-0.5'}`}
               >
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Data Sekolah'}
+                {isSubmitting ? 'Menyimpan Data...' : 'Simpan Data Sekolah'}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* WE RENDER THE TABLE HERE TO ALLOW DELETE ACTIONS EASILY */}
-      <div style={{ marginTop: '2rem', backgroundColor: '#ffffff', borderRadius: '1rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      {/* RENDER TABLE */}
+      <div className="mt-4 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left">
             <thead>
-              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nama Sekolah & Jenjang</th>
-                <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Alamat Lengkap</th>
-                <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Jumlah Siswa</th>
-                <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Aksi</th>
+              <tr className="bg-slate-50/80 border-b border-slate-200">
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sekolah & Jenjang</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kepala Sekolah</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Siswa (L/P)</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Total</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody style={{ fontSize: '0.875rem' }}>
+            <tbody className="text-sm">
               {initialData.length === 0 ? (
                 <tr>
-                  <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
-                    Belum ada data sekolah yang tersimpan.
+                  <td colSpan={5} className="p-12 text-center text-slate-500">
+                    <GraduationCap size={48} className="mx-auto mb-4 text-slate-300" />
+                    <p className="font-medium text-lg">Belum ada data sekolah</p>
+                    <p className="text-sm text-slate-400 mt-1">Silakan tambahkan data master sekolah baru.</p>
                   </td>
                 </tr>
               ) : (
                 initialData.map((sekolah) => (
-                  <tr key={sekolah.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }} className="hover:bg-slate-50">
-                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                      <div style={{ fontWeight: 600, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <GraduationCap size={16} color="#306d29" /> {sekolah.namaSekolah}
+                  <tr key={sekolah.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50/80">
+                    <td className="px-6 py-5">
+                      <div className="font-bold text-slate-900 text-base flex items-center gap-2">
+                        {sekolah.namaSekolah}
                       </div>
-                      <div style={{ display: 'inline-flex', marginTop: '0.5rem', alignItems: 'center', padding: '0.15rem 0.5rem', backgroundColor: '#e0e7ff', color: '#4338ca', borderRadius: '0.25rem', fontSize: '0.7rem', fontWeight: 600 }}>
-                        {sekolah.jenjang}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1.25rem 1.5rem', color: '#475569' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.25rem' }}>
-                        <MapPin size={14} style={{ marginTop: '0.1rem', flexShrink: 0 }} /> {sekolah.alamat}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1.25rem 1.5rem', color: '#0f172a', fontWeight: 700 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Users size={14} color="#64748b" /> {sekolah.jumlahSiswa}
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="inline-flex items-center px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-xs font-bold border border-indigo-100">
+                          {sekolah.kategori}
+                        </span>
+                        {sekolah.npsn && (
+                          <span className="text-xs font-medium text-slate-400">NPSN: {sekolah.npsn}</span>
+                        )}
                       </div>
                     </td>
-                    <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
-                      <button 
-                        onClick={() => handleDelete(sekolah.id)}
-                        style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}
-                        className="hover:bg-red-50"
-                      >
-                        <Trash2 size={16} /> Hapus
-                      </button>
+                    <td className="px-6 py-5">
+                      <div className="text-slate-800 font-medium">{sekolah.namaKepalaSekolah || '-'}</div>
+                      <div className="text-xs text-slate-500 mt-1">{sekolah.noHpKepalaSekolah || '-'}</div>
+                    </td>
+                    <td className="px-6 py-5 text-slate-600">
+                      <div className="flex items-center gap-3">
+                        <span className="text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-md text-xs">L: {sekolah.jumlahSiswaLaki}</span>
+                        <span className="text-pink-600 font-medium bg-pink-50 px-2 py-0.5 rounded-md text-xs">P: {sekolah.jumlahSiswaPerempuan}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-1.5 font-bold text-slate-800 bg-slate-100 w-fit px-3 py-1 rounded-lg">
+                        <Users size={14} className="text-slate-500" /> {sekolah.jumlahSiswaTotal}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => handleDelete(sekolah.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                          title="Hapus Sekolah"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

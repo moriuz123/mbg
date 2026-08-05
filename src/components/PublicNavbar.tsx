@@ -49,6 +49,7 @@ export default function PublicNavbar() {
         
         <nav className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <Link href="/" style={{ color: '#225e1e', fontWeight: 600, fontSize: '0.875rem' }}>Beranda</Link>
+          <Link href="/sekolah" style={{ color: '#475569', fontWeight: 500, fontSize: '0.875rem' }} className="hover-text-primary">Sekolah</Link>
           <Link href="/sppg" style={{ color: '#475569', fontWeight: 500, fontSize: '0.875rem' }} className="hover-text-primary">SPPG</Link>
           <Link href="/rantai-pasok" style={{ color: '#475569', fontWeight: 500, fontSize: '0.875rem' }} className="hover-text-primary">Rantai Pasok</Link>
           <Link href="/tentang" style={{ color: '#475569', fontWeight: 500, fontSize: '0.875rem' }} className="hover-text-primary">Tentang</Link>
@@ -68,6 +69,7 @@ export default function PublicNavbar() {
           <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', backgroundColor: '#ffffff', padding: '1rem', borderRadius: '1rem', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', marginTop: '0.5rem', pointerEvents: 'auto' }}>
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <Link href="/" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#0f172a', fontWeight: 600, textDecoration: 'none' }}>Beranda</Link>
+              <Link href="/sekolah" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#475569', fontWeight: 500, textDecoration: 'none' }}>Sekolah</Link>
               <Link href="/sppg" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#475569', fontWeight: 500, textDecoration: 'none' }}>Data SPPG</Link>
               <Link href="/rantai-pasok" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#475569', fontWeight: 500, textDecoration: 'none' }}>Rantai Pasok</Link>
               <Link href="/tentang" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#475569', fontWeight: 500, textDecoration: 'none' }}>Tentang</Link>

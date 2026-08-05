@@ -9,13 +9,13 @@ export default async function ManajemenMenuPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Manajemen Menu Sistem</h1>
           <p className="text-slate-500 text-sm">Kelola menu navigasi, modul, dan hak akses otorisasi untuk pengguna sistem.</p>
         </div>
+        </div>
         <MenuClientUI initialData={menuList} />
-      </div>
     </div>
   );
 }

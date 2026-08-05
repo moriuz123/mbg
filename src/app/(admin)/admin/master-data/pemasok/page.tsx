@@ -1,21 +1,19 @@
-import { getMasterPemasok } from "@/app/actions/masterData";
-import React from 'react';
-import PemasokClientUI from './PemasokClientUI';
-
-export const dynamic = 'force-dynamic';
+import { getPemasok } from "@/app/actions/masterData";
+import PemasokClientUI from "./PemasokClientUI";
 
 export default async function PemasokPage() {
-  const pemasokList = await getMasterPemasok();
+  const data = await getPemasok();
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <main className="max-w-6xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Master Pemasok</h1>
-          <p className="text-slate-500 text-sm">Manajemen Data Pemasok Bahan Pangan SPPG</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Master Pemasok</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Kelola data vendor, suplier, atau penyedia bahan baku.</p>
         </div>
-        <PemasokClientUI initialData={pemasokList} />
       </div>
-    </div>
+
+      <PemasokClientUI initialData={data} />
+    </main>
   );
 }

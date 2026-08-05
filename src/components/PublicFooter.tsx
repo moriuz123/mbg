@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 
 export default function PublicFooter() {
   const pathname = usePathname();
-  if (pathname === '/login' || pathname.startsWith('/admin')) return null;
+  if (pathname === '/login' || pathname?.startsWith('/admin')) return null;
 
   return (
     <footer id="kontak" style={{ backgroundColor: '#f8fafc', padding: '4rem 1rem 2rem 1rem', borderTop: '1px solid #e2e8f0', marginTop: 'auto' }}>

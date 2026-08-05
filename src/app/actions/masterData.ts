@@ -1,45 +1,68 @@
 'use server';
 
 import { db } from "@/db";
-import { masterPemasok } from "@/db/schema";
+import { pemasok, jenisPangan } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getMasterPemasok() {
-  return await db.query.masterPemasok.findMany({
-    orderBy: [desc(masterPemasok.createdAt)],
+// ==== PEMASOK ====
+export async function getPemasok() {
+  return await db.query.pemasok.findMany({
+    orderBy: [desc(pemasok.id)],
   });
 }
 
-export async function createMasterPemasok(data: {
+export async function createPemasok(data: {
   namaPemasok: string;
-  kategori: string;
-  alamat: string;
-  kontak: string;
-  status: string;
+  alamatPemasok?: string;
+  kontak?: string;
 }) {
   try {
-    await db.insert(masterPemasok).values({
-      id: crypto.randomUUID(),
-      namaPemasok: data.namaPemasok,
-      kategori: data.kategori,
-      alamat: data.alamat,
-      kontak: data.kontak,
-      status: data.status,
-    });
+    await db.insert(pemasok).values(data);
     revalidatePath('/admin/master-data/pemasok');
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Gagal menambah master pemasok' };
+    return { success: false, error: 'Gagal menambah pemasok' };
   }
 }
 
-export async function deleteMasterPemasok(id: string) {
+export async function deletePemasok(id: number) {
   try {
-    await db.delete(masterPemasok).where(eq(masterPemasok.id, id));
+    await db.delete(pemasok).where(eq(pemasok.id, id));
     revalidatePath('/admin/master-data/pemasok');
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Gagal menghapus master pemasok' };
+    return { success: false, error: 'Gagal menghapus pemasok' };
+  }
+}
+
+// ==== JENIS PANGAN ====
+export async function getJenisPangan() {
+  return await db.query.jenisPangan.findMany({
+    orderBy: [desc(jenisPangan.id)],
+  });
+}
+
+export async function createJenisPangan(data: {
+  namaBahan: string;
+  kategori?: string;
+  satuanDefault?: string;
+}) {
+  try {
+    await db.insert(jenisPangan).values(data);
+    revalidatePath('/admin/master-data/jenis-pangan');
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'Gagal menambah jenis pangan' };
+  }
+}
+
+export async function deleteJenisPangan(id: number) {
+  try {
+    await db.delete(jenisPangan).where(eq(jenisPangan.id, id));
+    revalidatePath('/admin/master-data/jenis-pangan');
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'Gagal menghapus jenis pangan' };
   }
 }

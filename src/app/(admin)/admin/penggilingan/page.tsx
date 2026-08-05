@@ -1,21 +1,21 @@
 import { getPenggilingan } from "@/app/actions/penggilingan";
-import React from 'react';
-import PenggilinganClientUI from './PenggilinganClientUI';
-
-export const dynamic = 'force-dynamic';
+import { getKecamatan } from "@/app/actions/wilayah";
+import PenggilinganClientUI from "./PenggilinganClientUI";
 
 export default async function PenggilinganPage() {
-  const penggilinganList = await getPenggilingan();
+  const initialData = await getPenggilingan();
+  const kecamatanList = await getKecamatan();
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <main className="max-w-6xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Penggilingan Gabah</h1>
-          <p className="text-slate-500 text-sm">Manajemen Mitra Penggilingan Gabah Daerah</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Penggilingan Gabah</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Manajemen data mitra penggilingan gabah di Kabupaten Lebak.</p>
         </div>
-        <PenggilinganClientUI initialData={penggilinganList} />
       </div>
-    </div>
+
+      <PenggilinganClientUI initialData={initialData} kecamatanList={kecamatanList} />
+    </main>
   );
 }

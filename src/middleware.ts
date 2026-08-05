@@ -30,18 +30,25 @@ export async function middleware(request: NextRequest) {
       // ROLE-BASED ACCESS CONTROL (RBAC) RULES
       // ==========================================
       
-      // 1. Data SPPG: Hanya untuk Super Admin & SPPG
-      if (path.startsWith('/admin/sppg') && !['super_admin', 'sppg'].includes(userRole)) {
+      const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
+
+      // 1. Data SPPG: Hanya untuk Admin & SPPG
+      if (path.startsWith('/admin/sppg') && !isAdmin && userRole !== 'sppg') {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
       
-      // 2. Penggilingan Gabah: Hanya untuk Super Admin & Penggilingan
-      if (path.startsWith('/admin/penggilingan') && !['super_admin', 'penggilingan_gabah'].includes(userRole)) {
+      // 2. Penggilingan Gabah: Hanya untuk Admin & Operator Penggilingan
+      if (path.startsWith('/admin/penggilingan') && !isAdmin && userRole !== 'operator_penggilingan') {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
       
-      // 3. Manajemen Menu Sistem: Hanya untuk Super Admin
-      if (path.startsWith('/admin/manajemen-menu') && userRole !== 'super_admin') {
+      // Laporan Aktifitas: Hanya untuk Admin & SPPG
+      if (path.startsWith('/admin/laporan-aktifitas') && !isAdmin && userRole !== 'sppg') {
+        return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
+      }
+      
+      // 3. Manajemen Menu Sistem: Hanya untuk Admin
+      if (path.startsWith('/admin/master-data') && !isAdmin) {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
 

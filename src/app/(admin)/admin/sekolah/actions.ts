@@ -1,19 +1,32 @@
 'use server';
 
 import { db } from "@/db";
-import { masterSekolah } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { sekolah } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
+export async function getSekolah() {
+  return await db.query.sekolah.findMany({
+    orderBy: [desc(sekolah.createdAt)],
+  });
+}
+
 export async function createSekolah(data: {
-  id: string;
   namaSekolah: string;
-  jenjang: string;
-  alamat: string;
-  jumlahSiswa: string;
+  npsn?: string;
+  kategoriId: number;
+  alamatSekolah?: string;
+  namaKepalaSekolah?: string;
+  noHpKepalaSekolah?: string;
+  jumlahSiswaLaki: number;
+  jumlahSiswaPerempuan: number;
+  tahunAjaranLast?: string;
 }) {
   try {
-    await db.insert(masterSekolah).values(data);
+    await db.insert(sekolah).values({
+      ...data,
+      jumlahSiswaTotal: data.jumlahSiswaLaki + data.jumlahSiswaPerempuan
+    });
     revalidatePath('/admin/sekolah');
     return { success: true };
   } catch (error) {
@@ -22,9 +35,33 @@ export async function createSekolah(data: {
   }
 }
 
-export async function deleteSekolah(id: string) {
+export async function updateSekolah(id: number, data: {
+  namaSekolah: string;
+  npsn?: string;
+  kategoriId: number;
+  alamatSekolah?: string;
+  namaKepalaSekolah?: string;
+  noHpKepalaSekolah?: string;
+  jumlahSiswaLaki: number;
+  jumlahSiswaPerempuan: number;
+  tahunAjaranLast?: string;
+}) {
   try {
-    await db.delete(masterSekolah).where(eq(masterSekolah.id, id));
+    await db.update(sekolah).set({
+      ...data,
+      jumlahSiswaTotal: data.jumlahSiswaLaki + data.jumlahSiswaPerempuan
+    }).where(eq(sekolah.id, id));
+    revalidatePath('/admin/sekolah');
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating sekolah:", error);
+    return { success: false, error: "Gagal mengupdate data sekolah" };
+  }
+}
+
+export async function deleteSekolah(id: number) {
+  try {
+    await db.delete(sekolah).where(eq(sekolah.id, id));
     revalidatePath('/admin/sekolah');
     return { success: true };
   } catch (error) {

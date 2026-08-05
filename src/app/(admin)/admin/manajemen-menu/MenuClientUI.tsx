@@ -38,43 +38,45 @@ export default function MenuClientUI({ initialData }: { initialData: any[] }) {
 
   return (
     <>
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium shadow-sm"
-        style={{ backgroundColor: '#2563eb' }}
-      >
-        <Plus size={20} /> Tambah Menu / Modul
-      </button>
+      <div className="flex justify-end mb-4">
+  <button 
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium shadow-sm"
+          
+        >
+          <Plus size={20} /> Tambah Menu / Modul
+        </button>
+</div>
 
       {/* MODAL FORM */}
       {isOpen && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: '1rem', width: '100%', maxWidth: '500px', padding: '2rem', position: 'relative' }}>
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center">
+          <div className="bg-white rounded-2xl w-full max-w-lg p-8 relative">
             <button 
               onClick={() => setIsOpen(false)}
-              style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+              className="absolute top-6 right-6 text-slate-500 hover:text-slate-700"
             >
               <X size={24} />
             </button>
-            <h2 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 700 }}>Tambah Manajemen Menu</h2>
+            <h2 className="mt-0 mb-6 text-xl font-bold">Tambah Manajemen Menu</h2>
             
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Nama Modul / Menu</label>
-                <input required name="namaModul" type="text" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }} placeholder="Contoh: Data Kepegawaian" />
+                <label className="block mb-2 text-sm font-semibold">Nama Modul / Menu</label>
+                <input required name="namaModul" type="text" className="w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Data Kepegawaian" />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>URL Target</label>
-                <input required name="url" type="text" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }} placeholder="Contoh: /admin/kepegawaian" />
+                <label className="block mb-2 text-sm font-semibold">URL Target</label>
+                <input required name="url" type="text" className="w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: /admin/kepegawaian" />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Hak Akses (Role)</label>
-                <input required name="hakAkses" type="text" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }} placeholder="Contoh: super_admin,sppg" />
+                <label className="block mb-2 text-sm font-semibold">Hak Akses (Role)</label>
+                <input required name="hakAkses" type="text" className="w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: super_admin,sppg" />
                 <small className="text-slate-500 mt-1 block">Pisahkan dengan koma. Opsi: super_admin, sppg, penggilingan_gabah</small>
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Status</label>
-                <select required name="status" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', backgroundColor: '#fff' }}>
+                <label className="block mb-2 text-sm font-semibold">Status</label>
+                <select required name="status" className="w-full p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="Aktif">Aktif</option>
                   <option value="Nonaktif">Nonaktif</option>
                 </select>
@@ -83,11 +85,7 @@ export default function MenuClientUI({ initialData }: { initialData: any[] }) {
               <button 
                 type="submit" 
                 disabled={isSubmitting}
-                style={{ 
-                  marginTop: '1rem', width: '100%', padding: '0.875rem', backgroundColor: '#2563eb', 
-                  color: '#fff', border: 'none', borderRadius: '0.5rem', fontWeight: 600, cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  opacity: isSubmitting ? 0.7 : 1
-                }}
+                className={`mt-4 w-full p-3.5 bg-blue-600 text-white rounded-lg font-semibold transition-colors ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}`}
               >
                 {isSubmitting ? 'Menyimpan...' : 'Simpan Menu'}
               </button>

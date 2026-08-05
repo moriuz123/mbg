@@ -1,21 +1,19 @@
-import { getMasterDataSafe } from "@/app/actions/master";
-import React from 'react';
-import JenisPanganClientUI from './JenisPanganClientUI';
+import { getJenisPangan } from "@/app/actions/masterData";
+import JenisPanganClientUI from "./JenisPanganClientUI";
 
-export const dynamic = 'force-dynamic';
-
-export default async function MasterDataJenisPanganPage() {
-  const data = await getMasterDataSafe('jenis-pangan');
+export default async function JenisPanganPage() {
+  const data = await getJenisPangan();
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <main className="max-w-6xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Master Data - Jenis Pangan</h1>
-          <p className="text-slate-500 text-sm">Kelola referensi komoditas pangan untuk sistem rantai pasok</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Master Jenis Pangan</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Kelola data bahan baku untuk rantai pasok dapur SPPG.</p>
         </div>
-        <JenisPanganClientUI initialData={data} />
       </div>
-    </div>
+
+      <JenisPanganClientUI initialData={data} />
+    </main>
   );
 }

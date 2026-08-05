@@ -10,13 +10,13 @@ export default async function SPPGPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Data SPPG</h1>
           <p className="text-slate-500 text-sm">Manajemen Satuan Pelayanan Pemenuhan Gizi</p>
         </div>
+        </div>
         <SppgClientUI initialData={sppgList} />
-      </div>
     </div>
   );
 }

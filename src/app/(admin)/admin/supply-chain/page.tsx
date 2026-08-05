@@ -1,24 +1,29 @@
-import { getSupplyChain, getSppg } from "@/app/actions/sppg";
-import { getMasterPemasok } from "@/app/actions/masterData";
-import React from 'react';
-import SupplyChainClientUI from './SupplyChainClientUI';
-
-export const dynamic = 'force-dynamic';
+import { getSupplyChain } from "@/app/actions/supplyChain";
+import { getSppg } from "@/app/actions/sppg";
+import { getJenisPangan, getPemasok } from "@/app/actions/masterData";
+import SupplyChainClientUI from "./SupplyChainClientUI";
 
 export default async function SupplyChainPage() {
   const supplyChainList = await getSupplyChain();
   const sppgList = await getSppg();
-  const pemasokList = await getMasterPemasok();
+  const jenisPanganList = await getJenisPangan();
+  const pemasokList = await getPemasok();
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <main className="max-w-6xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Rantai Pasok</h1>
-          <p className="text-slate-500 text-sm">Manajemen Kebutuhan Bahan Baku Pangan Segar SPPG</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Rantai Pasok</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Manajemen rantai pasok dan kebutuhan bahan baku dapur SPPG.</p>
         </div>
-        <SupplyChainClientUI initialData={supplyChainList} sppgList={sppgList} pemasokList={pemasokList} />
       </div>
-    </div>
+
+      <SupplyChainClientUI 
+        initialData={supplyChainList} 
+        sppgList={sppgList}
+        jenisPanganList={jenisPanganList}
+        pemasokList={pemasokList}
+      />
+    </main>
   );
 }

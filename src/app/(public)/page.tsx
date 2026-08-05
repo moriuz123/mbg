@@ -1,15 +1,20 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   ArrowRight, Utensils, ShieldCheck, MapPin, CheckCircle2, 
   ChevronRight, Phone, Mail, Clock, Activity, Users, Home as HomeIcon, 
   Search, Facebook, Twitter, Instagram, Youtube, MessageSquare, Truck, Package 
 } from 'lucide-react';
 import Link from 'next/link';
+import { getPublicStats } from '@/app/actions/publicStats';
 
-function Public() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+async function Public() {
+  const stats = await getPublicStats();
+  
+  // Helper to format number
+  const formatNumber = (num: number) => {
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -71,7 +76,7 @@ function Public() {
                 <div style={{ width: '48px', height: '48px', backgroundColor: '#f0fdf4', color: '#16a34a', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
                   <Users size={24} />
                 </div>
-                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>32.1K</h3>
+                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>{formatNumber(stats.totalPenerima)}</h3>
                 <p style={{ color: '#64748b', fontWeight: 600, marginTop: '0.5rem', fontSize: '0.875rem', textTransform: 'uppercase' }}>Penerima Manfaat</p>
               </div>
 
@@ -79,7 +84,7 @@ function Public() {
                 <div style={{ width: '48px', height: '48px', backgroundColor: '#fbf5dd', color: '#306d29', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
                   <HomeIcon size={24} />
                 </div>
-                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>14</h3>
+                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>{stats.totalSppg}</h3>
                 <p style={{ color: '#64748b', fontWeight: 600, marginTop: '0.5rem', fontSize: '0.875rem', textTransform: 'uppercase' }}>Titik Dapur SPPG</p>
               </div>
 
@@ -87,7 +92,7 @@ function Public() {
                 <div style={{ width: '48px', height: '48px', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
                   <ShieldCheck size={24} />
                 </div>
-                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>100%</h3>
+                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>{stats.keamananPangan}%</h3>
                 <p style={{ color: '#64748b', fontWeight: 600, marginTop: '0.5rem', fontSize: '0.875rem', textTransform: 'uppercase' }}>Keamanan Pangan Uji Rapid</p>
               </div>
 
@@ -96,10 +101,10 @@ function Public() {
             <div style={{ marginTop: '3rem', padding: '1.5rem', backgroundColor: '#f8fafc', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <span style={{ fontWeight: 700, color: '#0f172a' }}>Realisasi Pengiriman Hari Ini</span>
-                <span style={{ fontWeight: 700, color: '#16a34a' }}>71%</span>
+                <span style={{ fontWeight: 700, color: '#16a34a' }}>{stats.realisasiPengiriman}%</span>
               </div>
               <div style={{ height: '12px', backgroundColor: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
-                <div style={{ width: '71%', height: '100%', backgroundColor: '#22c55e', borderRadius: '9999px' }}></div>
+                <div style={{ width: `${stats.realisasiPengiriman}%`, height: '100%', backgroundColor: '#22c55e', borderRadius: '9999px' }}></div>
               </div>
             </div>
           </div>
