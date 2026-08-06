@@ -55,12 +55,229 @@ export async function getDashboardStats() {
     totalSiswa: parseInt(row.total_siswa_penerima as string) || 0,
   }));
 
+  // 6. Total Posyandu Penerima Manfaat (Balita + Bumil + Busui)
+  const posyanduPenerimaRes = await db.execute(sql`
+    SELECT SUM(jumlah_balita + jumlah_bumil + jumlah_busui) as total_sasaran 
+    FROM sppg_posyandu_manfaat 
+    WHERE status = 'Aktif'
+  `);
+  const totalPosyanduSasaran = parseInt(posyanduPenerimaRes[0]?.total_sasaran as string) || 0;
+
+  // 7. Posyandu Tercover
+  const posyanduTercoverRes = await db.execute(sql`
+    SELECT COUNT(DISTINCT posyandu_id) as total_posyandu
+    FROM posyandu_penerimaan_mbg
+    WHERE status = 'Aktif'
+  `);
+  const posyanduTercover = parseInt(posyanduTercoverRes[0]?.total_posyandu as string) || 0;
+
+  // 8. Posyandu Belum Tercover
+  const posyanduBelumTercoverRes = await db.execute(sql`
+    SELECT COUNT(*) as total_belum
+    FROM posyandu
+    WHERE id NOT IN (
+      SELECT DISTINCT posyandu_id FROM posyandu_penerimaan_mbg WHERE status = 'Aktif'
+    )
+  `);
+  const posyanduBelumTercover = parseInt(posyanduBelumTercoverRes[0]?.total_belum as string) || 0;
+
+  // 9. Total Penggilingan
+  const penggilinganRes = await db.execute(sql`SELECT count(*) as total FROM penggilingan WHERE status = 'Aktif'`);
+  const totalPenggilingan = parseInt(penggilinganRes[0]?.total as string) || 0;
+
+  // 10. Total Pemasok
+  const pemasokRes = await db.execute(sql`SELECT count(*) as total FROM pemasok WHERE status = 'Aktif'`);
+  const totalPemasok = parseInt(pemasokRes[0]?.total as string) || 0;
+
   return {
     sppgCount,
     totalSiswa,
     sekolahTercover,
     sekolahBelumTercover,
     coveragePercent,
-    statsPerSppg
+    statsPerSppg,
+    totalPosyanduSasaran,
+    posyanduTercover,
+    posyanduBelumTercover,
+    totalPenggilingan,
+    totalPemasok
+  };
+}
+
+export async function getSppgDashboardStats(sppgId: number) {
+  // 1. Info SPPG
+  const sppgInfoRes = await db.execute(sql`SELECT nama_sppg, status_operasional FROM sppg WHERE sppg_id = ${sppgId}`);
+  const namaSppg = sppgInfoRes[0]?.nama_sppg as string || 'Dapur SPPG';
+  const statusOperasional = sppgInfoRes[0]?.status_operasional as string || 'Tidak Diketahui';
+
+  // 2. Total Siswa (Sekolah)
+  const siswaRes = await db.execute(sql`
+    SELECT SUM(jumlah_total) as total_siswa 
+    FROM sppg_penerima_manfaat 
+    WHERE sppg_id = ${sppgId} AND status = 'Aktif'
+  `);
+  const totalSiswa = parseInt(siswaRes[0]?.total_siswa as string) || 0;
+
+  // 3. Total Posyandu (Sasaran)
+  const posyanduRes = await db.execute(sql`
+    SELECT SUM(jumlah_total) as total_sasaran 
+    FROM sppg_posyandu_manfaat 
+    WHERE sppg_id = ${sppgId} AND status = 'Aktif'
+  `);
+  const totalPosyandu = parseInt(posyanduRes[0]?.total_sasaran as string) || 0;
+
+  // 4. Laporan Distribusi Diterima (Total Porsi)
+  const laporanRes = await db.execute(sql`
+    SELECT SUM(jumlah_porsi) as total_porsi 
+    FROM sppg_laporan_aktifitas 
+    WHERE sppg_id = ${sppgId} AND status = 'Diterima'
+  `);
+  const totalPorsiTerkirim = parseInt(laporanRes[0]?.total_porsi as string) || 0;
+
+  // 5. Total Instansi Tujuan
+  const countSekolahRes = await db.execute(sql`SELECT COUNT(*) as count FROM sppg_penerima_manfaat WHERE sppg_id = ${sppgId} AND status = 'Aktif'`);
+  const countPosyanduRes = await db.execute(sql`SELECT COUNT(*) as count FROM sppg_posyandu_manfaat WHERE sppg_id = ${sppgId} AND status = 'Aktif'`);
+  
+  const jumlahSekolah = parseInt(countSekolahRes[0]?.count as string) || 0;
+  const jumlahPosyandu = parseInt(countPosyanduRes[0]?.count as string) || 0;
+
+  return {
+    namaSppg,
+    statusOperasional,
+    totalSiswa,
+    totalPosyandu,
+    totalPorsiTerkirim,
+    jumlahSekolah,
+    jumlahPosyandu,
+    totalPenerimaManfaat: totalSiswa + totalPosyandu
+  };
+}
+
+export async function getSekolahDashboardStats(sekolahId: number) {
+  // Info Sekolah
+  const sekolahInfoRes = await db.execute(sql`SELECT nama_sekolah, jumlah_siswa_laki, jumlah_siswa_perempuan FROM sekolah WHERE sekolah_id = ${sekolahId}`);
+  const namaSekolah = sekolahInfoRes[0]?.nama_sekolah as string || 'Sekolah';
+  const laki = parseInt(sekolahInfoRes[0]?.jumlah_siswa_laki as string) || 0;
+  const perempuan = parseInt(sekolahInfoRes[0]?.jumlah_siswa_perempuan as string) || 0;
+
+  // Laporan yang Diterima
+  const laporanRes = await db.execute(sql`
+    SELECT SUM(jumlah_porsi_diterima) as total_porsi 
+    FROM sekolah_laporan_aktifitas 
+    WHERE sekolah_id = ${sekolahId} AND status_diterima = 'Diterima Lengkap'
+  `);
+  const totalPorsiDiterima = parseInt(laporanRes[0]?.total_porsi as string) || 0;
+
+  // Laporan Menunggu Verifikasi
+  const menungguRes = await db.execute(sql`
+    SELECT count(*) as count 
+    FROM sppg_laporan_aktifitas 
+    WHERE sekolah_id = ${sekolahId} AND status = 'Terkirim'
+  `);
+  const menungguVerifikasi = parseInt(menungguRes[0]?.count as string) || 0;
+
+  // Riwayat Pengiriman Terbaru (5 Terakhir)
+  const recentRes = await db.execute(sql`
+    SELECT 
+      l.id,
+      l.tanggal,
+      l.jumlah_porsi as jumlah_porsi,
+      l.status,
+      s.nama_sppg as sppg_name,
+      m.nama_menu as menu_name
+    FROM sppg_laporan_aktifitas l
+    LEFT JOIN sppg s ON l.sppg_id = s.sppg_id
+    LEFT JOIN standar_menu_gizi m ON l.standar_menu_id = m.id
+    WHERE l.sekolah_id = ${sekolahId}
+    ORDER BY l.tanggal DESC, l.id DESC
+    LIMIT 5
+  `);
+
+  return {
+    namaSekolah,
+    totalSiswa: laki + perempuan,
+    totalPorsiDiterima,
+    menungguVerifikasi,
+    recentVerifications: recentRes as any[]
+  };
+}
+
+export async function getPosyanduDashboardStats(posyanduId: number) {
+  // Info Posyandu
+  const posyanduInfoRes = await db.execute(sql`SELECT nama_posyandu FROM posyandu WHERE id = ${posyanduId}`);
+  const namaPosyandu = posyanduInfoRes[0]?.nama_posyandu as string || 'Posyandu';
+  
+  // Total Sasaran
+  const sasaranRes = await db.execute(sql`
+    SELECT 
+      SUM(jumlah_total) as total,
+      SUM(jumlah_bumil) as total_bumil,
+      SUM(jumlah_busui) as total_busui,
+      SUM(jumlah_balita) as total_balita
+    FROM sppg_posyandu_manfaat 
+    WHERE posyandu_id = ${posyanduId} AND status = 'Aktif'
+  `);
+  
+  const totalSasaran = parseInt(sasaranRes[0]?.total as string) || 0;
+  const totalBumil = parseInt(sasaranRes[0]?.total_bumil as string) || 0;
+  const totalBusui = parseInt(sasaranRes[0]?.total_busui as string) || 0;
+  const totalBalita = parseInt(sasaranRes[0]?.total_balita as string) || 0;
+
+  // Laporan yang Diterima
+  const laporanRes = await db.execute(sql`
+    SELECT SUM(jumlah_porsi_diterima) as total_porsi 
+    FROM posyandu_laporan_aktifitas 
+    WHERE posyandu_id = ${posyanduId} AND status_diterima = 'Diterima Lengkap'
+  `);
+  const totalPorsiDiterima = parseInt(laporanRes[0]?.total_porsi as string) || 0;
+
+  // Laporan Menunggu Verifikasi
+  const menungguRes = await db.execute(sql`
+    SELECT count(*) as count 
+    FROM sppg_laporan_aktifitas 
+    WHERE posyandu_id = ${posyanduId} AND status = 'Terkirim'
+  `);
+  const menungguVerifikasi = parseInt(menungguRes[0]?.count as string) || 0;
+
+  // Riwayat Pengiriman Terbaru (5 Terakhir)
+  const recentRes = await db.execute(sql`
+    SELECT 
+      l.id,
+      l.tanggal,
+      l.jumlah_porsi as jumlah_porsi,
+      l.status,
+      s.nama_sppg as sppg_name,
+      m.nama_menu as menu_name
+    FROM sppg_laporan_aktifitas l
+    LEFT JOIN sppg s ON l.sppg_id = s.sppg_id
+    LEFT JOIN standar_menu_gizi m ON l.standar_menu_id = m.id
+    WHERE l.posyandu_id = ${posyanduId}
+    ORDER BY l.tanggal DESC, l.id DESC
+    LIMIT 5
+  `);
+
+  return {
+    namaPosyandu,
+    totalSasaran,
+    totalBumil,
+    totalBusui,
+    totalBalita,
+    totalPorsiDiterima,
+    menungguVerifikasi,
+    recentVerifications: recentRes as any[]
+  };
+}
+
+export async function getPenggilinganDashboardStats(penggilinganId: number) {
+  // Info Penggilingan
+  const penggilinganInfoRes = await db.execute(sql`SELECT nama_penggilingan FROM penggilingan WHERE penggilingan_id = ${penggilinganId}`);
+  const namaPenggilingan = penggilinganInfoRes[0]?.nama_penggilingan as string || 'Penggilingan';
+  
+  // Stats for penggilingan (e.g. stock, orders)
+  // For now, let's return some placeholders as we don't have a complex schema for it yet
+  return {
+    namaPenggilingan,
+    totalStok: 0,
+    totalPesanan: 0
   };
 }

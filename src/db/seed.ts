@@ -2,7 +2,8 @@ import { db } from "./index";
 import { 
   kecamatan, desa, kategoriPenerima, sekolah, yayasan, sppg, sppgSertifikasi, 
   sppgPenerimaManfaat, pemasok, jenisPangan, supplyChainKebutuhan, 
-  penggilingan, penggilinganSumberGabah, penggilinganProduksi, penggilinganDistribusi 
+  penggilingan, penggilinganSumberGabah, penggilinganProduksi, penggilinganDistribusi,
+  posyandu, sppgPosyanduManfaat, posyanduPenerimaanMbg
 } from "./schema";
 
 async function main() {
@@ -62,6 +63,24 @@ async function main() {
     { sppgId: sppgs[0].id, sekolahId: seks[0].id, tahunAjaran: "2025/2026", jumlahLaki: 150, jumlahPerempuan: 200, tanggalMulai: "2025-07-01", status: "Aktif" },
     { sppgId: sppgs[1].id, sekolahId: seks[1].id, tahunAjaran: "2025/2026", jumlahLaki: 200, jumlahPerempuan: 220, tanggalMulai: "2025-07-01", status: "Aktif" },
     { sppgId: sppgs[2].id, sekolahId: seks[2].id, tahunAjaran: "2025/2026", jumlahLaki: 300, jumlahPerempuan: 300, tanggalMulai: "2025-07-01", status: "Aktif" }
+  ]);
+
+  // 8.5 POSYANDU
+  const posyandus = await db.insert(posyandu).values([
+    { namaPosyandu: "Posyandu Melati 1", desaId: desas[0].id, kecamatanId: kecs[0].id, alamatPosyandu: "Jl. Bunga 1", namaKetuaKader: "Ibu Ani", noHpKetuaKader: "08123456781", jumlahBusui: 10, jumlahBalita: 20, jumlahBumil: 15, jumlahTotal: 45 },
+    { namaPosyandu: "Posyandu Mawar 2", desaId: desas[2].id, kecamatanId: kecs[1].id, alamatPosyandu: "Jl. Bunga 2", namaKetuaKader: "Ibu Budi", noHpKetuaKader: "08123456782", jumlahBusui: 8, jumlahBalita: 15, jumlahBumil: 10, jumlahTotal: 33 }
+  ]).returning();
+
+  // 8.6 SPPG POSYANDU MANFAAT
+  await db.insert(sppgPosyanduManfaat).values([
+    { sppgId: sppgs[0].id, posyanduId: posyandus[0].id, jumlahBusui: 10, jumlahBalita: 20, jumlahBumil: 15, jumlahTotal: 45, tanggalMulai: "2025-07-01", status: "Aktif" },
+    { sppgId: sppgs[1].id, posyanduId: posyandus[1].id, jumlahBusui: 8, jumlahBalita: 15, jumlahBumil: 10, jumlahTotal: 33, tanggalMulai: "2025-07-01", status: "Aktif" }
+  ]);
+
+  // 8.7 POSYANDU PENERIMAAN MBG (Riwayat)
+  await db.insert(posyanduPenerimaanMbg).values([
+    { posyanduId: posyandus[0].id, sppgId: sppgs[0].id, status: "Aktif", tanggalMulaiMbg: "2025-07-01" },
+    { posyanduId: posyandus[1].id, sppgId: sppgs[1].id, status: "Aktif", tanggalMulaiMbg: "2025-07-01" }
   ]);
 
   // 9. PEMASOK

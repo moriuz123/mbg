@@ -5,7 +5,30 @@ import { penggilingan, penggilinganSumberGabah, penggilinganProduksi, penggiling
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+
+async function getSessionData() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const role = session?.user?.role;
+  const penggilinganId = session?.user?.penggilinganId;
+  const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
+  return { role, penggilinganId, isAdmin };
+}
+
 export async function getPenggilingan() {
+  const { isAdmin, penggilinganId } = await getSessionData();
+
+  if (!isAdmin) {
+    if (!penggilinganId) return [];
+    return await db.query.penggilingan.findMany({
+      where: eq(penggilingan.id, penggilinganId),
+      orderBy: [desc(penggilingan.id)],
+    });
+  }
+
   return await db.query.penggilingan.findMany({
     orderBy: [desc(penggilingan.id)],
   });
@@ -43,6 +66,12 @@ export async function deletePenggilingan(id: number) {
 }
 
 export async function getPenggilinganById(id: number) {
+  const { isAdmin, penggilinganId } = await getSessionData();
+
+  if (!isAdmin) {
+    if (penggilinganId !== id) return null;
+  }
+
   return await db.query.penggilingan.findFirst({
     where: eq(penggilingan.id, id),
   });
@@ -65,6 +94,11 @@ export async function addSumberGabah(data: {
   catatan?: string;
 }) {
   try {
+    const { isAdmin, penggilinganId } = await getSessionData();
+    if (!isAdmin && penggilinganId !== data.penggilinganId) {
+      return { success: false, error: 'Akses ditolak' };
+    }
+
     await db.insert(penggilinganSumberGabah).values({
       penggilinganId: data.penggilinganId,
       mingguMulai: data.mingguMulai,
@@ -97,6 +131,11 @@ export async function addProduksi(data: {
   catatan?: string;
 }) {
   try {
+    const { isAdmin, penggilinganId } = await getSessionData();
+    if (!isAdmin && penggilinganId !== data.penggilinganId) {
+      return { success: false, error: 'Akses ditolak' };
+    }
+
     await db.insert(penggilinganProduksi).values({
       penggilinganId: data.penggilinganId,
       mingguMulai: data.mingguMulai,
@@ -133,6 +172,11 @@ export async function addDistribusi(data: {
   catatan?: string;
 }) {
   try {
+    const { isAdmin, penggilinganId } = await getSessionData();
+    if (!isAdmin && penggilinganId !== data.penggilinganId) {
+      return { success: false, error: 'Akses ditolak' };
+    }
+
     await db.insert(penggilinganDistribusi).values({
       penggilinganId: data.penggilinganId,
       mingguMulai: data.mingguMulai,

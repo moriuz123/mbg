@@ -484,9 +484,18 @@ export default function SppgClient({
               </div>
             </div>
 
-            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn btn-primary" onClick={() => setSelectedSppg(null)}>
+            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+              <button 
+                onClick={() => setSelectedSppg(null)}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f1f5f9', color: '#475569', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+              >
                 Tutup
+              </button>
+              <button 
+                onClick={() => window.location.href = `/sppg/${selectedSppg.sppgId}`}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary-600)', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+              >
+                Lihat Profil Lengkap
               </button>
             </div>
           </div>

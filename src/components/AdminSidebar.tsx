@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { LogoutButtonSidebar } from './LogoutButton';
 
 export default function AdminSidebar({ userRole = 'publik' }: { userRole?: string }) {
   const pathname = usePathname();
   const [isMasterDataOpen, setIsMasterDataOpen] = useState(pathname?.startsWith('/admin/master-data'));
+  const [isPengaturanSitusOpen, setIsPengaturanSitusOpen] = useState(pathname?.startsWith('/admin/pengaturan-situs'));
   
   const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
 
@@ -49,28 +50,72 @@ export default function AdminSidebar({ userRole = 'publik' }: { userRole?: strin
           <div className="space-y-1">
             <NavItem href="/admin" icon={Home} isActive={pathname === '/admin'}>Dasbor Utama</NavItem>
             
-            {(isAdmin || userRole === 'sppg') && (
+            {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
               <NavItem href="/admin/sppg" icon={LayoutDashboard} isActive={pathname?.includes('/admin/sppg')}>Data SPPG</NavItem>
             )}
             
-            {(isAdmin || userRole === 'operator_sekolah') && (
-              <NavItem href="/admin/sekolah" icon={GraduationCap} isActive={pathname?.includes('/admin/sekolah')}>Data Sekolah</NavItem>
+            {(isAdmin || userRole === 'sekolah' || userRole === 'operator_sekolah' || userRole === 'operator_posyandu') && (
+              <NavItem href="/admin/verifikasi" icon={ShieldCheck} isActive={pathname?.includes('/admin/verifikasi')}>
+                Verifikasi {isAdmin ? 'Makanan' : (userRole === 'operator_posyandu' ? 'Posyandu' : 'Sekolah')}
+              </NavItem>
             )}
-            
+
+
             {(isAdmin || userRole === 'operator_penggilingan') && (
               <NavItem href="/admin/penggilingan" icon={Factory} isActive={pathname?.includes('/admin/penggilingan')}>Penggilingan Gabah</NavItem>
             )}
 
-            {(isAdmin || userRole === 'sppg') && (
+            {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
               <NavItem href="/admin/laporan-aktifitas" icon={Activity} isActive={pathname?.includes('/admin/laporan-aktifitas')}>Laporan Aktifitas</NavItem>
             )}
 
-            {(isAdmin || userRole === 'sppg' || userRole === 'operator_penggilingan') && (
+            {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
+              <NavItem href="/admin/pengawasan" icon={ClipboardCheck} isActive={pathname?.includes('/admin/pengawasan')}>Pengawasan Logistik</NavItem>
+            )}
+
+            {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
               <NavItem href="/admin/supply-chain" icon={Package} isActive={pathname?.includes('/admin/supply-chain')}>Rantai Pasok</NavItem>
             )}
 
             {isAdmin && (
-              <NavItem href="/admin/manajemen-menu" icon={Utensils} isActive={pathname?.includes('/admin/manajemen-menu')}>Manajemen Menu</NavItem>
+              <NavItem href="/admin/standar-menu" icon={Utensils} isActive={pathname?.includes('/admin/standar-menu')}>Standar Menu Gizi</NavItem>
+            )}
+
+            {isAdmin && (
+              <NavItem href="/admin/manajemen-user" icon={Users} isActive={pathname?.includes('/admin/manajemen-user')}>Manajemen User</NavItem>
+            )}
+
+            {isAdmin && (
+              <NavItem href="/admin/pengaduan" icon={MessageSquare} isActive={pathname?.includes('/admin/pengaduan')}>Pengaduan Masuk</NavItem>
+            )}
+
+            {(isAdmin || userRole === 'operator_sppg' || userRole === 'sppg') && (
+              <NavItem href="/admin/pengumuman" icon={MessageSquare} isActive={pathname?.includes('/admin/pengumuman')}>Pengumuman</NavItem>
+            )}
+
+            {isAdmin && (
+              <div>
+                <button 
+                  onClick={() => setIsPengaturanSitusOpen(!isPengaturanSitusOpen)}
+                  className="w-full group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                >
+                  <div className="flex items-center gap-3">
+                    <Database size={20} className="text-slate-400 group-hover:text-primary-500 transition-transform duration-200 group-hover:scale-110" />
+                    Pengaturan Situs
+                  </div>
+                  {isPengaturanSitusOpen ? (
+                    <ChevronDown size={18} className="text-slate-400" />
+                  ) : (
+                    <ChevronRight size={18} className="text-slate-400" />
+                  )}
+                </button>
+                <div className={`mt-1 space-y-1 overflow-hidden transition-all duration-300 ${isPengaturanSitusOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="pl-4 border-l-2 border-slate-100 ml-6 space-y-1 py-1">
+                    <NavItem href="/admin/pengaturan-situs/umum" icon={LayoutDashboard} isActive={pathname?.includes('/admin/pengaturan-situs/umum')} isSub>Setting Web</NavItem>
+                    <NavItem href="/admin/pengaturan-situs/menu" icon={LayoutDashboard} isActive={pathname?.includes('/admin/pengaturan-situs/menu')} isSub>Kelola Menu</NavItem>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -92,8 +137,11 @@ export default function AdminSidebar({ userRole = 'publik' }: { userRole?: strin
             )}
           </button>
           
-          <div className={`mt-1 space-y-1 overflow-hidden transition-all duration-300 ${isMasterDataOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className={`mt-1 space-y-1 overflow-hidden transition-all duration-300 ${isMasterDataOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="pl-4 border-l-2 border-slate-100 ml-6 space-y-1 py-1">
+              <NavItem href="/admin/master-data/yayasan" icon={Home} isActive={pathname?.includes('yayasan')} isSub>Yayasan</NavItem>
+              <NavItem href="/admin/master-data/sekolah" icon={GraduationCap} isActive={pathname?.includes('sekolah')} isSub>Sekolah</NavItem>
+              <NavItem href="/admin/master-data/posyandu" icon={HeartPulse} isActive={pathname?.includes('posyandu')} isSub>Posyandu</NavItem>
               <NavItem href="/admin/master-data/kecamatan" icon={MapPin} isActive={pathname?.includes('kecamatan')} isSub>Kecamatan</NavItem>
               <NavItem href="/admin/master-data/desa" icon={MapPin} isActive={pathname?.includes('desa')} isSub>Desa/Kelurahan</NavItem>
               <NavItem href="/admin/master-data/jenis-pangan" icon={ShoppingCart} isActive={pathname?.includes('jenis-pangan')} isSub>Jenis Pangan</NavItem>

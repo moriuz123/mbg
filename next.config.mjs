@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Since we migrated from Vite (ES modules), we might want to ensure compatibility
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 }
 
 export default nextConfig;

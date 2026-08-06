@@ -106,8 +106,7 @@ export default function SekolahClient({ initialData, filterOptions }: { initialD
               className="form-input" 
               value={filterDesa} 
               onChange={e => setFilterDesa(e.target.value)}
-              disabled={!filterKecamatan}
-              style={{ backgroundColor: '#fff', cursor: filterKecamatan ? 'pointer' : 'not-allowed', opacity: filterKecamatan ? 1 : 0.6 }}
+              style={{ backgroundColor: '#fff', cursor: 'pointer' }}
             >
               <option value="">Semua Desa</option>
               {filteredDesas.map(d => (
@@ -157,7 +156,7 @@ export default function SekolahClient({ initialData, filterOptions }: { initialD
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
           {filteredData.map((sekolah, idx) => (
             <div 
-              key={sekolah.sekolahId} 
+              key={`${sekolah.sekolahId}-${idx}`} 
               className="card animate-fade-in" 
               style={{ animationDelay: `${(idx % 10) * 0.05}s`, cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
               onClick={() => setSelectedSekolah(sekolah)}
@@ -271,9 +270,18 @@ export default function SekolahClient({ initialData, filterOptions }: { initialD
               </div>
             </div>
 
-            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn btn-primary" onClick={() => setSelectedSekolah(null)}>
+            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+              <button 
+                onClick={() => setSelectedSekolah(null)}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f1f5f9', color: '#475569', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+              >
                 Tutup
+              </button>
+              <button 
+                onClick={() => window.location.href = `/sekolah/${selectedSekolah.sekolahId}`}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary-600)', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+              >
+                Lihat Profil Lengkap
               </button>
             </div>
           </div>

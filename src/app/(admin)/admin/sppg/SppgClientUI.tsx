@@ -1,13 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, X, Trash2, Building, ShieldCheck } from 'lucide-react';
+import { Plus, X, Trash2, Building, ShieldCheck, Home, Edit2 } from 'lucide-react';
 import Link from 'next/link';
-import { createSppg, deleteSppg } from '@/app/actions/sppg';
+import { createSppg, deleteSppg, updateSppg } from '@/app/actions/sppg';
+import Toast from '@/components/ui/Toast';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
-export default function SppgClientUI({ initialData }: { initialData: any[] }) {
+export default function SppgClientUI({ initialData, yayasanData = [] }: { initialData: any[], yayasanData?: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingSppg, setEditingSppg] = useState<any>(null);
+
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success'|'error'>('success');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -23,33 +32,71 @@ export default function SppgClientUI({ initialData }: { initialData: any[] }) {
       statusOperasional: formData.get('statusOperasional') as string || 'Belum Operasional',
       tanggalOperasional: formData.get('tanggalOperasional') as string,
       bpjsKesehatan: formData.get('bpjsKesehatan') === 'true',
+      yayasanId: formData.get('yayasanId') ? parseInt(formData.get('yayasanId') as string) : undefined,
       jumlahPenjamahMakanan: parseInt(formData.get('jumlahPenjamahMakanan') as string) || 0,
       jumlahBpjsTk: parseInt(formData.get('jumlahBpjsTk') as string) || 0,
       chefBersertifikatBnsp: parseInt(formData.get('chefBersertifikatBnsp') as string) || 0,
       keterangan: formData.get('keterangan') as string,
     };
 
-    const res = await createSppg(data);
+    let res;
+    if (editingSppg) {
+      res = await updateSppg(editingSppg.id, data);
+    } else {
+      res = await createSppg(data);
+    }
+
     setIsSubmitting(false);
     
     if (res.success) {
       setIsOpen(false);
+      setEditingSppg(null);
+      setToastType('success');
+      setToastMessage(editingSppg ? 'Berhasil mengubah data SPPG!' : 'Berhasil menambahkan data SPPG!');
     } else {
-      alert(res.error);
+      setToastType('error');
+      setToastMessage(res.error || 'Terjadi kesalahan');
     }
   }
 
-  async function handleDelete(id: number) {
-    if (confirm('Yakin ingin menghapus data SPPG ini?')) {
-      await deleteSppg(id);
+  function handleDeleteClick(id: number) {
+    setConfirmId(id);
+    setConfirmOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmId) return;
+    setIsDeleting(true);
+    const res = await deleteSppg(confirmId);
+    setIsDeleting(false);
+    setConfirmOpen(false);
+    
+    if (res.success) {
+      setToastType('success');
+      setToastMessage('Data SPPG berhasil dihapus!');
+    } else {
+      setToastType('error');
+      setToastMessage(res.error || 'Gagal menghapus data');
     }
   }
 
   return (
     <>
+      <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />
+      <ConfirmModal 
+        isOpen={confirmOpen} 
+        title="Hapus Data SPPG" 
+        message="Apakah Anda yakin ingin menghapus data SPPG ini? Data yang dihapus tidak dapat dikembalikan."
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
       <div className="flex justify-end mb-4">
         <button 
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setEditingSppg(null);
+            setIsOpen(true);
+          }}
           className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
         >
           <Plus size={20} /> Tambah SPPG
@@ -61,38 +108,50 @@ export default function SppgClientUI({ initialData }: { initialData: any[] }) {
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg p-8 relative shadow-2xl">
             <button 
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                setEditingSppg(null);
+              }}
               className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
             >
               <X size={24} />
             </button>
-            <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">Tambah Data SPPG</h2>
+            <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">{editingSppg ? 'Edit Data SPPG' : 'Tambah Data SPPG'}</h2>
             
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Kode SPPG (Opsional)</label>
-                  <input name="idSppgCode" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Contoh: SPPG-123" />
+                  <input name="idSppgCode" type="text" defaultValue={editingSppg?.idSppgCode} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Contoh: SPPG-123" />
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Nama SPPG (Dapur) *</label>
-                  <input required name="namaSppg" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Contoh: Dapur Cibadak" />
+                  <input required name="namaSppg" type="text" defaultValue={editingSppg?.namaSppg} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Contoh: Dapur Cibadak" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Yayasan</label>
+                  <select name="yayasanId" defaultValue={editingSppg?.yayasanId || ""} className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50">
+                    <option value="">-- Pilih Yayasan (Opsional) --</option>
+                    {yayasanData.map(y => (
+                      <option key={y.id} value={y.id}>{y.namaYayasan}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Kepala SPPG</label>
-                  <input name="namaKaSppg" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Nama Kepala Dapur" />
+                  <input name="namaKaSppg" type="text" defaultValue={editingSppg?.namaKaSppg} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Nama Kepala Dapur" />
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">No. HP Kepala SPPG</label>
-                  <input name="noHpKaSppg" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="08..." />
+                  <input name="noHpKaSppg" type="text" defaultValue={editingSppg?.noHpKaSppg} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="08..." />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Alamat</label>
-                  <textarea name="alamat" rows={2} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Alamat Dapur..."></textarea>
+                  <textarea name="alamat" rows={2} defaultValue={editingSppg?.alamat} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Alamat Dapur..."></textarea>
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Status Operasional</label>
-                  <select name="statusOperasional" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50">
+                  <select name="statusOperasional" defaultValue={editingSppg?.statusOperasional || "Belum Operasional"} className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50">
                     <option value="Belum Operasional">Belum Operasional</option>
                     <option value="Operasional">Operasional</option>
                     <option value="Tutup">Tutup Sementara</option>
@@ -100,7 +159,7 @@ export default function SppgClientUI({ initialData }: { initialData: any[] }) {
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Tanggal Operasional</label>
-                  <input name="tanggalOperasional" type="date" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
+                  <input name="tanggalOperasional" type="date" defaultValue={editingSppg?.tanggalOperasional?.split('T')[0]} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
                 </div>
                 
                 <div className="md:col-span-2 border-t border-slate-100 pt-4 mt-2">
@@ -108,19 +167,19 @@ export default function SppgClientUI({ initialData }: { initialData: any[] }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block mb-2 text-xs font-semibold text-slate-700">Jml Penjamah Makanan</label>
-                      <input name="jumlahPenjamahMakanan" type="number" defaultValue="0" min="0" className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
+                      <input name="jumlahPenjamahMakanan" type="number" defaultValue={editingSppg?.jumlahPenjamahMakanan || "0"} min="0" className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
                     </div>
                     <div>
                       <label className="block mb-2 text-xs font-semibold text-slate-700">Jml BPJS TK</label>
-                      <input name="jumlahBpjsTk" type="number" defaultValue="0" min="0" className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
+                      <input name="jumlahBpjsTk" type="number" defaultValue={editingSppg?.jumlahBpjsTk || "0"} min="0" className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
                     </div>
                     <div>
                       <label className="block mb-2 text-xs font-semibold text-slate-700">Chef BNSP</label>
-                      <input name="chefBersertifikatBnsp" type="number" defaultValue="0" min="0" className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
+                      <input name="chefBersertifikatBnsp" type="number" defaultValue={editingSppg?.chefBersertifikatBnsp || "0"} min="0" className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50" />
                     </div>
                     <div>
                       <label className="block mb-2 text-xs font-semibold text-slate-700">Punya BPJS Kesehatan?</label>
-                      <select name="bpjsKesehatan" className="w-full p-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50">
+                      <select name="bpjsKesehatan" defaultValue={editingSppg?.bpjsKesehatan === true ? "true" : "false"} className="w-full p-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50">
                         <option value="false">Tidak</option>
                         <option value="true">Ya</option>
                       </select>
@@ -161,6 +220,11 @@ export default function SppgClientUI({ initialData }: { initialData: any[] }) {
                     <div className="font-bold text-slate-900 text-base flex items-center gap-2">
                       <Building size={16} className="text-primary-600" /> {item.namaSppg}
                     </div>
+                    {item.yayasan && (
+                      <div className="text-xs font-medium text-primary-600 mt-1 flex items-center gap-1">
+                        <Home size={12} /> {item.yayasan.namaYayasan}
+                      </div>
+                    )}
                     {item.idSppgCode && (
                       <div className="text-xs font-medium text-slate-400 mt-1">Kode: {item.idSppgCode}</div>
                     )}
@@ -182,7 +246,17 @@ export default function SppgClientUI({ initialData }: { initialData: any[] }) {
                         Atur Penerima
                       </Link>
                       <button 
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => {
+                          setEditingSppg(item);
+                          setIsOpen(true);
+                        }}
+                        className="text-amber-500 hover:text-amber-700 hover:bg-amber-50 p-2 rounded-lg transition-colors border border-transparent hover:border-amber-100 inline-flex items-center"
+                        title="Edit SPPG"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteClick(item.id)}
                         className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 inline-flex items-center"
                         title="Hapus SPPG"
                       >

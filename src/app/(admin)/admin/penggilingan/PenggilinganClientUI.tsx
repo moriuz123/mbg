@@ -4,10 +4,18 @@ import React, { useState } from 'react';
 import { Plus, X, Trash2, Factory, Phone, Settings } from 'lucide-react';
 import { createPenggilingan, deletePenggilingan } from '@/app/actions/penggilingan';
 import Link from 'next/link';
+import Toast from '@/components/ui/Toast';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
-export default function PenggilinganClientUI({ initialData, kecamatanList }: { initialData: any[], kecamatanList: any[] }) {
+export default function PenggilinganClientUI({ initialData, kecamatanList, isAdmin = true }: { initialData: any[], kecamatanList: any[], isAdmin?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success'|'error'>('success');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,27 +37,57 @@ export default function PenggilinganClientUI({ initialData, kecamatanList }: { i
     
     if (res.success) {
       setIsOpen(false);
+      setToastType('success');
+      setToastMessage('Berhasil menambahkan penggilingan!');
     } else {
-      alert(res.error);
+      setToastType('error');
+      setToastMessage(res.error || 'Terjadi kesalahan');
     }
   }
 
-  async function handleDelete(id: number) {
-    if (confirm('Yakin ingin menghapus penggilingan ini?')) {
-      await deletePenggilingan(id);
+  function handleDeleteClick(id: number) {
+    setConfirmId(id);
+    setConfirmOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmId) return;
+    setIsDeleting(true);
+    const res = await deletePenggilingan(confirmId);
+    setIsDeleting(false);
+    setConfirmOpen(false);
+    
+    if (res.success) {
+      setToastType('success');
+      setToastMessage('Data Penggilingan berhasil dihapus!');
+    } else {
+      setToastType('error');
+      setToastMessage(res.error || 'Gagal menghapus data');
     }
   }
 
   return (
     <>
-      <div className="flex justify-end mb-4">
-        <button 
-          onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
-        >
-          <Plus size={20} /> Tambah Penggilingan
-        </button>
-      </div>
+      <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />
+      <ConfirmModal 
+        isOpen={confirmOpen} 
+        title="Hapus Data Penggilingan" 
+        message="Apakah Anda yakin ingin menghapus data penggilingan ini? Data yang dihapus tidak dapat dikembalikan."
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
+      
+      {isAdmin && (
+        <div className="flex justify-end mb-4">
+          <button 
+            onClick={() => setIsOpen(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
+          >
+            <Plus size={20} /> Tambah Penggilingan
+          </button>
+        </div>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -160,13 +198,15 @@ export default function PenggilinganClientUI({ initialData, kecamatanList }: { i
                       >
                         <Settings size={14} /> Kelola
                       </Link>
-                      <button 
-                        onClick={() => handleDelete(item.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                        title="Hapus"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      {isAdmin && (
+                        <button 
+                          onClick={() => handleDeleteClick(item.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                          title="Hapus"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -6,18 +6,32 @@ import { sum, count, eq } from "drizzle-orm";
 
 export async function getPublicStats() {
   try {
-    // 1. Total Penerima Manfaat
+    // 1. Total Penerima Manfaat & Breakdown
+    const { kategoriPenerima, sekolah } = await import("@/db/schema");
     const penerimaManfaatQuery = await db.select({
-      totalLaki: sum(sppgPenerimaManfaat.jumlahLaki),
-      totalPerempuan: sum(sppgPenerimaManfaat.jumlahPerempuan)
+      totalSiswa: sum(sppgPenerimaManfaat.jumlahTotal)
     }).from(sppgPenerimaManfaat);
 
-    const totalPenerima = (Number(penerimaManfaatQuery[0]?.totalLaki || 0) + Number(penerimaManfaatQuery[0]?.totalPerempuan || 0));
+    const totalPenerima = Number(penerimaManfaatQuery[0]?.totalSiswa || 0);
 
-    // 2. Titik Dapur SPPG Aktif
+    // Breakdown
+    const breakdownQuery = await db.select({
+      kategori: kategoriPenerima.namaKategori,
+      totalSiswa: sum(sppgPenerimaManfaat.jumlahTotal)
+    })
+    .from(sppgPenerimaManfaat)
+    .leftJoin(sekolah, eq(sppgPenerimaManfaat.sekolahId, sekolah.id))
+    .leftJoin(kategoriPenerima, eq(sekolah.kategoriId, kategoriPenerima.id))
+    .groupBy(kategoriPenerima.namaKategori);
+
+    const breakdownPenerima = breakdownQuery.map(row => ({
+      kategori: row.kategori || 'Lainnya',
+      totalSiswa: Number(row.totalSiswa || 0)
+    }));
+
+    // 2. Titik Dapur SPPG
     const sppgQuery = await db.select({ count: count() })
-      .from(sppg)
-      .where(eq(sppg.statusOperasional, 'Aktif'));
+      .from(sppg);
     
     const totalSppg = sppgQuery[0]?.count || 0;
 
@@ -36,6 +50,7 @@ export async function getPublicStats() {
 
     return {
       totalPenerima,
+      breakdownPenerima,
       totalSppg,
       keamananPangan,
       realisasiPengiriman: 85 // Static for now, as distribution table is complex
@@ -44,9 +59,50 @@ export async function getPublicStats() {
     console.error("Error getting public stats:", error);
     return {
       totalPenerima: 0,
+      breakdownPenerima: [],
       totalSppg: 0,
       keamananPangan: 0,
       realisasiPengiriman: 0
     };
+  }
+}
+
+export async function getPublicLaporanHarian() {
+  try {
+    const { sppgLaporanAktifitas } = await import("@/db/schema");
+    const { desc } = await import("drizzle-orm");
+
+    const rawData = await db.query.sppgLaporanAktifitas.findMany({
+      with: {
+        sppg: true,
+        sekolah: true,
+        posyandu: true,
+        standarMenuGizi: true
+      },
+      orderBy: [desc(sppgLaporanAktifitas.tanggal), desc(sppgLaporanAktifitas.createdAt)],
+      limit: 6
+    });
+
+    return rawData.map(l => {
+      let receiverName = '-';
+      if (l.sekolah) {
+        receiverName = l.sekolah.namaSekolah;
+      } else if (l.posyandu) {
+        receiverName = `Posyandu ${l.posyandu.namaPosyandu}`;
+      }
+
+      return {
+        id: l.id,
+        tanggal: l.tanggal,
+        menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        jumlahPorsi: l.jumlahPorsi,
+        status: l.status,
+        sppgName: l.sppg?.namaSppg || '-',
+        sekolahName: receiverName
+      };
+    });
+  } catch (error) {
+    console.error("Error getting public laporan:", error);
+    return [];
   }
 }

@@ -22,6 +22,16 @@ export async function createKecamatan(data: { namaKecamatan: string }) {
   }
 }
 
+export async function updateKecamatan(id: number, data: { namaKecamatan: string }) {
+  try {
+    await db.update(kecamatan).set(data).where(eq(kecamatan.id, id));
+    revalidatePath('/admin/master-data/kecamatan');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: 'Gagal mengupdate data kecamatan.' };
+  }
+}
+
 export async function deleteKecamatan(id: number) {
   try {
     await db.delete(kecamatan).where(eq(kecamatan.id, id));
@@ -47,6 +57,16 @@ export async function createDesa(data: { namaDesa: string; kecamatanId: number }
     return { success: true };
   } catch (err) {
     return { success: false, error: 'Gagal membuat data desa.' };
+  }
+}
+
+export async function updateDesa(id: number, data: { namaDesa: string; kecamatanId: number }) {
+  try {
+    await db.update(desa).set(data).where(eq(desa.id, id));
+    revalidatePath('/admin/master-data/desa');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: 'Gagal mengupdate data desa.' };
   }
 }
 

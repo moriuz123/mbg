@@ -17,7 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <main className="flex-1 lg:ml-[280px] flex flex-col min-w-0 transition-all duration-300">
         
         {/* Top Header - Enterprise Style */}
-        <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
+        <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200/60 shadow-sm">
           <div className="flex items-center gap-4 flex-1">
             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-100/80 rounded-full w-full max-w-md border border-slate-200/50 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
               <Search size={18} className="text-slate-400" />

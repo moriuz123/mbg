@@ -3,10 +3,18 @@
 import React, { useState } from 'react';
 import { Plus, X, Trash2, LayoutList } from 'lucide-react';
 import { createSysMenu, deleteSysMenu } from '@/app/actions/sysMenu';
+import Toast from '@/components/ui/Toast';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function MenuClientUI({ initialData }: { initialData: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success'|'error'>('success');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,19 +33,46 @@ export default function MenuClientUI({ initialData }: { initialData: any[] }) {
     
     if (res.success) {
       setIsOpen(false);
+      setToastType('success');
+      setToastMessage('Berhasil menambahkan menu!');
     } else {
-      alert(res.error || 'Gagal menyimpan');
+      setToastType('error');
+      setToastMessage(res.error || 'Gagal menyimpan');
     }
   }
 
-  async function handleDelete(id: string) {
-    if (confirm('Yakin ingin menghapus menu ini?')) {
-      await deleteSysMenu(id);
+  function handleDeleteClick(id: string) {
+    setConfirmId(id);
+    setConfirmOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmId) return;
+    setIsDeleting(true);
+    const res = await deleteSysMenu(confirmId);
+    setIsDeleting(false);
+    setConfirmOpen(false);
+    
+    if (res.success) {
+      setToastType('success');
+      setToastMessage('Data Menu berhasil dihapus!');
+    } else {
+      setToastType('error');
+      setToastMessage(res.error || 'Gagal menghapus data');
     }
   }
 
   return (
     <>
+      <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />
+      <ConfirmModal 
+        isOpen={confirmOpen} 
+        title="Hapus Data Menu" 
+        message="Apakah Anda yakin ingin menghapus data menu ini? Data yang dihapus tidak dapat dikembalikan."
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
       <div className="flex justify-end mb-4">
   <button 
           onClick={() => setIsOpen(true)}
@@ -135,8 +170,8 @@ export default function MenuClientUI({ initialData }: { initialData: any[] }) {
                   </td>
                   <td className="p-4 text-right">
                     <button 
-                      onClick={() => handleDelete(item.id)}
-                      className="text-red-500 hover:bg-red-50 p-2 rounded inline-flex items-center gap-1"
+                      onClick={() => handleDeleteClick(item.id)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 flex items-center gap-1"
                     >
                       <Trash2 size={16} /> Hapus
                     </button>

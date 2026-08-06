@@ -7,7 +7,7 @@ import { authClient } from '@/lib/auth-client';
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,8 +17,8 @@ export default function Login() {
     setLoading(true);
     setError('');
 
-    const { data, error } = await authClient.signIn.email({
-        email,
+    const { data, error } = await authClient.signIn.username({
+        username,
         password
     });
 
@@ -54,22 +54,22 @@ export default function Login() {
 
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label className="text-sm font-medium mb-2" style={{ display: 'block' }} htmlFor="email">
-              Email Petugas
+            <label className="text-sm font-medium mb-2" style={{ display: 'block' }} htmlFor="username">
+              Username Petugas
             </label>
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }}>
                 <Mail size={18} />
               </div>
               <input
-                id="email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                name="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', outline: 'none' }}
-                placeholder="admin@lebakkab.go.id"
+                placeholder="sppg5"
               />
             </div>
           </div>

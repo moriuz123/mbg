@@ -8,6 +8,16 @@ export default async function SupplyChainPage() {
   const sppgList = await getSppg();
   const jenisPanganList = await getJenisPangan();
   const pemasokList = await getPemasok();
+  
+  const { auth } = await import('@/lib/auth');
+  const { headers } = await import('next/headers');
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (session?.user?.role === 'operator_penggilingan' || session?.user?.role === 'operator_sekolah' || session?.user?.role === 'operator_posyandu') {
+    const { redirect } = await import('next/navigation');
+    redirect('/admin');
+  }
 
   return (
     <main className="max-w-6xl mx-auto space-y-6">

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Plus, X, Trash2, Package, Calendar, MapPin, Search } from 'lucide-react';
 import { createSupplyChain, deleteSupplyChain } from '@/app/actions/supplyChain';
+import Toast from '@/components/ui/Toast';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function SupplyChainClientUI({ 
   initialData, 
@@ -18,6 +20,12 @@ export default function SupplyChainClientUI({
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success'|'error'>('success');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Filter Data
   const filteredData = initialData.filter(item => {
@@ -47,20 +55,48 @@ export default function SupplyChainClientUI({
     
     if (res.success) {
       setIsOpen(false);
+      setToastType('success');
+      setToastMessage('Berhasil menambahkan rantai pasok!');
     } else {
-      alert(res.error);
+      setToastType('error');
+      setToastMessage(res.error || 'Terjadi kesalahan');
     }
   }
 
-  async function handleDelete(id: number) {
-    if (confirm('Yakin ingin menghapus data rantai pasok ini?')) {
-      await deleteSupplyChain(id);
+  function handleDeleteClick(id: number) {
+    setConfirmId(id);
+    setConfirmOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmId) return;
+    setIsDeleting(true);
+    const res = await deleteSupplyChain(confirmId);
+    setIsDeleting(false);
+    setConfirmOpen(false);
+    
+    if (res.success) {
+      setToastType('success');
+      setToastMessage('Data Supply Chain berhasil dihapus!');
+    } else {
+      setToastType('error');
+      setToastMessage(res.error || 'Gagal menghapus data');
     }
   }
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+      <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />
+      <ConfirmModal 
+        isOpen={confirmOpen} 
+        title="Hapus Data Rantai Pasok" 
+        message="Apakah Anda yakin ingin menghapus data rantai pasok ini? Data yang dihapus tidak dapat dikembalikan."
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div className="relative w-full sm:max-w-xs">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search size={18} className="text-slate-400" />
@@ -200,7 +236,7 @@ export default function SupplyChainClientUI({
                   </td>
                   <td className="p-5 text-right">
                     <button 
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDeleteClick(item.id)}
                       className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 inline-flex items-center"
                       title="Hapus Data"
                     >

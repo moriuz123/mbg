@@ -1,15 +1,32 @@
 import React from 'react';
 import { db } from '@/db';
-import { sekolah, kategoriPenerima } from '@/db/schema';
+import { sekolah, kategoriPenerima, kecamatan, desa } from '@/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { GraduationCap, MapPin, Users } from 'lucide-react';
 import SekolahClientUI from './SekolahClientUI';
 
 export const dynamic = 'force-dynamic';
 
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
+
 export default async function DataSekolahPage() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const role = session?.user?.role || '';
+  const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
   const dataSekolahRaw = await db.query.sekolah.findMany({
     orderBy: [desc(sekolah.createdAt)],
+    with: {
+      kecamatan: true
+    }
+  });
+  
+  const kecamatanList = await db.query.kecamatan.findMany({
+    orderBy: [kecamatan.namaKecamatan]
+  });
+
+  const desaList = await db.query.desa.findMany({
+    orderBy: [desa.namaDesa]
   });
 
   const categories = await db.query.kategoriPenerima.findMany({
@@ -35,7 +52,7 @@ export default async function DataSekolahPage() {
           <p className="text-slate-500 m-0">Kelola data sekolah berjenjang yang menjadi target distribusi SPPG.</p>
         </div>
       </div>
-      <SekolahClientUI initialData={dataSekolah} categories={categories} />
+      <SekolahClientUI initialData={dataSekolah} categories={categories} isAdmin={isAdmin} kecamatanList={kecamatanList} desaList={desaList} />
     </div>
   );
 }

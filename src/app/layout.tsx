@@ -15,25 +15,33 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
         <script src="https://cdn.tailwindcss.com"></script>
         <script dangerouslySetInnerHTML={{
           __html: `
             tailwind.config = {
               theme: {
                 extend: {
+                  fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+                  },
                   colors: {
                     primary: {
-                      50: '#fbf5dd',
-                      100: '#f1eac1',
-                      200: '#e7e1b1',
-                      300: '#bbce75',
-                      400: '#749e47',
-                      500: '#4c8538',
-                      600: '#306d29',
-                      700: '#225e1e',
-                      800: '#175816',
-                      900: '#0d530e',
+                      50: '#e8f0fb',
+                      100: '#d1e1f7',
+                      200: '#a3c4ee',
+                      300: '#75a6e5',
+                      400: '#4788dc',
+                      500: '#1e5ca8', // Base blue
+                      600: '#184a86',
+                      700: '#123765',
+                      800: '#0a2463', // Dark blue
+                      900: '#071840', // Very dark blue
+                    },
+                    accent: {
+                      500: '#e8a020', // Gold/orange
+                      600: '#d1901d',
                     }
                   }
                 }

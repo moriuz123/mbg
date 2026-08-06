@@ -1,10 +1,18 @@
 import { getPenggilingan } from "@/app/actions/penggilingan";
 import { getKecamatan } from "@/app/actions/wilayah";
 import PenggilinganClientUI from "./PenggilinganClientUI";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function PenggilinganPage() {
   const initialData = await getPenggilingan();
   const kecamatanList = await getKecamatan();
+  
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const role = session?.user?.role;
+  const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
 
   return (
     <main className="max-w-6xl mx-auto space-y-6">
@@ -15,7 +23,7 @@ export default async function PenggilinganPage() {
         </div>
       </div>
 
-      <PenggilinganClientUI initialData={initialData} kecamatanList={kecamatanList} />
+      <PenggilinganClientUI initialData={initialData} kecamatanList={kecamatanList} isAdmin={isAdmin} />
     </main>
   );
 }

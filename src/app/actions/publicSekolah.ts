@@ -33,7 +33,13 @@ export async function getPublicSekolahPenerima() {
     .leftJoin(kategoriPenerima, eq(kategoriPenerima.id, sekolah.kategoriId))
     .where(eq(sekolahPenerimaanMbg.status, 'Aktif'));
 
-  return result;
+  const uniqueMap = new Map();
+  for (const item of result) {
+    if (!uniqueMap.has(item.sekolahId)) {
+      uniqueMap.set(item.sekolahId, item);
+    }
+  }
+  return Array.from(uniqueMap.values());
 }
 
 export async function getFilterOptions() {

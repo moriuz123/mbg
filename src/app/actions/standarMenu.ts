@@ -1,0 +1,85 @@
+'use server';
+
+import { db } from '@/db';
+import { standarMenuGizi, kategoriPenerima } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+
+export async function getStandarMenu() {
+  try {
+    const list = await db.select({
+      id: standarMenuGizi.id,
+      namaMenu: standarMenuGizi.namaMenu,
+      deskripsi: standarMenuGizi.deskripsi,
+      kaloriKkal: standarMenuGizi.kaloriKkal,
+      proteinGram: standarMenuGizi.proteinGram,
+      karbohidratGram: standarMenuGizi.karbohidratGram,
+      lemakGram: standarMenuGizi.lemakGram,
+      status: standarMenuGizi.status,
+      kategoriTargetId: standarMenuGizi.kategoriTargetId,
+      kategoriNama: kategoriPenerima.namaKategori
+    })
+    .from(standarMenuGizi)
+    .leftJoin(kategoriPenerima, eq(standarMenuGizi.kategoriTargetId, kategoriPenerima.id))
+    .orderBy(standarMenuGizi.namaMenu);
+    
+    return list;
+  } catch (error) {
+    console.error('Error fetching standar menu:', error);
+    return [];
+  }
+}
+
+export async function getKategoriPenerima() {
+  try {
+    return await db.select().from(kategoriPenerima).orderBy(kategoriPenerima.urutan);
+  } catch (error) {
+    console.error('Error fetching kategori:', error);
+    return [];
+  }
+}
+
+export async function saveStandarMenu(formData: FormData) {
+  try {
+    const id = formData.get('id') ? parseInt(formData.get('id') as string) : null;
+    const namaMenu = formData.get('namaMenu') as string;
+    const deskripsi = formData.get('deskripsi') as string;
+    const kaloriKkal = formData.get('kaloriKkal') ? parseInt(formData.get('kaloriKkal') as string) : null;
+    const proteinGram = formData.get('proteinGram') ? formData.get('proteinGram') as string : null;
+    const karbohidratGram = formData.get('karbohidratGram') ? formData.get('karbohidratGram') as string : null;
+    const lemakGram = formData.get('lemakGram') ? formData.get('lemakGram') as string : null;
+    const kategoriTargetId = formData.get('kategoriTargetId') ? parseInt(formData.get('kategoriTargetId') as string) : null;
+    const status = formData.get('status') as string || 'Aktif';
+
+    if (id) {
+      // Update
+      await db.update(standarMenuGizi)
+        .set({
+          namaMenu, deskripsi, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status
+        })
+        .where(eq(standarMenuGizi.id, id));
+    } else {
+      // Insert
+      await db.insert(standarMenuGizi).values({
+        namaMenu, deskripsi, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status
+      });
+    }
+
+    revalidatePath('/admin/standar-menu');
+    return { success: true, message: 'Data menu gizi berhasil disimpan' };
+  } catch (error) {
+    console.error('Error saving menu:', error);
+    return { success: false, message: 'Gagal menyimpan data menu' };
+  }
+}
+
+export async function deleteStandarMenu(id: number) {
+  try {
+    await db.delete(standarMenuGizi).where(eq(standarMenuGizi.id, id));
+    revalidatePath('/admin/standar-menu');
+    return { success: true, message: 'Data menu berhasil dihapus' };
+  } catch (error) {
+    console.error('Error deleting menu:', error);
+    return { success: false, message: 'Gagal menghapus data menu' };
+  }
+}

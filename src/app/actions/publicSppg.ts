@@ -50,7 +50,8 @@ export async function getPublicLaporanAktifitas() {
   const data = await db.query.sppgLaporanAktifitas.findMany({
     with: {
       sppg: true,
-      sekolah: true
+      sekolah: true,
+      standarMenuGizi: true
     },
     orderBy: [desc(sppgLaporanAktifitas.tanggal), desc(sppgLaporanAktifitas.createdAt)]
   });
@@ -58,7 +59,7 @@ export async function getPublicLaporanAktifitas() {
   return data.map(p => ({
     id: p.id,
     tanggal: p.tanggal,
-    menu: p.menu,
+    menu: p.standarMenuGizi?.namaMenu || '-',
     jumlahPorsi: p.jumlahPorsi,
     status: p.status,
     catatan: p.catatan,

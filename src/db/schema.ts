@@ -4,13 +4,17 @@ import { sql, relations } from "drizzle-orm";
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
+  username: text("username").unique(),
+  displayUsername: text("displayUsername"),
   email: text("email").notNull().unique(),
   emailVerified: boolean("emailVerified").notNull(),
   image: text("image"),
-  role: text("role").default("publik").notNull(), // admin_dinas, operator_kecamatan, operator_penggilingan, operator_sekolah, publik
+  role: text("role").default("publik").notNull(), // admin_dinas, operator_sppg, operator_penggilingan, operator_sekolah, operator_posyandu
+  sppgId: integer("sppg_id"),
   kecamatanId: integer("kecamatan_id"),
   penggilinganId: integer("penggilingan_id"),
   sekolahId: integer("sekolah_id"),
+  posyanduId: integer("posyandu_id"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
@@ -67,6 +71,8 @@ export const desa = pgTable("desa", {
 export const yayasan = pgTable("yayasan", {
   id: integer("yayasan_id").primaryKey().generatedAlwaysAsIdentity(),
   namaYayasan: text("nama_yayasan").notNull(),
+  desaId: integer("desa_id").references(() => desa.id),
+  kecamatanId: integer("kecamatan_id").references(() => kecamatan.id),
   alamat: text("alamat"),
   kontak: text("kontak"),
 });
@@ -109,6 +115,21 @@ export const kategoriPenerima = pgTable("kategori_penerima", {
   id: integer("kategori_id").primaryKey().generatedAlwaysAsIdentity(),
   namaKategori: text("nama_kategori").notNull().unique(),
   urutan: integer("urutan").default(0),
+});
+
+// ==== STANDAR MENU GIZI ====
+export const standarMenuGizi = pgTable("standar_menu_gizi", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  namaMenu: text("nama_menu").notNull(),
+  deskripsi: text("deskripsi"),
+  kaloriKkal: integer("kalori_kkal"),
+  proteinGram: numeric("protein_gram", { precision: 5, scale: 2 }),
+  karbohidratGram: numeric("karbohidrat_gram", { precision: 5, scale: 2 }),
+  lemakGram: numeric("lemak_gram", { precision: 5, scale: 2 }),
+  kategoriTargetId: integer("kategori_target_id").references(() => kategoriPenerima.id), // Menu spesifik per kategori (SD, SMP, dll)
+  status: text("status").default("Aktif"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // ==== MASTER SEKOLAH/LEMBAGA PENERIMA ====
@@ -186,12 +207,87 @@ export const sekolahPenerimaanMbg = pgTable("sekolah_penerimaan_mbg", {
   };
 });
 
+// ==== POSYANDU ====
+export const posyandu = pgTable("posyandu", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  namaPosyandu: text("nama_posyandu").notNull(),
+  desaId: integer("desa_id").references(() => desa.id),
+  kecamatanId: integer("kecamatan_id").references(() => kecamatan.id),
+  alamatPosyandu: text("alamat_posyandu"),
+  namaKetuaKader: text("nama_ketua_kader"),
+  noHpKetuaKader: text("no_hp_ketua_kader"),
+  jumlahBusui: integer("jumlah_busui").default(0),
+  jumlahBalita: integer("jumlah_balita").default(0),
+  jumlahBumil: integer("jumlah_bumil").default(0),
+  jumlahTotal: integer("jumlah_total").default(0),
+  keterangan: text("keterangan"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    namaIdx: index("idx_posyandu_nama").on(table.namaPosyandu),
+    desaIdx: index("idx_posyandu_desa").on(table.desaId),
+  };
+});
+
+export const sppgPosyanduManfaat = pgTable("sppg_posyandu_manfaat", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
+  posyanduId: integer("posyandu_id").notNull().references(() => posyandu.id),
+  jumlahBusui: integer("jumlah_busui").default(0),
+  jumlahBalita: integer("jumlah_balita").default(0),
+  jumlahBumil: integer("jumlah_bumil").default(0),
+  jumlahTotal: integer("jumlah_total").default(0),
+  status: text("status").default("Aktif"),
+  tanggalMulai: date("tanggal_mulai").notNull(),
+  tanggalSelesai: date("tanggal_selesai"),
+  catatan: text("catatan"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    sppgIdx: index("idx_posyandu_penerima_sppg").on(table.sppgId),
+    posyanduIdx: index("idx_posyandu_penerima_posyandu").on(table.posyanduId),
+    uniqueSppgPosyandu: uniqueIndex("sppg_posyandu_manfaat_unique").on(table.sppgId, table.posyanduId),
+  };
+});
+
+export const posyanduPenerimaanMbg = pgTable("posyandu_penerimaan_mbg", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  posyanduId: integer("posyandu_id").notNull().references(() => posyandu.id, { onDelete: 'cascade' }),
+  sppgId: integer("sppg_id").notNull().references(() => sppg.id),
+  status: text("status").default("Aktif").notNull(),
+  tanggalMulaiMbg: date("tanggal_mulai_mbg").notNull(),
+  tanggalSelesaiMbg: date("tanggal_selesai_mbg"),
+  catatanStatus: text("catatan_status"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    posyanduIdx: index("idx_posyandu_penerimaan_posyandu").on(table.posyanduId),
+    sppgIdx: index("idx_posyandu_penerimaan_sppg").on(table.sppgId),
+  };
+});
+
 // ==== SUPPLY CHAIN (BAHAN BAKU) ====
 export const pemasok = pgTable("pemasok", {
   id: integer("pemasok_id").primaryKey().generatedAlwaysAsIdentity(),
   namaPemasok: text("nama_pemasok").notNull(),
+  tipePemasok: text("tipe_pemasok"), // Koperasi, BUMDes, Perusahaan, Individu
+  npwp: text("npwp"),
+  picNama: text("pic_nama"),
+  picKontak: text("pic_kontak"),
+  email: text("email"),
   alamatPemasok: text("alamat_pemasok"),
-  kontak: text("kontak"),
+  kecamatanId: integer("kecamatan_id"),
+  desaId: integer("desa_id"),
+  status: text("status").default("Aktif"),
+  bankNama: text("bank_nama"),
+  bankRekening: text("bank_rekening"),
+  bankAtasNama: text("bank_atas_nama"),
+  kontak: text("kontak"), // legacy company contact
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const jenisPangan = pgTable("jenis_pangan", {
@@ -292,40 +388,6 @@ export const auditLog = pgTable("audit_log", {
   };
 });
 
-// Legacy Tables (Kept for frontend compatibility to not break existing CRUDs during migration)
-// Note: In a real migration we would update the frontend files to use the new tables, 
-// but since this is just a quick conversion, we will keep both for a moment or the frontend will break.
-export const masterSekolah = pgTable("master_sekolah", {
-  id: text("id").primaryKey(),
-  namaSekolah: text("nama_sekolah").notNull(),
-  jenjang: text("jenjang").notNull(),
-  alamat: text("alamat").notNull(),
-  jumlahSiswa: text("jumlah_siswa").notNull(),
-  sppgId: text("sppg_id"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export const masterPemasok = pgTable("master_pemasok", {
-  id: text("id").primaryKey(),
-  namaPemasok: text("nama_pemasok").notNull(),
-  kategori: text("kategori").notNull(), 
-  alamat: text("alamat"),
-  kontak: text("kontak"),
-  status: text("status").default("Aktif").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export const masterJenisPangan = pgTable("master_jenis_pangan", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export const masterDistributor = pgTable("master_distributor", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
 
 export const sysMenu = pgTable("sys_menu", {
   id: text("id").primaryKey(),
@@ -346,6 +408,100 @@ export const desaRelations = relations(desa, ({ one }) => ({
   }),
 }));
 
+export const auditLogRelations = relations(auditLog, ({ one }) => ({
+  user: one(user, {
+    fields: [auditLog.userId],
+    references: [user.id],
+  }),
+}));
+
+// ==== MODUL PENGAWASAN & INVENTORI SPPG ====
+
+// 1. Pembelian Bahan Pangan (Realisasi dari Kebutuhan)
+export const sppgPembelianBahan = pgTable("sppg_pembelian_bahan", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
+  pemasokId: integer("pemasok_id").notNull().references(() => pemasok.id),
+  jenisPanganId: integer("jenis_pangan_id").notNull().references(() => jenisPangan.id),
+  tanggalPembelian: date("tanggal_pembelian").notNull(),
+  mingguKe: integer("minggu_ke"), // e.g., 1, 2, 3, 4 of the month
+  volume: numeric("volume", { precision: 12, scale: 2 }).notNull(),
+  satuan: text("satuan").notNull().default("Kg"),
+  hargaTotal: numeric("harga_total", { precision: 15, scale: 2 }),
+  fotoNota: text("foto_nota"),
+  catatan: text("catatan"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sppgPembelianBahanRelations = relations(sppgPembelianBahan, ({ one }) => ({
+  sppg: one(sppg, {
+    fields: [sppgPembelianBahan.sppgId],
+    references: [sppg.id],
+  }),
+  pemasok: one(pemasok, {
+    fields: [sppgPembelianBahan.pemasokId],
+    references: [pemasok.id],
+  }),
+  jenisPangan: one(jenisPangan, {
+    fields: [sppgPembelianBahan.jenisPanganId],
+    references: [jenisPangan.id],
+  }),
+}));
+
+// 2. Pemakaian Bahan Pangan (Stock Out)
+export const sppgPemakaianBahan = pgTable("sppg_pemakaian_bahan", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
+  jenisPanganId: integer("jenis_pangan_id").notNull().references(() => jenisPangan.id),
+  standarMenuId: integer("standar_menu_id").references(() => standarMenuGizi.id),
+  tanggalPemakaian: date("tanggal_pemakaian").notNull(),
+  mingguKe: integer("minggu_ke"),
+  volume: numeric("volume", { precision: 12, scale: 2 }).notNull(),
+  satuan: text("satuan").notNull().default("Kg"),
+  catatan: text("catatan"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sppgPemakaianBahanRelations = relations(sppgPemakaianBahan, ({ one }) => ({
+  sppg: one(sppg, {
+    fields: [sppgPemakaianBahan.sppgId],
+    references: [sppg.id],
+  }),
+  jenisPangan: one(jenisPangan, {
+    fields: [sppgPemakaianBahan.jenisPanganId],
+    references: [jenisPangan.id],
+  }),
+  standarMenuGizi: one(standarMenuGizi, {
+    fields: [sppgPemakaianBahan.standarMenuId],
+    references: [standarMenuGizi.id],
+  }),
+}));
+
+// 3. Uji Rapid Test Bahan Segar
+export const sppgUjiRapidTest = pgTable("sppg_uji_rapid_test", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
+  jenisPanganId: integer("jenis_pangan_id").notNull().references(() => jenisPangan.id),
+  tanggalUji: date("tanggal_uji").notNull(),
+  parameterUji: text("parameter_uji").notNull(), // Misal: Formalin, Boraks, E.Coli
+  hasilUji: text("hasil_uji").notNull(), // Aman / Tidak Aman / Peringatan
+  petugasPenguji: text("petugas_penguji").notNull(),
+  tindakanLanjut: text("tindakan_lanjut"), // Misal: Dibuang, Boleh Digunakan
+  fotoBukti: text("foto_bukti"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sppgUjiRapidTestRelations = relations(sppgUjiRapidTest, ({ one }) => ({
+  sppg: one(sppg, {
+    fields: [sppgUjiRapidTest.sppgId],
+    references: [sppg.id],
+  }),
+  jenisPangan: one(jenisPangan, {
+    fields: [sppgUjiRapidTest.jenisPanganId],
+    references: [jenisPangan.id],
+  }),
+}));
+
 export const sppgRelations = relations(sppg, ({ one, many }) => ({
   desa: one(desa, {
     fields: [sppg.desaId],
@@ -357,6 +513,7 @@ export const sppgRelations = relations(sppg, ({ one, many }) => ({
   }),
   sertifikasi: many(sppgSertifikasi),
   penerimaManfaat: many(sppgPenerimaManfaat),
+  posyanduManfaat: many(sppgPosyanduManfaat),
 }));
 
 export const sppgSertifikasiRelations = relations(sppgSertifikasi, ({ one }) => ({
@@ -458,9 +615,10 @@ export const penggilinganDistribusiRelations = relations(penggilinganDistribusi,
 export const sppgLaporanAktifitas = pgTable("sppg_laporan_aktifitas", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
-  sekolahId: integer("sekolah_id").notNull().references(() => sekolah.id, { onDelete: 'cascade' }),
+  sekolahId: integer("sekolah_id").references(() => sekolah.id, { onDelete: 'cascade' }),
+  posyanduId: integer("posyandu_id").references(() => posyandu.id, { onDelete: 'cascade' }),
   tanggal: date("tanggal").notNull(),
-  menu: text("menu").notNull(),
+  standarMenuId: integer("standar_menu_id").notNull().references(() => standarMenuGizi.id),
   jumlahPorsi: integer("jumlah_porsi"),
   status: text("status").default("Terkirim"), // Terkirim, Diterima, Bermasalah
   catatan: text("catatan"),
@@ -468,7 +626,7 @@ export const sppgLaporanAktifitas = pgTable("sppg_laporan_aktifitas", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sppgLaporanAktifitasRelations = relations(sppgLaporanAktifitas, ({ one }) => ({
+export const sppgLaporanAktifitasRelations = relations(sppgLaporanAktifitas, ({ one, many }) => ({
   sppg: one(sppg, {
     fields: [sppgLaporanAktifitas.sppgId],
     references: [sppg.id],
@@ -476,6 +634,102 @@ export const sppgLaporanAktifitasRelations = relations(sppgLaporanAktifitas, ({ 
   sekolah: one(sekolah, {
     fields: [sppgLaporanAktifitas.sekolahId],
     references: [sekolah.id],
+  }),
+  posyandu: one(posyandu, {
+    fields: [sppgLaporanAktifitas.posyanduId],
+    references: [posyandu.id],
+  }),
+  standarMenuGizi: one(standarMenuGizi, {
+    fields: [sppgLaporanAktifitas.standarMenuId],
+    references: [standarMenuGizi.id],
+  }),
+  verifikasiSekolah: many(sekolahLaporanAktifitas),
+  verifikasiPosyandu: many(posyanduLaporanAktifitas),
+}));
+
+// ==== VERIFIKASI DUA ARAH (LAPORAN PENERIMAAN OLEH SEKOLAH) ====
+export const sekolahLaporanAktifitas = pgTable("sekolah_laporan_aktifitas", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sppgLaporanId: integer("sppg_laporan_id").notNull().references(() => sppgLaporanAktifitas.id, { onDelete: 'cascade' }),
+  sekolahId: integer("sekolah_id").notNull().references(() => sekolah.id, { onDelete: 'cascade' }),
+  tanggalDiterima: timestamp("tanggal_diterima").defaultNow().notNull(),
+  statusDiterima: text("status_diterima").notNull().default("Diterima Lengkap"), // Diterima Lengkap, Diterima Sebagian, Ditolak
+  jumlahPorsiDiterima: integer("jumlah_porsi_diterima"),
+  kondisiMakanan: text("kondisi_makanan").default("Baik"), // Baik, Rusak, Basi, Kurang
+  catatan: text("catatan"),
+  fotoDokumentasi: text("foto_dokumentasi"),
+  diverifikasiOleh: text("diverifikasi_oleh"), // Nama guru/petugas
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sekolahLaporanAktifitasRelations = relations(sekolahLaporanAktifitas, ({ one }) => ({
+  laporanSppg: one(sppgLaporanAktifitas, {
+    fields: [sekolahLaporanAktifitas.sppgLaporanId],
+    references: [sppgLaporanAktifitas.id],
+  }),
+  sekolah: one(sekolah, {
+    fields: [sekolahLaporanAktifitas.sekolahId],
+    references: [sekolah.id],
+  }),
+}));
+
+// ==== VERIFIKASI DUA ARAH (LAPORAN PENERIMAAN OLEH POSYANDU) ====
+export const posyanduLaporanAktifitas = pgTable("posyandu_laporan_aktifitas", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sppgLaporanId: integer("sppg_laporan_id").notNull().references(() => sppgLaporanAktifitas.id, { onDelete: 'cascade' }),
+  posyanduId: integer("posyandu_id").notNull().references(() => posyandu.id, { onDelete: 'cascade' }),
+  tanggalDiterima: timestamp("tanggal_diterima").defaultNow().notNull(),
+  statusDiterima: text("status_diterima").notNull().default("Diterima Lengkap"), // Diterima Lengkap, Diterima Sebagian, Ditolak
+  jumlahPorsiDiterima: integer("jumlah_porsi_diterima"),
+  kondisiMakanan: text("kondisi_makanan").default("Baik"), // Baik, Rusak, Basi, Kurang
+  catatan: text("catatan"),
+  fotoDokumentasi: text("foto_dokumentasi"),
+  diverifikasiOleh: text("diverifikasi_oleh"), // Nama kader/petugas
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const posyanduLaporanAktifitasRelations = relations(posyanduLaporanAktifitas, ({ one }) => ({
+  laporanSppg: one(sppgLaporanAktifitas, {
+    fields: [posyanduLaporanAktifitas.sppgLaporanId],
+    references: [sppgLaporanAktifitas.id],
+  }),
+  posyandu: one(posyandu, {
+    fields: [posyanduLaporanAktifitas.posyanduId],
+    references: [posyandu.id],
+  }),
+}));
+
+export const posyanduRelations = relations(posyandu, ({ one, many }) => ({
+  desa: one(desa, {
+    fields: [posyandu.desaId],
+    references: [desa.id],
+  }),
+  kecamatan: one(kecamatan, {
+    fields: [posyandu.kecamatanId],
+    references: [kecamatan.id],
+  }),
+  riwayatMbg: many(posyanduPenerimaanMbg),
+}));
+
+export const sppgPosyanduManfaatRelations = relations(sppgPosyanduManfaat, ({ one }) => ({
+  sppg: one(sppg, {
+    fields: [sppgPosyanduManfaat.sppgId],
+    references: [sppg.id],
+  }),
+  posyandu: one(posyandu, {
+    fields: [sppgPosyanduManfaat.posyanduId],
+    references: [posyandu.id],
+  }),
+}));
+
+export const posyanduPenerimaanMbgRelations = relations(posyanduPenerimaanMbg, ({ one }) => ({
+  posyandu: one(posyandu, {
+    fields: [posyanduPenerimaanMbg.posyanduId],
+    references: [posyandu.id],
+  }),
+  sppg: one(sppg, {
+    fields: [posyanduPenerimaanMbg.sppgId],
+    references: [sppg.id],
   }),
 }));
 
@@ -490,4 +744,44 @@ export const pengaduanRelations = relations(pengaduan, ({ one }) => ({
   }),
 }));
 
+// ==== DYNAMIC FRONTEND ====
+export const navigationMenu = pgTable("navigation_menu", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  urutan: integer("urutan").default(0),
+  status: text("status").default("Aktif").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
+export const siteSetting = pgTable("site_setting", {
+  key: text("key").primaryKey(), // e.g., 'hero_bg_image', 'site_title'
+  value: text("value").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// ==== PENGUMUMAN ====
+export const pengumuman = pgTable("pengumuman", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  judul: text("judul").notNull(),
+  isi: text("isi").notNull(),
+  authorId: text("author_id").notNull().references(() => user.id),
+  sppgId: integer("sppg_id").references(() => sppg.id), // If created by SPPG
+  status: text("status").default("Aktif").notNull(), // Aktif, Draft, Arsip
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const pengumumanRelations = relations(pengumuman, ({ one }) => ({
+  author: one(user, {
+    fields: [pengumuman.authorId],
+    references: [user.id],
+  }),
+  sppg: one(sppg, {
+    fields: [pengumuman.sppgId],
+    references: [sppg.id],
+  }),
+}));

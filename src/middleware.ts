@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
       const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
 
       // 1. Data SPPG: Hanya untuk Admin & SPPG
-      if (path.startsWith('/admin/sppg') && !isAdmin && userRole !== 'sppg') {
+      if (path.startsWith('/admin/sppg') && !isAdmin && userRole !== 'sppg' && userRole !== 'operator_sppg') {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
       
@@ -43,7 +43,12 @@ export async function middleware(request: NextRequest) {
       }
       
       // Laporan Aktifitas: Hanya untuk Admin & SPPG
-      if (path.startsWith('/admin/laporan-aktifitas') && !isAdmin && userRole !== 'sppg') {
+      if (path.startsWith('/admin/laporan-aktifitas') && !isAdmin && userRole !== 'sppg' && userRole !== 'operator_sppg') {
+        return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
+      }
+
+      // Verifikasi: Hanya untuk Admin, Operator Sekolah & Operator Posyandu
+      if (path.startsWith('/admin/verifikasi') && !isAdmin && userRole !== 'operator_sekolah' && userRole !== 'operator_posyandu') {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
       
@@ -51,6 +56,7 @@ export async function middleware(request: NextRequest) {
       if (path.startsWith('/admin/master-data') && !isAdmin) {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
+
 
       // Allow access if passed rules
       return NextResponse.next();

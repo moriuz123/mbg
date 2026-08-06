@@ -18,16 +18,16 @@ export async function createSekolah(data: {
   alamatSekolah?: string;
   namaKepalaSekolah?: string;
   noHpKepalaSekolah?: string;
-  jumlahSiswaLaki: number;
-  jumlahSiswaPerempuan: number;
+  jumlahSiswaTotal: number;
   tahunAjaranLast?: string;
+  desaId?: number;
+  kecamatanId?: number;
 }) {
   try {
     await db.insert(sekolah).values({
       ...data,
-      jumlahSiswaTotal: data.jumlahSiswaLaki + data.jumlahSiswaPerempuan
     });
-    revalidatePath('/admin/sekolah');
+    revalidatePath('/admin/master-data/sekolah');
     return { success: true };
   } catch (error) {
     console.error("Error creating sekolah:", error);
@@ -42,16 +42,16 @@ export async function updateSekolah(id: number, data: {
   alamatSekolah?: string;
   namaKepalaSekolah?: string;
   noHpKepalaSekolah?: string;
-  jumlahSiswaLaki: number;
-  jumlahSiswaPerempuan: number;
+  jumlahSiswaTotal: number;
   tahunAjaranLast?: string;
+  desaId?: number;
+  kecamatanId?: number;
 }) {
   try {
     await db.update(sekolah).set({
       ...data,
-      jumlahSiswaTotal: data.jumlahSiswaLaki + data.jumlahSiswaPerempuan
     }).where(eq(sekolah.id, id));
-    revalidatePath('/admin/sekolah');
+    revalidatePath('/admin/master-data/sekolah');
     return { success: true };
   } catch (error) {
     console.error("Error updating sekolah:", error);
@@ -62,7 +62,7 @@ export async function updateSekolah(id: number, data: {
 export async function deleteSekolah(id: number) {
   try {
     await db.delete(sekolah).where(eq(sekolah.id, id));
-    revalidatePath('/admin/sekolah');
+    revalidatePath('/admin/master-data/sekolah');
     return { success: true };
   } catch (error) {
     console.error("Error deleting sekolah:", error);
