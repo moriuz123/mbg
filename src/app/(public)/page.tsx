@@ -19,7 +19,7 @@ export default async function Public() {
   
   const heroBgImage = settings.hero_bg_image || null;
   const heroStyle = heroBgImage 
-    ? { backgroundImage: `linear-gradient(to right, rgba(5, 15, 40, 0.98) 0%, rgba(5, 15, 40, 0.96) 100%), url(${heroBgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    ? { backgroundImage: `linear-gradient(to bottom, rgba(5, 15, 40, 0.98) 0%, rgba(5, 15, 40, 0.96) 100%), url(${heroBgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { background: 'linear-gradient(135deg,#071840_0%,#0a2463_45%,#1e5ca8_100%)' };
   
   return (
@@ -46,91 +46,45 @@ export default async function Public() {
         <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-primary-400/20 rounded-full blur-[150px] pointer-events-none mix-blend-screen transform -translate-x-1/4 translate-y-1/4"></div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="text-left max-w-2xl">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8 shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
-                <div className="w-6 h-6 rounded-full bg-accent-500 flex items-center justify-center">
-                  <Star className="w-3.5 h-3.5 text-[#071840] fill-current" />
-                </div>
-                <span className="text-sm font-semibold text-white tracking-wide">Program Prioritas Nasional 2026</span>
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8 shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
+              <div className="w-6 h-6 rounded-full bg-accent-500 flex items-center justify-center">
+                <Star className="w-3.5 h-3.5 text-[#071840] fill-current" />
               </div>
-              
-              <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-lg">
-                Makan Bergizi Gratis
-                <span className="text-accent-500 block mt-3 text-4xl md:text-5xl lg:text-6xl">Kabupaten Lebak</span>
-              </h1>
-              
-              <p className="text-lg md:text-xl text-white/80 mb-10 leading-relaxed font-medium">
-                Sistem informasi terpadu yang memantau kualitas gizi, rantai pasok lokal, dan distribusi real-time dari <span className="text-accent-500 font-bold">Dapur SPPG</span> ke seluruh pelosok sekolah.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <Link href="#statistik" className="group w-full sm:w-auto px-8 py-4 bg-accent-500 hover:bg-[#f5b030] text-[#071840] border-2 border-accent-500 hover:border-[#f5b030] rounded-xl font-bold transition-all shadow-[0_8px_24px_rgba(232,160,32,0.3)] hover:-translate-y-1 flex items-center justify-center gap-3">
-                  Pantau Distribusi <TrendingUp className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                </Link>
-                <Link href="/rantai-pasok" className="group w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/15 border-2 border-white/20 text-white rounded-xl font-bold transition-all backdrop-blur-md shadow-lg flex items-center justify-center gap-3">
-                  <Truck className="w-5 h-5 group-hover:translate-x-1 transition-transform" /> Rantai Pasok Lokal
-                </Link>
-              </div>
+              <span className="text-sm font-semibold text-white tracking-wide">Program Prioritas Nasional 2026</span>
             </div>
+            
+            <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-lg">
+              Makan Bergizi Gratis
+              <span className="text-accent-500 block mt-3 text-4xl md:text-5xl lg:text-6xl">Kabupaten Lebak</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-white/80 mb-10 leading-relaxed font-medium max-w-3xl mx-auto">
+              Sistem informasi terpadu yang memantau kualitas gizi, rantai pasok lokal, dan distribusi real-time dari <span className="text-accent-500 font-bold">Dapur SPPG</span> ke seluruh pelosok sekolah.
+            </p>
 
-            {/* Floating Glassmorphism Hero Card */}
-            <div className="hidden lg:block relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-accent-500/20 to-primary-400/20 rounded-[3rem] blur-2xl transform rotate-3"></div>
-              <div className="relative bg-white/10 border border-white/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-[0_24px_60px_rgba(0,0,0,0.3)] transform -rotate-2 hover:rotate-0 transition-transform duration-700">
-                
-                {/* Decorative UI elements inside glass card */}
-                <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-accent-500 rounded-2xl flex items-center justify-center shadow-lg">
-                      <ShieldCheck className="w-7 h-7 text-[#071840]" />
-                    </div>
-                    <div>
-                      <h3 className="font-heading text-xl font-bold text-white">SPPG Tersertifikasi</h3>
-                      <p className="text-white/60 text-sm">Keamanan Pangan Terjamin</p>
-                    </div>
-                  </div>
-                  <div className="bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-bold border border-emerald-500/30 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Terverifikasi
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                    <div className="flex justify-between items-end mb-4">
-                      <div className="text-white/60 font-medium">Realisasi Pengiriman Hari Ini</div>
-                      <div className="text-3xl font-black text-accent-500">85%</div>
-                    </div>
-                    <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-accent-500 to-[#f5b030] w-[85%] rounded-full relative">
-                        <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
-                        <Users size={24} />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-black text-white">45K+</div>
-                        <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Penerima</div>
-                      </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                        <MapPin size={24} />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-black text-white">120+</div>
-                        <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Titik Dapur</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
+            <form action="/sppg" method="GET" className="w-full max-w-2xl bg-white/10 p-2 rounded-2xl backdrop-blur-md border border-white/20 flex shadow-[0_8px_32px_rgba(0,0,0,0.3)] mb-10 transition-all focus-within:bg-white/15 focus-within:border-white/30">
+              <div className="flex-1 flex items-center px-4">
+                <Search className="w-6 h-6 text-white/60" />
+                <input 
+                  type="text" 
+                  name="q" 
+                  placeholder="Cari direktori SPPG atau Posyandu..." 
+                  className="w-full bg-transparent border-none text-white placeholder-white/60 px-4 py-3 focus:outline-none text-lg font-medium" 
+                />
               </div>
+              <button type="submit" className="bg-accent-500 hover:bg-[#f5b030] text-[#071840] px-8 py-3 rounded-xl font-bold transition-all shadow-[0_4px_12px_rgba(232,160,32,0.4)] flex items-center gap-2">
+                Cari Data
+              </button>
+            </form>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="#statistik" className="group w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl font-bold transition-all backdrop-blur-md shadow-lg flex items-center justify-center gap-3">
+                Pantau Distribusi <TrendingUp className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              </Link>
+              <Link href="/rantai-pasok" className="group w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/15 border border-white/10 text-white/90 rounded-xl font-bold transition-all backdrop-blur-md shadow-lg flex items-center justify-center gap-3">
+                <Truck className="w-5 h-5 group-hover:translate-x-1 transition-transform" /> Rantai Pasok Lokal
+              </Link>
             </div>
           </div>
         </div>
