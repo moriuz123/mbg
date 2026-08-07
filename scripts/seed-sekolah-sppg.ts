@@ -16,18 +16,18 @@ async function seedData() {
   let kec = await db.select().from(kecamatan).limit(2);
   if (kec.length === 0) {
     kec = await db.insert(kecamatan).values([
-      { idKecamatanCode: 'KEC-01', namaKecamatan: 'Rangkasbitung' },
-      { idKecamatanCode: 'KEC-02', namaKecamatan: 'Cibadak' }
+      { namaKecamatan: 'Rangkasbitung' },
+      { namaKecamatan: 'Cibadak' }
     ]).returning();
   }
 
   let ds = await db.select().from(desa).limit(4);
   if (ds.length === 0) {
     ds = await db.insert(desa).values([
-      { idDesaCode: 'DES-01', namaDesa: 'Muara Ciujung Timur', kecamatanId: kec[0].id },
-      { idDesaCode: 'DES-02', namaDesa: 'Rangkasbitung Barat', kecamatanId: kec[0].id },
-      { idDesaCode: 'DES-03', namaDesa: 'Cibadak', kecamatanId: kec[1].id },
-      { idDesaCode: 'DES-04', namaDesa: 'Pasarkeong', kecamatanId: kec[1].id },
+      { namaDesa: 'Muara Ciujung Timur', kecamatanId: kec[0].id },
+      { namaDesa: 'Rangkasbitung Barat', kecamatanId: kec[0].id },
+      { namaDesa: 'Cibadak', kecamatanId: kec[1].id },
+      { namaDesa: 'Pasarkeong', kecamatanId: kec[1].id },
     ]).returning();
   }
 
@@ -49,7 +49,7 @@ async function seedData() {
       desaId: ds[0].id,
       alamat: 'Jl. RT Hardiwinangun No. 12',
       statusOperasional: 'Aktif',
-      tanggalOperasional: new Date().toISOString(),
+      tanggalOperasional: new Date().toISOString().split('T')[0],
       jumlahPenjamahMakanan: 15,
       chefBersertifikatBnsp: 2,
     },
@@ -59,7 +59,7 @@ async function seedData() {
       desaId: ds[2].id,
       alamat: 'Jl. Raya Rangkasbitung-Pandeglang Km 4',
       statusOperasional: 'Aktif',
-      tanggalOperasional: new Date().toISOString(),
+      tanggalOperasional: new Date().toISOString().split('T')[0],
       jumlahPenjamahMakanan: 20,
       chefBersertifikatBnsp: 3,
     }
@@ -98,8 +98,8 @@ async function seedData() {
     return {
       sppgId: i < 4 ? newSppg[0].id : newSppg[1].id,
       sekolahId: sek.id,
-      statusPenerimaan: 'Aktif',
-      tanggalMulai: new Date().toISOString(),
+      status: 'Aktif',
+      tanggalMulai: new Date().toISOString().split('T')[0],
     };
   });
 
