@@ -37,6 +37,11 @@ type LaporanData = {
   fotoDokumentasi: string | null;
 };
 
+type FilterOptions = {
+  kecamatans: { id: number, nama: string }[];
+  desas: { id: number, nama: string, kecamatanId: number }[];
+};
+
 export default function SppgClient({ 
   initialData, 
   filterOptions,
