@@ -95,8 +95,8 @@ export default async function SppgDetailPublicPage({ params }: any) {
               <div className="flex items-start gap-3">
                 <TrendingUp className="text-slate-400 mt-0.5 shrink-0" size={18} />
                 <div>
-                  <p className="text-sm font-semibold text-slate-700">Kapasitas Produksi</p>
-                  <p className="text-sm text-slate-500">{data.kapasitasPorsi?.toLocaleString('id-ID')} Porsi / Hari</p>
+                  <p className="text-sm font-semibold text-slate-700">Jumlah Penjamah Makanan</p>
+                  <p className="text-sm text-slate-500">{data.jumlahPenjamahMakanan || 0} Orang</p>
                 </div>
               </div>
             </div>
