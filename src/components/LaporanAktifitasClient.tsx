@@ -22,7 +22,7 @@ type DropdownData = {
   posyanduList: { id: number, nama: string }[];
   menuList: { id: number, nama: string, kalori: number | null }[];
   isAdmin?: boolean;
-  userSppgId?: number;
+  userSppgId?: number | null;
 };
 
 export default function LaporanAktifitasClient({ 
