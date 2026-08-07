@@ -1,1 +1,0 @@
-import { db } from './src/db/index.js'; import { user } from './src/db/schema.js'; async function run() { try { const users = await db.select().from(user); console.log(users.map(u => ({ username: u.username, email: u.email, role: u.role }))); } catch(e) { console.error(e) } process.exit(0); } run();

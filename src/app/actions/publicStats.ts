@@ -48,10 +48,30 @@ export async function getPublicStats() {
     let keamananPangan = Math.round((Number(sertifikasiQuery[0]?.count || 0) / totalSppgAll) * 100);
     if (keamananPangan > 100) keamananPangan = 100;
 
+    // Posyandu data
+    const posyandu = (await import("@/db/schema")).posyandu;
+    const sppgPosyanduManfaat = (await import("@/db/schema")).sppgPosyanduManfaat;
+    
+    const posyanduQuery = await db.select({ count: count() }).from(posyandu);
+    const totalPosyandu = posyanduQuery[0]?.count || 0;
+
+    const posyanduPenerimaQuery = await db.select({ total: sum(sppgPosyanduManfaat.jumlahTotal) }).from(sppgPosyanduManfaat);
+    const totalPosyanduPenerima = Number(posyanduPenerimaQuery[0]?.total || 0);
+
+    // Sekolah data
+    const sekolahQuery = await db.select({ count: count() }).from(sekolah);
+    const totalSekolah = sekolahQuery[0]?.count || 0;
+    
+    const totalSiswa = totalPenerima; // This was already calculated from sppgPenerimaManfaat
+
     return {
-      totalPenerima,
+      totalPenerima: totalPenerima + totalPosyanduPenerima,
       breakdownPenerima,
       totalSppg,
+      totalSekolah,
+      totalSiswa,
+      totalPosyandu,
+      totalPosyanduPenerima,
       keamananPangan,
       realisasiPengiriman: 85 // Static for now, as distribution table is complex
     };
@@ -61,6 +81,10 @@ export async function getPublicStats() {
       totalPenerima: 0,
       breakdownPenerima: [],
       totalSppg: 0,
+      totalSekolah: 0,
+      totalSiswa: 0,
+      totalPosyandu: 0,
+      totalPosyanduPenerima: 0,
       keamananPangan: 0,
       realisasiPengiriman: 0
     };
@@ -95,6 +119,7 @@ export async function getPublicLaporanHarian() {
         id: l.id,
         tanggal: l.tanggal,
         menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        menuDetail: l.standarMenuGizi?.deskripsi || '',
         jumlahPorsi: l.jumlahPorsi,
         status: l.status,
         sppgName: l.sppg?.namaSppg || '-',

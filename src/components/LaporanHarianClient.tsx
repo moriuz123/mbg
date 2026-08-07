@@ -7,6 +7,7 @@ type LaporanHarianItem = {
   id: number;
   tanggal: string;
   menu: string | null;
+  menuDetail?: string;
   jumlahPorsi: number | null;
   status: string | null;
   sppgName: string | null;
@@ -17,7 +18,7 @@ export default function LaporanHarianClient({ data }: { data: LaporanHarianItem[
   const [activeTab, setActiveTab] = useState<'sppg' | 'sekolah'>('sppg');
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
       
       {/* TABS */}
       <div className="flex bg-slate-50 border-b border-slate-100 p-2 gap-2">
@@ -115,9 +116,16 @@ export default function LaporanHarianClient({ data }: { data: LaporanHarianItem[
                     </div>
                   </td>
                   <td className="py-4">
-                    <div className="flex items-center gap-2 text-slate-600 text-sm font-medium">
-                      <Utensils size={14} className="text-slate-400" />
-                      {laporan.menu}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 text-slate-800 text-sm font-bold">
+                        <Utensils size={14} className="text-slate-400" />
+                        {laporan.menu}
+                      </div>
+                      {laporan.menuDetail && (
+                        <div className="text-xs text-slate-500 line-clamp-2 max-w-[200px] leading-relaxed">
+                          {laporan.menuDetail}
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td className="py-4 text-center">

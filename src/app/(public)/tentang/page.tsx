@@ -1,14 +1,18 @@
 'use client';
 
 import React from 'react';
+import PageHeader from '@/components/PageHeader';
 
 export default function TentangPage() {
   return (
-    <div className="animate-fade-in" style={{ backgroundColor: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif', flex: 1 }}>
-      {/* Header Spacer for fixed navbar */}
-      <div style={{ height: '80px' }}></div>
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <PageHeader 
+        title="Tentang Program" 
+        description="Pelajari lebih dalam mengenai landasan, visi, dan misi utama Program Makan Bergizi Gratis di Kabupaten Lebak."
+        breadcrumbs={[{ label: 'Tentang' }]}
+      />
       
-      <section style={{ padding: '6rem 1rem', backgroundColor: '#ffffff', minHeight: 'calc(100vh - 80px)', display: 'flex', alignItems: 'center' }}>
+      <section className="container mx-auto px-4 max-w-4xl pt-8">
         <div className="container" style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#0f172a', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 700, marginBottom: '2rem' }}>
             Badan Gizi Nasional

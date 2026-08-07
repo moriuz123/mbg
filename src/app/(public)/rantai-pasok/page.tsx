@@ -74,7 +74,7 @@ export default async function RantaiPasokPage() {
             Memantau aliran kebutuhan pangan segar dari pemasok lokal ke seluruh dapur Satuan Pelayanan Pemenuhan Gizi (SPPG) di Kabupaten Lebak.
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-3xl mx-auto">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
               <div className="text-3xl font-bold text-white mb-1">
                 {dataPasokan.length}+
@@ -92,14 +92,6 @@ export default async function RantaiPasokPage() {
                 {new Set(dataPasokan.map(d => d.jenisPanganId)).size}
               </div>
               <div className="text-sm text-slate-400">Jenis Komoditas</div>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-sm flex flex-col justify-center items-center group cursor-pointer hover:bg-white/10 transition-colors">
-              <Link href="/login" className="flex flex-col items-center">
-                <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                  <ArrowRight size={20} className="text-white" />
-                </div>
-                <div className="text-xs font-medium text-white">Login Mitra</div>
-              </Link>
             </div>
           </div>
         </div>

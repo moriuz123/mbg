@@ -1,5 +1,6 @@
 import React from 'react';
 import SppgClient from './SppgClient';
+import PageHeader from '@/components/PageHeader';
 import { getPublicSppg, getPublicLaporanAktifitas } from '@/app/actions/publicSppg';
 import { getFilterOptions } from '@/app/actions/publicSekolah';
 
@@ -18,22 +19,20 @@ export default async function SppgPage({ searchParams }: { searchParams: { tab?:
   const currentTab = searchParams.tab || 'directory';
 
   return (
-    <div className="container" style={{ marginTop: '6rem', paddingBottom: '4rem' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem', background: 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-400) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          Titik Layanan (SPPG)
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem', maxWidth: '600px' }}>
-          Direktori Satuan Pelayanan Program Gizi (SPPG), Data Statistik, dan Laporan Aktifitas Pendistribusian di wilayah Kabupaten Lebak.
-        </p>
-      </div>
-      
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <PageHeader 
+        title="Titik Layanan (SPPG)" 
+        description="Direktori Satuan Pelayanan Program Gizi (SPPG), Data Statistik, dan Laporan Aktifitas Pendistribusian di wilayah Kabupaten Lebak."
+        breadcrumbs={[{ label: 'SPPG' }]}
+      />
+      <div className="container mx-auto px-4 max-w-7xl">
       <SppgClient 
         initialData={sppgData} 
         filterOptions={{ kecamatans: filterOptions.kecamatans, desas: filterOptions.desas }} 
         laporanData={laporanData}
         currentTab={currentTab}
       />
+      </div>
     </div>
   );
 }

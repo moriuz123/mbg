@@ -151,46 +151,50 @@ export default function SekolahClient({ initialData, filterOptions }: { initialD
         </div>
       </div>
 
-      {/* Results Grid */}
+      {/* Results List */}
       {filteredData.length > 0 ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredData.map((sekolah, idx) => (
             <div 
               key={`${sekolah.sekolahId}-${idx}`} 
-              className="card animate-fade-in" 
-              style={{ animationDelay: `${(idx % 10) * 0.05}s`, cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
+              className="card animate-fade-in hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between p-5" 
+              style={{ animationDelay: `${(idx % 10) * 0.05}s`, cursor: 'pointer', borderLeft: '4px solid var(--primary-500)', borderRadius: '0.75rem', backgroundColor: '#fff', borderTop: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}
               onClick={() => setSelectedSekolah(sekolah)}
             >
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', backgroundColor: 'var(--primary-500)' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--text-primary)' }}>{sekolah.namaSekolah}</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                    <span className="badge badge-primary">{sekolah.namaKategori || 'N/A'}</span>
-                    {sekolah.npsn && <span>NPSN: {sekolah.npsn}</span>}
+              <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 w-full">
+                {/* Icon & Title */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', minWidth: '300px' }}>
+                  <div style={{ backgroundColor: 'var(--primary-50)', padding: '0.75rem', borderRadius: '50%', color: 'var(--primary-600)', flexShrink: 0 }}>
+                    <School size={24} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--text-primary)', fontWeight: 600 }}>{sekolah.namaSekolah}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                      <span className="badge badge-primary">{sekolah.namaKategori || 'N/A'}</span>
+                      {sekolah.npsn && <span>NPSN: {sekolah.npsn}</span>}
+                    </div>
                   </div>
                 </div>
-                <div style={{ backgroundColor: 'var(--primary-50)', padding: '0.5rem', borderRadius: '50%', color: 'var(--primary-600)' }}>
-                  <School size={20} />
+
+                {/* Details */}
+                <div className="flex flex-col gap-1.5 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-6 flex-1 w-full border-t md:border-t-0 mt-3 md:mt-0">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                    <MapPin size={16} className="shrink-0" />
+                    <span className="truncate">{sekolah.namaDesa}, Kec. {sekolah.namaKecamatan}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                    <User size={16} className="shrink-0" />
+                    <span>{sekolah.jumlahSiswaTotal || 0} Siswa Penerima</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                    <Building2 size={16} className="shrink-0" />
+                    <span className="truncate">SPPG: <strong>{sekolah.namaSppg}</strong></span>
+                  </div>
                 </div>
               </div>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-                  <MapPin size={16} style={{ marginTop: '0.125rem', flexShrink: 0 }} />
-                  <span>{sekolah.namaDesa}, Kec. {sekolah.namaKecamatan}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <User size={16} />
-                  <span>{sekolah.jumlahSiswaTotal || 0} Siswa Penerima</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Building2 size={16} />
-                  <span>Disuplai oleh <strong>{sekolah.namaSppg}</strong></span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', color: 'var(--primary-600)', fontSize: '0.875rem', fontWeight: 600 }}>
+              {/* CTA Action */}
+              <div style={{ display: 'flex', alignItems: 'center', color: 'var(--primary-600)', fontSize: '0.875rem', fontWeight: 600, paddingTop: '1rem', marginTop: '1rem', borderTop: '1px solid var(--border-color)' }} className="md:border-none md:pt-0 md:mt-0 md:pl-6 shrink-0 w-full md:w-auto justify-end">
                 Lihat Detail <ChevronRight size={16} />
               </div>
             </div>

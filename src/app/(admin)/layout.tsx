@@ -10,6 +10,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     headers: await headers(),
   });
   const userRole = session?.user?.role || 'publik';
+  const userName = session?.user?.name || 'Pengguna';
+  const userInitials = userName.substring(0, 2).toUpperCase();
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans selection:bg-primary-100 selection:text-primary-900">
@@ -37,14 +39,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             
             <div className="flex items-center gap-3">
               <div className="flex flex-col items-end hidden md:flex">
-                <span className="text-sm font-bold text-slate-700 leading-tight">Petugas Inspeksi</span>
+                <span className="text-sm font-bold text-slate-700 leading-tight">{userName}</span>
                 <span className="text-xs font-medium text-emerald-600 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Sesi Aktif
                 </span>
               </div>
               <div className="flex items-center gap-2 p-1 pr-3 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full border border-slate-200 cursor-pointer">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary-600 to-primary-400 text-white flex items-center justify-center font-bold text-sm shadow-inner">
-                  PI
+                  {userInitials}
                 </div>
                 <LogoutButtonHeader />
               </div>

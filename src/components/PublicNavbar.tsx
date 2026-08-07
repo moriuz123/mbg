@@ -41,20 +41,6 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 flex flex-col transition-all duration-300">
-      {/* Top Bar - Hidden on scroll or mobile to save space */}
-      <div className={`bg-[#071840] text-white/70 text-[0.8rem] transition-all duration-300 overflow-hidden ${scrolled ? 'h-0 opacity-0' : 'h-8 opacity-100 hidden md:block'}`}>
-        <div className="container mx-auto max-w-7xl px-4 h-full flex justify-between items-center">
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1.5"><MapPin size={12} /> Rangkasbitung, Kabupaten Lebak</span>
-            <span className="flex items-center gap-1.5"><Mail size={12} /> mbg@lebakkab.go.id</span>
-          </div>
-          <div className="flex gap-4">
-            <a href="https://lebakkab.go.id" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Globe size={12} /> Portal Lebak
-            </a>
-          </div>
-        </div>
-      </div>
 
       {/* Main Navbar */}
       <header className={`bg-white transition-all duration-300 ${scrolled ? 'shadow-[0_4px_20px_rgba(10,36,99,0.08)] py-2 border-b-2 border-accent-500' : 'shadow-sm py-3 border-b border-slate-100'}`}>
@@ -102,10 +88,10 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
           {/* Action & Mobile Toggle */}
           <div className="flex items-center gap-3">
             <Link 
-              href="/login" 
+              href="/pengaduan" 
               className="hidden sm:flex items-center gap-2 bg-accent-500 hover:bg-[#f5b030] text-[#071840] px-5 py-2.5 rounded-full font-bold text-sm transition-all shadow-[0_4px_12px_rgba(232,160,32,0.2)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(232,160,32,0.3)]"
             >
-              <LogIn size={16} /> Masuk Portal
+              <Mail size={16} /> Aduan
             </Link>
             
             <button 
@@ -142,11 +128,11 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
             <div className="h-px bg-slate-100 my-2"></div>
             
             <Link 
-              href="/login" 
+              href="/pengaduan" 
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex justify-center items-center gap-2 bg-accent-500 text-[#071840] px-4 py-3.5 rounded-xl font-bold text-sm"
             >
-              <LogIn size={18} /> Masuk Portal Admin
+              <Mail size={18} /> Aduan
             </Link>
           </nav>
         </div>

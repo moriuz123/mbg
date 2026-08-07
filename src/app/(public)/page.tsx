@@ -2,14 +2,14 @@ import React from 'react';
 import { 
   ArrowRight, Utensils, ShieldCheck, MapPin, CheckCircle2, 
   ChevronRight, Phone, Mail, Clock, Activity, Users, Home as HomeIcon, 
-  Search, Facebook, Twitter, Instagram, Youtube, MessageSquare, Truck, Package, HeartPulse, Leaf, BarChart2, Star, TrendingUp 
+  Search, Facebook, Twitter, Instagram, Youtube, MessageSquare, Truck, Package, HeartPulse, Leaf, BarChart2, Star, TrendingUp, Info, Bell 
 } from 'lucide-react';
 import Link from 'next/link';
 import { getPublicStats, getPublicLaporanHarian } from '@/app/actions/publicStats';
 import { getSiteSettings, getPengumumanAktif } from '@/app/actions/frontend';
 import LaporanHarianClient from '@/components/LaporanHarianClient';
 import AnimatedStats from '@/components/AnimatedStats';
-import PengumumanTicker from '@/components/PengumumanTicker';
+import PengumumanBadgeClient from '@/components/PengumumanBadgeClient';
 
 export default async function Public() {
   const stats = await getPublicStats();
@@ -24,11 +24,6 @@ export default async function Public() {
   
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-accent-500 selection:text-white font-sans overflow-x-hidden">
-      
-      {/* Pengumuman Ticker */}
-      <div className="pt-[104px] lg:pt-[76px] bg-[#071840]">
-        <PengumumanTicker pengumumanList={pengumumanList} />
-      </div>
       {/* HERO SECTION */}
       <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-40 overflow-hidden flex flex-col justify-center min-h-[90vh]" style={heroStyle}>
         {/* Pattern Overlay (Modern Dots) */}
@@ -89,45 +84,44 @@ export default async function Public() {
           </div>
         </div>
         
-        {/* Bottom wave SVG for smooth transition */}
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">
-          <svg className="relative block w-full h-[60px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" fill="#f8fafc"></path>
-          </svg>
-        </div>
       </section>
 
-      {/* TIGA PILAR PROGRAM - Modern Corporate Cards */}
-      <section className="py-20 bg-[#f8fafc] relative z-20">
-        <div className="container mx-auto px-4 max-w-7xl -mt-32 relative z-30">
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_50px_rgba(7,24,64,0.12)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
-              <div className="w-16 h-16 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-500 shadow-sm">
-                <HeartPulse size={32} />
-              </div>
-              <h3 className="font-heading text-2xl font-bold text-[#071840] mb-4">Gizi Optimal & Terukur</h3>
-              <p className="text-slate-500 leading-relaxed font-medium">Menu seimbang yang disusun ketat oleh ahli gizi bersertifikat, memastikan asupan protein dan kalori harian tercukupi untuk kecerdasan anak bangsa.</p>
-            </div>
+      {/* QUICK ACCESS BADGES */}
+      <section className="py-16 bg-white relative z-20 border-b border-slate-100">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             
-            <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_50px_rgba(7,24,64,0.12)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
-              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-500 shadow-sm">
-                <Leaf size={32} />
+            {/* CTA Tentang */}
+            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-indigo-50/50 to-white border border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500">
+              <div className="w-20 h-20 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 mb-6 shrink-0">
+                <Info size={36} strokeWidth={1.5} />
               </div>
-              <h3 className="font-heading text-2xl font-bold text-[#071840] mb-4">Ekonomi Kerakyatan</h3>
-              <p className="text-slate-500 leading-relaxed font-medium">Serapan bahan baku segar 100% diprioritaskan dari petani dan peternak lokal Kabupaten Lebak untuk mendorong perputaran roda ekonomi daerah.</p>
-            </div>
-            
-            <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_50px_rgba(7,24,64,0.12)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
-              <div className="w-16 h-16 bg-accent-100 text-accent-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-accent-500 group-hover:text-white transition-colors duration-500 shadow-sm">
-                <Activity size={32} />
+              <div className="flex flex-col flex-1 justify-center mb-6">
+                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-indigo-700 transition-colors">Tentang Program</h3>
+                <p className="text-slate-500 text-base font-medium leading-relaxed">Pelajari lebih dalam mengenai landasan, visi, dan misi utama MBG di Kabupaten Lebak.</p>
               </div>
-              <h3 className="font-heading text-2xl font-bold text-[#071840] mb-4">Pemantauan Presisi</h3>
-              <p className="text-slate-500 leading-relaxed font-medium">Platform digital yang merekam setiap langkah logistik, memastikan transparansi dari dapur produksi hingga sampai di atas meja sekolah dan posyandu.</p>
+              <Link href="/tentang" className="w-full py-4 rounded-xl bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-600 hover:text-white transition-colors">
+                Pelajari Lebih Lanjut
+              </Link>
             </div>
+
+            {/* CTA Aduan */}
+            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-rose-50/50 to-white border border-rose-100 hover:shadow-2xl hover:shadow-rose-500/10 hover:-translate-y-2 transition-all duration-500">
+              <div className="w-20 h-20 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500 mb-6 shrink-0">
+                <MessageSquare size={36} strokeWidth={1.5} />
+              </div>
+              <div className="flex flex-col flex-1 justify-center mb-6">
+                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-rose-700 transition-colors">Layanan Aduan</h3>
+                <p className="text-slate-500 text-base font-medium leading-relaxed">Sampaikan keluhan atau masukan Anda terkait pelaksanaan program di lapangan.</p>
+              </div>
+              <Link href="/pengaduan" className="w-full py-4 rounded-xl bg-rose-50 text-rose-600 font-bold hover:bg-rose-600 hover:text-white transition-colors">
+                Buat Laporan
+              </Link>
+            </div>
+
+            {/* CTA Pengumuman */}
+            <PengumumanBadgeClient pengumuman={pengumumanList && pengumumanList.length > 0 ? pengumumanList[0] : null} />
+
           </div>
         </div>
       </section>
@@ -155,12 +149,10 @@ export default async function Public() {
                 Sistem pencatatan elektronik memvalidasi setiap titik pengiriman antara Dapur Satelit (SPPG) dan unit sekolah / posyandu.
               </p>
             </div>
-            <Link href="/login" className="shrink-0 px-6 py-3 bg-white text-primary-600 border border-slate-200 hover:border-primary-300 hover:shadow-md rounded-xl font-bold transition-all flex items-center gap-2">
-              Masuk Sistem Admin <ChevronRight size={18} />
-            </Link>
+
           </div>
 
-          <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-200 shadow-[0_16px_40px_rgba(0,0,0,0.04)]">
+          <div className="bg-white p-6 md:p-10 rounded-2xl border border-slate-200 shadow-[0_16px_40px_rgba(0,0,0,0.04)]">
             <LaporanHarianClient data={laporanHarian} />
           </div>
         </div>

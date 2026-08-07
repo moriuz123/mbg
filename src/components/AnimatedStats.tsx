@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Users, Home as HomeIcon, ShieldCheck } from 'lucide-react';
+import { Users, Home as HomeIcon, ShieldCheck, GraduationCap, HeartPulse } from 'lucide-react';
 
 function useCounter(end: number, duration: number = 2000) {
   const [count, setCount] = useState(0);
@@ -55,6 +55,8 @@ export default function AnimatedStats({ stats }: { stats: any }) {
 
   const { count: totalPenerima, ref: refPenerima } = useCounter(stats.totalPenerima, 2500);
   const { count: totalSppg, ref: refSppg } = useCounter(stats.totalSppg, 2000);
+  const { count: totalSekolah, ref: refSekolah } = useCounter(stats.totalSekolah, 2000);
+  const { count: totalPosyandu, ref: refPosyandu } = useCounter(stats.totalPosyandu, 2000);
   const { count: keamananPangan, ref: refKeamanan } = useCounter(stats.keamananPangan, 2000);
   const { count: realisasi, ref: refRealisasi } = useCounter(stats.realisasiPengiriman, 2500);
 
@@ -94,7 +96,7 @@ export default function AnimatedStats({ stats }: { stats: any }) {
         <div className="grid sm:grid-cols-2 gap-8">
           
           {/* Card 1 */}
-          <div ref={refPenerima} className="bg-white p-10 rounded-[2rem] border border-slate-100 shadow-2xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 relative overflow-hidden group flex flex-col justify-between">
+          <div ref={refPenerima} className="bg-white p-10 rounded-2xl border border-slate-100 shadow-2xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 relative overflow-hidden group flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 group-hover:scale-110 group-hover:-rotate-6 transform origin-center">
               <Users size={180} />
             </div>
@@ -114,32 +116,66 @@ export default function AnimatedStats({ stats }: { stats: any }) {
             </div>
           </div>
 
-          <div className="grid grid-rows-2 gap-8">
-            {/* Card 2 */}
-            <div ref={refSppg} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-2xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 flex items-center gap-6 group overflow-hidden relative">
-              <div className="absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                <HomeIcon size={120} />
+          <div className="grid sm:grid-cols-2 gap-6">
+            {/* Card 2: Titik Dapur */}
+            <div ref={refSppg} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 group overflow-hidden relative">
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <HomeIcon size={80} />
               </div>
-              <div className="w-20 h-20 bg-amber-50 text-amber-500 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-110 transition-transform">
-                <HomeIcon size={40} />
+              <div className="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform mb-4">
+                <HomeIcon size={24} />
               </div>
               <div className="relative z-10">
-                <h3 className="text-5xl font-black text-slate-900 mb-1 tracking-tighter">{totalSppg}</h3>
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Titik Dapur SPPG</p>
+                <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{totalSppg}</h3>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Titik Dapur SPPG</p>
               </div>
             </div>
 
-            {/* Card 3 */}
-            <div ref={refKeamanan} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-2xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 flex items-center gap-6 group overflow-hidden relative">
-              <div className="absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                <ShieldCheck size={120} />
+            {/* Card 3: Sekolah */}
+            <div ref={refSekolah} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 group overflow-hidden relative">
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <GraduationCap size={80} />
               </div>
-              <div className="w-20 h-20 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-110 transition-transform">
-                <ShieldCheck size={40} />
+              <div className="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform mb-4">
+                <GraduationCap size={24} />
               </div>
               <div className="relative z-10">
-                <h3 className="text-5xl font-black text-slate-900 mb-1 tracking-tighter">{keamananPangan}%</h3>
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Uji Rapid Aman</p>
+                <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{totalSekolah}</h3>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-2">Sekolah Penerima</p>
+                <div className="inline-block bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-bold">
+                  {formatNumber(stats.totalSiswa)} Siswa
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Posyandu */}
+            <div ref={refPosyandu} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 group overflow-hidden relative">
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <HeartPulse size={80} />
+              </div>
+              <div className="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform mb-4">
+                <HeartPulse size={24} />
+              </div>
+              <div className="relative z-10">
+                <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{totalPosyandu}</h3>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-2">Posyandu Aktif</p>
+                <div className="inline-block bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-[10px] font-bold">
+                  {formatNumber(stats.totalPosyanduPenerima)} Sasaran
+                </div>
+              </div>
+            </div>
+
+            {/* Card 5: Uji Rapid */}
+            <div ref={refKeamanan} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/40 hover:-translate-y-2 transition-transform duration-500 group overflow-hidden relative">
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <ShieldCheck size={80} />
+              </div>
+              <div className="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform mb-4">
+                <ShieldCheck size={24} />
+              </div>
+              <div className="relative z-10">
+                <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{keamananPangan}%</h3>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Uji Rapid Aman</p>
               </div>
             </div>
           </div>
