@@ -98,7 +98,7 @@ export async function submitVerifikasiSekolah(formData: FormData) {
       }
     }
 
-    let fotoDokumentasi = null;
+    let fotoDokumentasi: string | null = null;
 
     // Handle file upload if present
     if (foto && foto.size > 0) {

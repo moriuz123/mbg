@@ -97,7 +97,7 @@ export async function submitVerifikasiPosyandu(formData: FormData) {
       }
     }
 
-    let fotoDokumentasi = null;
+    let fotoDokumentasi: string | null = null;
 
     if (foto && foto.size > 0) {
       const buffer = Buffer.from(await foto.arrayBuffer());
