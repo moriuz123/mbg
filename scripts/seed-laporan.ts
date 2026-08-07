@@ -16,6 +16,21 @@ async function main() {
       return;
     }
 
+    let menus = await db.select().from(schema.standarMenuGizi).limit(2);
+    let standarMenuId1;
+    let standarMenuId2;
+    if (menus.length === 0) {
+      const insertedMenus = await db.insert(schema.standarMenuGizi).values([
+        { namaMenu: "Nasi, Ayam Goreng, Sayur Sop, Tempe, Buah Pisang", kaloriKkal: 600, status: "Aktif" },
+        { namaMenu: "Nasi, Ikan Bakar, Sayur Lodeh, Tahu, Jeruk", kaloriKkal: 650, status: "Aktif" }
+      ]).returning({ id: schema.standarMenuGizi.id });
+      standarMenuId1 = insertedMenus[0].id;
+      standarMenuId2 = insertedMenus[1].id;
+    } else {
+      standarMenuId1 = menus[0].id;
+      standarMenuId2 = menus[1] ? menus[1].id : menus[0].id;
+    }
+
     const today = new Date().toISOString().split('T')[0];
 
     const dummyData = [
@@ -23,7 +38,7 @@ async function main() {
         sppgId: sppgs[0].id,
         sekolahId: sekolahs[0].id,
         tanggal: today,
-        menu: "Nasi, Ayam Goreng, Sayur Sop, Tempe, Buah Pisang",
+        standarMenuId: standarMenuId1,
         jumlahPorsi: 120,
         status: "Terkirim",
         catatan: "Pengiriman tepat waktu",
@@ -32,7 +47,7 @@ async function main() {
         sppgId: sppgs[1] ? sppgs[1].id : sppgs[0].id,
         sekolahId: sekolahs[1] ? sekolahs[1].id : sekolahs[0].id,
         tanggal: today,
-        menu: "Nasi, Ikan Bakar, Sayur Lodeh, Tahu, Jeruk",
+        standarMenuId: standarMenuId2,
         jumlahPorsi: 85,
         status: "Diterima",
         catatan: "Diterima oleh pihak sekolah dalam kondisi baik",
@@ -41,7 +56,7 @@ async function main() {
         sppgId: sppgs[2] ? sppgs[2].id : sppgs[0].id,
         sekolahId: sekolahs[2] ? sekolahs[2].id : sekolahs[0].id,
         tanggal: today,
-        menu: "Nasi, Telur Dadar, Tumis Kangkung, Kerupuk, Semangka",
+        standarMenuId: standarMenuId1,
         jumlahPorsi: 150,
         status: "Bermasalah",
         catatan: "Terlambat 15 menit karena kendala cuaca",
@@ -50,7 +65,7 @@ async function main() {
         sppgId: sppgs[0].id,
         sekolahId: sekolahs[1] ? sekolahs[1].id : sekolahs[0].id,
         tanggal: new Date(Date.now() - 86400000).toISOString().split('T')[0], // yesterday
-        menu: "Nasi, Daging Rendang, Sayur Nangka, Apel",
+        standarMenuId: standarMenuId2,
         jumlahPorsi: 85,
         status: "Terkirim",
         catatan: "Ok",
