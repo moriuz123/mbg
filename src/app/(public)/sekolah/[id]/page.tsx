@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import { MapPin, GraduationCap, Users, Calendar, Utensils, Star, Activity } from 'lucide-react';
 import Link from 'next/link';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: any) {
   const resolvedParams = await params;
   const data = await db.query.sekolah.findFirst({
     where: eq(sekolah.id, parseInt(resolvedParams.id))
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: `${data.namaSekolah} | Profil Sekolah` };
 }
 
-export default async function SekolahDetailPublicPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SekolahDetailPublicPage({ params }: any) {
   const resolvedParams = await params;
   const sekolahId = parseInt(resolvedParams.id);
   

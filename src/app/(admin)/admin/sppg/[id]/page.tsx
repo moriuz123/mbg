@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
-export default async function SppgDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SppgDetailPage({ params }: any) {
   const resolvedParams = await params;
   const sppgId = parseInt(resolvedParams.id, 10);
   

@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import { MapPin, ChefHat, Activity, Phone, Star, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: any) {
   const resolvedParams = await params;
   const data = await db.query.sppg.findFirst({
     where: eq(sppg.id, parseInt(resolvedParams.id))
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: `${data.namaSppg} | Profil SPPG` };
 }
 
-export default async function SppgDetailPublicPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SppgDetailPublicPage({ params }: any) {
   const resolvedParams = await params;
   const sppgId = parseInt(resolvedParams.id);
   
