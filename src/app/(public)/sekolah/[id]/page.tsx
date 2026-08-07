@@ -84,7 +84,7 @@ export default async function SekolahDetailPublicPage({ params }: any) {
                 <Users className="text-slate-400 mt-0.5 shrink-0" size={18} />
                 <div>
                   <p className="text-sm font-semibold text-slate-700">Jumlah Siswa / Penerima</p>
-                  <p className="text-sm text-slate-500 font-bold text-blue-600">{data.jumlahSiswa?.toLocaleString('id-ID')} Anak</p>
+                  <p className="text-sm text-slate-500 font-bold text-blue-600">{data.jumlahSiswaTotal?.toLocaleString('id-ID')} Anak</p>
                 </div>
               </div>
             </div>
