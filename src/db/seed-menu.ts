@@ -58,7 +58,7 @@ async function main() {
     console.log(`Seeding menu untuk kategori: ${kat.namaKategori}`);
     
     // Pilih menu berdasarkan nama kategori
-    let menusToInsert = [];
+    let menusToInsert: typeof dummyMenus = [];
     if (kat.namaKategori.toLowerCase().includes("ibu hamil") || kat.namaKategori.toLowerCase().includes("bumil")) {
       menusToInsert = [dummyMenus[3]];
     } else if (kat.namaKategori.toLowerCase().includes("balita") || kat.namaKategori.toLowerCase().includes("busui")) {
