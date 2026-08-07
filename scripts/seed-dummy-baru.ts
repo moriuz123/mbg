@@ -56,26 +56,26 @@ async function main() {
     // 2. Seed SPPG Laporan Aktifitas (The Delivery)
     const laporans = await db.insert(sppgLaporanAktifitas).values([
       {
-        tanggal: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
+        tanggal: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0], // 2 days ago
         sppgId: sppgId,
         sekolahId: sekolahId,
-        menu: `${menus[0].nama} (${menus[0].kalori} Kkal)`,
+        standarMenuId: menus[0].id,
         jumlahPorsi: 150,
         status: 'Diterima'
       },
       {
-        tanggal: new Date(Date.now() - 86400000 * 1).toISOString(), // 1 day ago
+        tanggal: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], // 1 day ago
         sppgId: sppgId,
         sekolahId: sekolahId2,
-        menu: `${menus[1].nama} (${menus[1].kalori} Kkal)`,
+        standarMenuId: menus[1].id,
         jumlahPorsi: 200,
         status: 'Bermasalah'
       },
       {
-        tanggal: new Date().toISOString(), // Today
+        tanggal: new Date().toISOString().split('T')[0], // Today
         sppgId: sppgId,
         sekolahId: sekolahId,
-        menu: `${menus[0].nama} (${menus[0].kalori} Kkal)`,
+        standarMenuId: menus[0].id,
         jumlahPorsi: 150,
         status: 'Terkirim'
       }
