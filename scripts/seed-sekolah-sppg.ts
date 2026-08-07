@@ -35,9 +35,9 @@ async function seedData() {
   let kategori = await db.select().from(kategoriPenerima).limit(3);
   if (kategori.length === 0) {
     kategori = await db.insert(kategoriPenerima).values([
-      { namaKategori: 'SD', prioritas: 1 },
-      { namaKategori: 'SMP', prioritas: 2 },
-      { namaKategori: 'SMA', prioritas: 3 }
+      { namaKategori: 'SD', urutan: 1 },
+      { namaKategori: 'SMP', urutan: 2 },
+      { namaKategori: 'SMA', urutan: 3 }
     ]).returning();
   }
 
