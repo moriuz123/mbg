@@ -3,8 +3,9 @@ import { getSppg } from "@/app/actions/sppg";
 import PenggilinganDetailClientUI from "./PenggilinganDetailClientUI";
 import { redirect } from "next/navigation";
 
-export default async function PenggilinganDetailPage({ params }: { params: { id: string } }) {
-  const penggilinganId = parseInt(params.id, 10);
+export default async function PenggilinganDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const penggilinganId = parseInt(resolvedParams.id, 10);
   
   if (isNaN(penggilinganId)) {
     redirect('/admin/penggilingan');

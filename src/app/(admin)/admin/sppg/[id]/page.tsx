@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
-export default async function SppgDetailPage({ params }: { params: { id: string } }) {
-  const sppgId = parseInt(params.id, 10);
+export default async function SppgDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const sppgId = parseInt(resolvedParams.id, 10);
   
   if (isNaN(sppgId)) {
     redirect('/admin/sppg');
