@@ -9,7 +9,12 @@ export const metadata = {
   description: 'Data lokasi Satuan Pelayanan Pemenuhan Gizi di wilayah Kabupaten Lebak',
 };
 
-export default async function SppgPage({ searchParams }: { searchParams: { tab?: string } }) {
+type PageProps = {
+  searchParams: Promise<{ tab?: string }>;
+};
+
+export default async function SppgPage(props: PageProps) {
+  const searchParams = await props.searchParams;
   const [sppgData, filterOptions, laporanData] = await Promise.all([
     getPublicSppg(),
     getFilterOptions(),
