@@ -69,7 +69,7 @@ export async function getPembelianBahan(sppgId?: number) {
   return data.map(d => ({
     ...d,
     pemasokNama: d.pemasok?.namaPemasok,
-    jenisPanganNama: d.jenisPangan?.name
+    jenisPanganNama: d.jenisPangan?.namaBahan
   }));
 }
 
@@ -123,7 +123,7 @@ export async function getPemakaianBahan(sppgId?: number) {
 
   return data.map(d => ({
     ...d,
-    jenisPanganNama: d.jenisPangan?.name,
+    jenisPanganNama: d.jenisPangan?.namaBahan,
     menuNama: d.standarMenuGizi?.namaMenu
   }));
 }
@@ -176,6 +176,6 @@ export async function getUjiRapidTest(sppgId?: number) {
 
   return data.map(d => ({
     ...d,
-    jenisPanganNama: d.jenisPangan?.name
+    jenisPanganNama: d.jenisPangan?.namaBahan
   }));
 }
