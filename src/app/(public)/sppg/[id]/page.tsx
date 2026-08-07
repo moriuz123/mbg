@@ -88,7 +88,7 @@ export default async function SppgDetailPublicPage({ params }: any) {
                 <Phone className="text-slate-400 mt-0.5 shrink-0" size={18} />
                 <div>
                   <p className="text-sm font-semibold text-slate-700">Kontak Penanggung Jawab</p>
-                  <p className="text-sm text-slate-500">{data.kontakTlp || 'Belum ditambahkan'}</p>
+                  <p className="text-sm text-slate-500">{data.noHpKaSppg || 'Belum ditambahkan'}</p>
                 </div>
               </div>
 
