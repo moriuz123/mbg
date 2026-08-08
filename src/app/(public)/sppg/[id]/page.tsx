@@ -4,6 +4,7 @@ import { sppg, sppgLaporanAktifitas } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { MapPin, ChefHat, Activity, Phone, Star, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 import SppgActivityLogClient from './SppgActivityLogClient';
 
 export async function generateMetadata({ params }: any) {
