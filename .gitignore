@@ -4,3 +4,6 @@
 drizzle/
 npm-log.txt
 build-log.txt
+tsconfig.tsbuildinfo
+*.sql
+
