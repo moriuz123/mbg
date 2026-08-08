@@ -2,7 +2,7 @@ import React from 'react';
 import { db } from '@/db';
 import { pemasok, jenisPangan, standarMenuGizi, sppg } from '@/db/schema';
 import PengawasanClient from '@/components/PengawasanClient';
-import { getPembelianBahan, getPemakaianBahan, getUjiRapidTest } from '@/app/actions/sppgPengawasan';
+import { getPembelianBahan, getPemakaianBahan, getUjiRapidTest, getActiveMasterParameterUjiList } from '@/app/actions/sppgPengawasan';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -27,6 +27,7 @@ export default async function PengawasanPage() {
   const pembelian = await getPembelianBahan();
   const pemakaian = await getPemakaianBahan();
   const ujiRapid = await getUjiRapidTest();
+  const masterParameterList = await getActiveMasterParameterUjiList();
 
   // Fetch lookups for forms
   const pemasokList = await db.select().from(pemasok);
@@ -45,6 +46,7 @@ export default async function PengawasanPage() {
         initialPembelian={pembelian}
         initialPemakaian={pemakaian}
         initialUjiRapid={ujiRapid}
+        masterParameterList={masterParameterList}
         pemasokList={pemasokList}
         jenisPanganList={jenisPanganList}
         standarMenuList={standarMenuList}

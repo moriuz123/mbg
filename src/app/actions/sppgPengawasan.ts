@@ -128,6 +128,13 @@ export async function getPemakaianBahan(sppgId?: number) {
   }));
 }
 
+export async function getActiveMasterParameterUjiList() {
+  return await db.query.masterParameterUji.findMany({
+    where: eq(masterParameterUji.statusAktif, true),
+    orderBy: [desc(masterParameterUji.createdAt), desc(masterParameterUji.id)]
+  });
+}
+
 // ==========================================
 // 3. UJI RAPID TEST BAHAN SEGAR
 // ==========================================
@@ -141,11 +148,26 @@ export async function createUjiRapidTest(formData: FormData) {
       sppgId = userSppgId;
     }
 
+    const parameterUjiIdRaw = formData.get('parameterUjiId') as string;
+    const parameterUjiId = parameterUjiIdRaw ? parseInt(parameterUjiIdRaw) : null;
+    let parameterUjiName = formData.get('parameterUji') as string;
+
+    // Jika parameterUjiId dipasang, ambil nama parameter dari master
+    if (parameterUjiId && !isNaN(parameterUjiId)) {
+      const masterItem = await db.query.masterParameterUji.findFirst({
+        where: eq(masterParameterUji.id, parameterUjiId)
+      });
+      if (masterItem) {
+        parameterUjiName = masterItem.namaParameter;
+      }
+    }
+
     const data = {
       sppgId,
       jenisPanganId: parseInt(formData.get('jenisPanganId') as string),
+      parameterUjiId: parameterUjiId && !isNaN(parameterUjiId) ? parameterUjiId : null,
       tanggalUji: formData.get('tanggalUji') as string,
-      parameterUji: formData.get('parameterUji') as string,
+      parameterUji: parameterUjiName || 'Pengujian Rutin',
       hasilUji: formData.get('hasilUji') as string,
       petugasPenguji: formData.get('petugasPenguji') as string,
       tindakanLanjut: formData.get('tindakanLanjut') as string || null,
@@ -170,12 +192,14 @@ export async function getUjiRapidTest(sppgId?: number) {
     where: whereClause,
     with: {
       jenisPangan: true,
+      parameterMaster: true,
     },
     orderBy: [desc(sppgUjiRapidTest.tanggalUji), desc(sppgUjiRapidTest.createdAt)]
   });
 
   return data.map(d => ({
     ...d,
-    jenisPanganNama: d.jenisPangan?.namaBahan
+    jenisPanganNama: d.jenisPangan?.namaBahan,
+    parameterMaster: d.parameterMaster,
   }));
 }

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck } from 'lucide-react';
+import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { LogoutButtonSidebar } from './LogoutButton';
 
@@ -146,6 +146,7 @@ export default function AdminSidebar({ userRole = 'publik' }: { userRole?: strin
               <NavItem href="/admin/master-data/desa" icon={MapPin} isActive={pathname?.includes('desa')} isSub>Desa/Kelurahan</NavItem>
               <NavItem href="/admin/master-data/jenis-pangan" icon={ShoppingCart} isActive={pathname?.includes('jenis-pangan')} isSub>Jenis Pangan</NavItem>
               <NavItem href="/admin/master-data/pemasok" icon={Truck} isActive={pathname?.includes('pemasok')} isSub>Pemasok</NavItem>
+              <NavItem href="/admin/master-data/parameter-uji" icon={TestTube2} isActive={pathname?.includes('parameter-uji')} isSub>Parameter Uji</NavItem>
             </div>
           </div>
         </div>

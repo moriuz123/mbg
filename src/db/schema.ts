@@ -477,11 +477,28 @@ export const sppgPemakaianBahanRelations = relations(sppgPemakaianBahan, ({ one 
   }),
 }));
 
+// Master Item Parameter Uji (Rapid Test)
+export const masterParameterUji = pgTable("master_parameter_uji", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  namaParameter: text("nama_parameter").notNull(), // Misal: Formalin, Boraks, E. Coli, Pestisida, Nitrit
+  kategori: text("kategori").default("Kimia"), // Misal: Kimia, Mikrobiologi, Fisik
+  satuan: text("satuan"), // Misal: mg/L, Negative/Positive, PPM
+  ambangBatas: text("ambang_batas"), // Misal: 0 mg/L (Bebas)
+  deskripsi: text("deskripsi"),
+  statusAktif: boolean("status_aktif").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const masterParameterUjiRelations = relations(masterParameterUji, ({ many }) => ({
+  ujiRapidTests: many(sppgUjiRapidTest),
+}));
+
 // 3. Uji Rapid Test Bahan Segar
 export const sppgUjiRapidTest = pgTable("sppg_uji_rapid_test", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
   jenisPanganId: integer("jenis_pangan_id").notNull().references(() => jenisPangan.id),
+  parameterUjiId: integer("parameter_uji_id").references(() => masterParameterUji.id),
   tanggalUji: date("tanggal_uji").notNull(),
   parameterUji: text("parameter_uji").notNull(), // Misal: Formalin, Boraks, E.Coli
   hasilUji: text("hasil_uji").notNull(), // Aman / Tidak Aman / Peringatan
@@ -499,6 +516,10 @@ export const sppgUjiRapidTestRelations = relations(sppgUjiRapidTest, ({ one }) =
   jenisPangan: one(jenisPangan, {
     fields: [sppgUjiRapidTest.jenisPanganId],
     references: [jenisPangan.id],
+  }),
+  parameterMaster: one(masterParameterUji, {
+    fields: [sppgUjiRapidTest.parameterUjiId],
+    references: [masterParameterUji.id],
   }),
 }));
 
