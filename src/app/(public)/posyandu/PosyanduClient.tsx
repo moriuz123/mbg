@@ -147,9 +147,7 @@ export default function PosyanduClient({ initialData, filterOptions }: { initial
                     <HeartPulse size={24} />
                   </div>
                   <div>
-                    <Link href={`/posyandu/${posyandu.posyanduId}`} onClick={e => e.stopPropagation()} className="hover:underline">
-                      <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--text-primary)', fontWeight: 600 }}>{posyandu.namaPosyandu}</h3>
-                    </Link>
+                    <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--text-primary)', fontWeight: 600 }}>{posyandu.namaPosyandu}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
                       <span className="badge badge-primary">Posyandu</span>
                     </div>
@@ -174,13 +172,8 @@ export default function PosyanduClient({ initialData, filterOptions }: { initial
               </div>
               
               {/* CTA Action */}
-              <div className="flex items-center gap-3 pt-4 mt-4 border-t border-slate-100 md:border-none md:pt-0 md:mt-0 md:pl-6 shrink-0 w-full md:w-auto justify-end" onClick={e => e.stopPropagation()}>
-                <Link 
-                  href={`/posyandu/${posyandu.posyanduId}`} 
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors flex items-center gap-1 shadow-sm"
-                >
-                  Profil & Riwayat <ChevronRight size={14} />
-                </Link>
+              <div style={{ display: 'flex', alignItems: 'center', color: 'var(--primary-600)', fontSize: '0.875rem', fontWeight: 600, paddingTop: '1rem', marginTop: '1rem', borderTop: '1px solid var(--border-color)' }} className="md:border-none md:pt-0 md:mt-0 md:pl-6 shrink-0 w-full md:w-auto justify-end">
+                Lihat Detail <ChevronRight size={16} />
               </div>
             </div>
           ))}
@@ -265,15 +258,18 @@ export default function PosyanduClient({ initialData, filterOptions }: { initial
               </div>
             </div>
 
-            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Link 
-                href={`/posyandu/${selectedPosyandu.posyanduId}`} 
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#059669', color: '#fff', padding: '0.625rem 1.25rem', borderRadius: '0.75rem', fontWeight: 600, fontSize: '0.875rem' }}
+            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+              <button 
+                onClick={() => setSelectedPosyandu(null)}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f1f5f9', color: '#475569', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
               >
-                Profil & Riwayat Lengkap <ChevronRight size={16} />
-              </Link>
-              <button className="btn btn-ghost" onClick={() => setSelectedPosyandu(null)}>
                 Tutup
+              </button>
+              <button 
+                onClick={() => window.location.href = `/posyandu/${selectedPosyandu.posyanduId}`}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary-600)', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+              >
+                Lihat Profil Lengkap
               </button>
             </div>
           </div>
