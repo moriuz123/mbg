@@ -36,9 +36,10 @@ Buat file `.env` di direktori utama proyek (`/mbg/.env`):
 # Database URL mengarah ke Container Docker PostgreSQL
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mbg"
 
-# Rahasia Autentikasi BetterAuth (Lokal)
+# Rahasia & URL Autentikasi BetterAuth (Server & Client)
 BETTER_AUTH_SECRET="super_secret_key_mbg_lebak_local_dev_2026"
 BETTER_AUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 # Port aplikasi
 PORT=3000
@@ -144,11 +145,16 @@ Arsitektur produksi MBG Lebak disarankan menggunakan **Vercel** untuk hosting Ne
    - Root Directory: `./`
    - Pada bagian **Environment Variables**, tambahkan variabel berikut:
 
-   | Variable Key | Nilai / Value | Keterangan |
-   | :--- | :--- | :--- |
-   | `DATABASE_URL` | `postgresql://postgres.[REF]:[PASS]@...supabase.com:6543/postgres?sslmode=require` | Connection String Supabase PostgreSQL |
-   | `BETTER_AUTH_SECRET` | `String_Random_Unik_Min_32_Karakter` | Kunci enkripsi autentikasi BetterAuth |
-   | `BETTER_AUTH_URL` | `https://mbg-lebak.vercel.app` (atau domain Anda) | Domain publik produksi di Vercel |
+   | Variable Key | Scope / Tipe | Nilai / Value | Keterangan |
+   | :--- | :--- | :--- | :--- |
+   | `DATABASE_URL` | **Server Only** | `postgresql://postgres.[REF]:[PASS]@...supabase.com:6543/postgres?sslmode=require` | Connection String Supabase PostgreSQL |
+   | `BETTER_AUTH_SECRET` | **Server Only** | `String_Random_Unik_Min_32_Karakter` | Kunci enkripsi autentikasi BetterAuth |
+   | `BETTER_AUTH_URL` | **Server Only** | `https://mbg-lebak.vercel.app` (atau domain produksi Anda) | URL domain backend server BetterAuth |
+   | `NEXT_PUBLIC_APP_URL` | **Client & Server (Public)** | `https://mbg-lebak.vercel.app` (atau domain produksi Anda) | **Wajib di Vercel!** URL domain publik yang dibaca oleh komponen React Client (`authClient`) |
+
+   > 💡 **PENTING mengenai Prefiks `NEXT_PUBLIC_` di Next.js / Vercel:**
+   > - Variabel dengan prefiks `NEXT_PUBLIC_` (seperti `NEXT_PUBLIC_APP_URL`) **dapat diakses oleh browser/React Client Component**. Variabel ini wajib diisi agar fungsi Login/Register/Auth di frontend dapat menemukan URL domain Vercel Anda secara akurat.
+   > - Variabel tanpa `NEXT_PUBLIC_` (seperti `DATABASE_URL` dan `BETTER_AUTH_SECRET`) **tersimpan aman di Serverless Function Vercel** dan tidak akan pernah bocor ke browser pengguna.
 
 3. **Deploy Project**:
    - Klik tombol **Deploy**.
