@@ -4,8 +4,8 @@ import PageHeader from '@/components/PageHeader';
 import { getPublicTargets } from '@/app/actions/pengaduan';
 
 export const metadata = {
-  title: 'Layanan Pengaduan | MBG Kab. Lebak',
-  description: 'Formulir pengaduan masyarakat untuk program Makan Bergizi Gratis',
+  title: 'Layanan Pengaduan & Aspirasi | MBG Kab. Lebak',
+  description: 'Sistem pelaporan terpadu Program Makan Bergizi Gratis (MBG) Kabupaten Lebak via Form Direct, WhatsApp Lapor Ruhay (+6281944114581), dan SPAN-LAPOR.go.id.',
 };
 
 export default async function PengaduanPublicPage() {
@@ -14,14 +14,13 @@ export default async function PengaduanPublicPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <PageHeader 
-        title="Layanan Pengaduan" 
-        description="Sistem pelaporan terpadu. Bantu kami menjaga kualitas program MBG dengan melaporkan masalah yang Anda temukan di lapangan."
+        title="Layanan Pengaduan & Aspirasi" 
+        description="Sistem pelaporan terpadu. Bantu kami menjaga kualitas nutrisi dan keamanan program MBG dengan melaporkan temuan atau aspirasi Anda."
         breadcrumbs={[{ label: 'Pengaduan' }]}
       />
-      <div className="container mx-auto px-4 max-w-7xl">
-
-      <PengaduanPublicForm targets={targets} />
-      </div>
+      <main className="container mx-auto px-4 max-w-7xl">
+        <PengaduanPublicForm targets={targets} />
+      </main>
     </div>
   );
 }
