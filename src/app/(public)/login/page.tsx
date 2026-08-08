@@ -26,7 +26,7 @@ export default function Login() {
         setError(error.message || 'Login gagal. Periksa kembali kredensial Anda.');
         setLoading(false);
     } else {
-        router.push('/admin');
+        window.location.href = '/admin';
     }
   };
 
