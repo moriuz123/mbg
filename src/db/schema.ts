@@ -708,6 +708,7 @@ export const posyanduRelations = relations(posyandu, ({ one, many }) => ({
     fields: [posyandu.kecamatanId],
     references: [kecamatan.id],
   }),
+  posyanduManfaat: many(sppgPosyanduManfaat),
   riwayatMbg: many(posyanduPenerimaanMbg),
 }));
 
