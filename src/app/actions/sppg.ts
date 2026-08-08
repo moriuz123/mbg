@@ -1,8 +1,8 @@
 'use server';
 
 import { db } from "@/db";
-import { sppg, sppgPenerimaManfaat, sekolahPenerimaanMbg } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { sppg, sppgPenerimaManfaat, sekolahPenerimaanMbg, sppgPosyanduManfaat, posyanduPenerimaanMbg } from "@/db/schema";
+import { desc, eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function getSppg() {
@@ -146,11 +146,40 @@ export async function getAssignedSekolah(sppgId: number) {
   return data;
 }
 
+export async function getAllActiveAssignedSekolah() {
+  return await db.query.sppgPenerimaManfaat.findMany({
+    where: eq(sppgPenerimaManfaat.status, 'Aktif'),
+    with: {
+      sppg: true,
+      sekolah: true
+    }
+  });
+}
+
 export async function assignSekolahToSppg(data: { sppgId: number, sekolahId: number, jumlahTotal: number, tahunAjaran: string, tanggalMulai: string }) {
   const canManage = await checkCanManageSppg(data.sppgId);
   if (!canManage) return { success: false, error: 'Akses ditolak: Anda tidak memiliki akses untuk mengubah SPPG ini' };
 
   try {
+    // Validasi: Cek apakah sekolah ini sudah aktif sebagai penerima manfaat di SPPG manapun
+    const existingActive = await db.query.sppgPenerimaManfaat.findFirst({
+      where: and(
+        eq(sppgPenerimaManfaat.sekolahId, data.sekolahId),
+        eq(sppgPenerimaManfaat.status, 'Aktif')
+      ),
+      with: {
+        sppg: true
+      }
+    });
+
+    if (existingActive) {
+      const namaSppgLain = existingActive.sppg?.namaSppg || `ID ${existingActive.sppgId}`;
+      return { 
+        success: false, 
+        error: `Sekolah ini sudah terdaftar sebagai penerima aktif di SPPG lain (${namaSppgLain}). Berhentikan terlebih dahulu dari SPPG tersebut.` 
+      };
+    }
+
     // 1. Insert ke sppg_penerima_manfaat (aktif)
     await db.insert(sppgPenerimaManfaat).values({
       sppgId: data.sppgId,
@@ -161,8 +190,7 @@ export async function assignSekolahToSppg(data: { sppgId: number, sekolahId: num
       tanggalMulai: data.tanggalMulai,
     });
     
-    // 2. Cek apakah di sekolah_penerimaan_mbg sudah ada untuk sekolah & sppg ini (opsional: jika ada update status, jika tidak insert baru)
-    // Untuk sederhana, kita selalu insert history penerimaan baru
+    // 2. Insert/update riwayat penerimaan mbg
     await db.insert(sekolahPenerimaanMbg).values({
       sekolahId: data.sekolahId,
       sppgId: data.sppgId,
@@ -174,7 +202,7 @@ export async function assignSekolahToSppg(data: { sppgId: number, sekolahId: num
     revalidatePath(`/admin/sppg/${data.sppgId}`);
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: 'Gagal menambahkan sekolah ke SPPG. Pastikan tidak ada duplikasi data.' };
+    return { success: false, error: error.message || 'Gagal menambahkan sekolah ke SPPG. Pastikan tidak ada duplikasi data.' };
   }
 }
 
@@ -205,8 +233,6 @@ export async function unassignSekolah(id: number, sppgId: number) {
   }
 }
 
-import { sppgPosyanduManfaat, posyanduPenerimaanMbg } from "@/db/schema";
-
 export async function getAssignedPosyandu(sppgId: number) {
   const data = await db.query.sppgPosyanduManfaat.findMany({
     where: eq(sppgPosyanduManfaat.sppgId, sppgId),
@@ -215,6 +241,16 @@ export async function getAssignedPosyandu(sppgId: number) {
     }
   });
   return data;
+}
+
+export async function getAllActiveAssignedPosyandu() {
+  return await db.query.sppgPosyanduManfaat.findMany({
+    where: eq(sppgPosyanduManfaat.status, 'Aktif'),
+    with: {
+      sppg: true,
+      posyandu: true
+    }
+  });
 }
 
 export async function assignPosyanduToSppg(data: { 
@@ -230,6 +266,25 @@ export async function assignPosyanduToSppg(data: {
   if (!canManage) return { success: false, error: 'Akses ditolak: Anda tidak memiliki akses untuk mengubah SPPG ini' };
 
   try {
+    // Validasi: Cek apakah posyandu ini sudah aktif sebagai penerima manfaat di SPPG manapun
+    const existingActive = await db.query.sppgPosyanduManfaat.findFirst({
+      where: and(
+        eq(sppgPosyanduManfaat.posyanduId, data.posyanduId),
+        eq(sppgPosyanduManfaat.status, 'Aktif')
+      ),
+      with: {
+        sppg: true
+      }
+    });
+
+    if (existingActive) {
+      const namaSppgLain = existingActive.sppg?.namaSppg || `ID ${existingActive.sppgId}`;
+      return { 
+        success: false, 
+        error: `Posyandu ini sudah terdaftar sebagai penerima aktif di SPPG lain (${namaSppgLain}). Berhentikan terlebih dahulu dari SPPG tersebut.` 
+      };
+    }
+
     await db.insert(sppgPosyanduManfaat).values({
       sppgId: data.sppgId,
       posyanduId: data.posyanduId,
@@ -251,9 +306,10 @@ export async function assignPosyanduToSppg(data: {
     revalidatePath(`/admin/sppg/${data.sppgId}`);
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: 'Gagal menambahkan posyandu ke SPPG. Pastikan tidak ada duplikasi data.' };
+    return { success: false, error: error.message || 'Gagal menambahkan posyandu ke SPPG. Pastikan tidak ada duplikasi data.' };
   }
 }
+
 
 export async function unassignPosyandu(id: number, sppgId: number) {
   const canManage = await checkCanManageSppg(sppgId);

@@ -12,13 +12,17 @@ export default function SppgDetailClientUI({
   assignedSekolah, 
   allSekolah,
   assignedPosyandu,
-  allPosyandu
+  allPosyandu,
+  allActiveSekolahAssignments = [],
+  allActivePosyanduAssignments = []
 }: { 
   sppg: any;
   assignedSekolah: any[];
   allSekolah: any[];
   assignedPosyandu: any[];
   allPosyandu: any[];
+  allActiveSekolahAssignments?: any[];
+  allActivePosyanduAssignments?: any[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPosyanduModalOpen, setIsPosyanduModalOpen] = useState(false);
@@ -31,13 +35,14 @@ export default function SppgDetailClientUI({
   const [confirmType, setConfirmType] = useState<'sekolah'|'posyandu'>('sekolah');
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Filter out schools that are already assigned
+  // Filter out schools that are already assigned to ANY active SPPG
   const availableSekolah = allSekolah.filter(
-    (s) => !assignedSekolah.some((as) => as.sekolahId === s.id)
+    (s) => !allActiveSekolahAssignments.some((as) => as.sekolahId === s.id)
   );
 
+  // Filter out posyandus that are already assigned to ANY active SPPG
   const availablePosyandu = allPosyandu.filter(
-    (p) => !assignedPosyandu.some((ap) => ap.posyanduId === p.id)
+    (p) => !allActivePosyanduAssignments.some((ap) => ap.posyanduId === p.id)
   );
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -179,7 +184,7 @@ export default function SppgDetailClientUI({
                   ))}
                 </select>
                 {availableSekolah.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-2 font-medium">Semua sekolah sudah terdaftar di SPPG ini.</p>
+                  <p className="text-xs text-amber-600 mt-2 font-medium">Semua sekolah yang ada sudah terdaftar di SPPG (tidak ada sekolah bebas).</p>
                 )}
               </div>
               
@@ -235,7 +240,7 @@ export default function SppgDetailClientUI({
                   ))}
                 </select>
                 {availablePosyandu.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-2 font-medium">Semua posyandu sudah terdaftar di SPPG ini.</p>
+                  <p className="text-xs text-amber-600 mt-2 font-medium">Semua posyandu yang ada sudah terdaftar di SPPG (tidak ada posyandu bebas).</p>
                 )}
               </div>
               

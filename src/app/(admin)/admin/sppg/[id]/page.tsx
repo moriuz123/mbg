@@ -37,9 +37,8 @@ export default async function SppgDetailPage({ params }: any) {
   const assignedSekolah = await getAssignedSekolah(sppgId);
   const allSekolah = await getSekolah();
 
-  // Import Posyandu Actions
-  const { getAssignedPosyandu } = await import("@/app/actions/sppg");
-  // Actually, I can just use db directly here since it's a server component.
+  // Import Posyandu Actions and active assignments
+  const { getAssignedPosyandu, getAllActiveAssignedSekolah, getAllActiveAssignedPosyandu } = await import("@/app/actions/sppg");
   const { db } = await import("@/db");
   const { posyandu } = await import("@/db/schema");
   const { desc } = await import("drizzle-orm");
@@ -48,6 +47,9 @@ export default async function SppgDetailPage({ params }: any) {
     orderBy: [desc(posyandu.createdAt)],
   });
   const assignedPosyandu = await getAssignedPosyandu(sppgId);
+  
+  const allActiveSekolahAssignments = await getAllActiveAssignedSekolah();
+  const allActivePosyanduAssignments = await getAllActiveAssignedPosyandu();
 
   return (
     <main className="max-w-6xl mx-auto space-y-6">
@@ -64,6 +66,8 @@ export default async function SppgDetailPage({ params }: any) {
         allSekolah={allSekolah}
         assignedPosyandu={assignedPosyandu}
         allPosyandu={allPosyandu}
+        allActiveSekolahAssignments={allActiveSekolahAssignments}
+        allActivePosyanduAssignments={allActivePosyanduAssignments}
       />
     </main>
   );
