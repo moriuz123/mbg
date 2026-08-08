@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PackagePlus, PackageMinus, TestTube2, AlertCircle, Plus, Check } from 'lucide-react';
+import { PackagePlus, PackageMinus, TestTube2, AlertCircle, Plus, Check, X } from 'lucide-react';
 import { createPembelianBahan, createPemakaianBahan, createUjiRapidTest } from '@/app/actions/sppgPengawasan';
 import toast from 'react-hot-toast';
 
