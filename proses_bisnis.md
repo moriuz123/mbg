@@ -9,83 +9,83 @@ Dokumen ini berisi alur proses bisnis (*Business Process Flowchart*) end-to-end 
 ```mermaid
 flowchart TD
     %% ==========================================
-    %% PHASE 1: PERENCANAAN & TARGETING
+    %% 1. PERENCANAAN DAN TARGETING
     %% ==========================================
-    subgraph PERENCANAAN ["📋 1. PERENCANAAN & PENETAPAN SASARAN"]
-        A1["Badan Gizi Nasional (BGN) & Admin Dinas"] -->|Penetapan Kuota & Anggaran| A2["Master Sekolah & Posyandu Sasaran"]
-        A1 -->|Penyusunan & Pengesahan| A3["Standar Menu Gizi (Kalori, Protein, Karbo)"]
+    subgraph PERENCANAAN ["1. PERENCANAAN DAN PENETAPAN SASARAN"]
+        A1["Badan Gizi Nasional BGN dan Admin Dinas"] -->|Penetapan Kuota dan Anggaran| A2["Master Sekolah dan Posyandu Sasaran"]
+        A1 -->|Penyusunan dan Pengesahan| A3["Standar Menu Gizi Kalori Protein Karbo"]
         A2 --> A4["Alokasi Wilayah Layanan Dapur SPPG"]
     end
 
     %% ==========================================
-    %% PHASE 2: RANTAI PASOK & SUPPLIER
+    %% 2. RANTAI PASOK DAN SUPPLIER
     %% ==========================================
-    subgraph LOGISTIK ["🌾 2. PENGADAAN & RANTAI PASOK LOKAL"]
-        B1["Petani / Peternak / UMKM Lokal Lebak"] -->|Pasok Sayur, Telur, Daging, Buah| B2["Pemasok Terdaftar"]
+    subgraph LOGISTIK ["2. PENGADAAN DAN RANTAI PASOK LOKAL"]
+        B1["Petani - Peternak - UMKM Lokal Lebak"] -->|Pasok Sayur Telur Daging Buah| B2["Pemasok Terdaftar"]
         B3["Penggilingan Padi Lokal Lebak"] -->|Pasok Beras Terstandar| B2
-        B2 -->|Pengiriman Bahan Baku Segar| B4["Dapur SPPG (Satuan Pelayanan Pemenuhan Gizi)"]
+        B2 -->|Pengiriman Bahan Baku Segar| B4["Dapur SPPG Satuan Pelayanan Pemenuhan Gizi"]
         B4 -->|Pencatatan Pembelian Stock In| DB1[("Tabel sppg_pembelian_bahan")]
     end
 
     %% ==========================================
-    %% PHASE 3: QUALITY CONTROL & RAPID TEST
+    %% 3. QUALITY CONTROL DAN RAPID TEST
     %% ==========================================
-    subgraph INSPEKSI ["🔬 3. QUALITY CONTROL & UJI RAPID TEST"]
+    subgraph INSPEKSI ["3. QUALITY CONTROL DAN UJI RAPID TEST"]
         B4 -->|Pengambilan Sampel Bahan| C1["Petugas Penguji Dapur SPPG"]
         C1 -->|Pemeriksaan Laboratorium| C2{"Uji Rapid Test Food Safety"}
-        C2 -->|Cek Master Parameter| C3["Master Parameter Uji (Formalin, Boraks, E.Coli, Pestisida)"]
+        C2 -->|Cek Master Parameter| C3["Master Parameter Uji Formalin Boraks EColi Pestisida"]
         
-        C2 -->|Hasil: TIDAK AMAN / POSITIF| C4["❌ PENOLAKAN BAHAN"]
-        C4 -->|Retur Pemasok / Dibuang| C5["Catat Tindakan Lanjut Penolakan"]
+        C2 -->|Hasil: TIDAK AMAN / POSITIF| C4["PENOLAKAN BAHAN"]
+        C4 -->|Retur Pemasok atau Dibuang| C5["Catat Tindakan Lanjut Penolakan"]
         
-        C2 -->|Hasil: AMAN / BEBAS| C6["✅ BAHAN DISETUJUI DIOLAH"]
+        C2 -->|Hasil: AMAN / BEBAS| C6["BAHAN DISETUJUI DIOLAH"]
         C2 -->|Log Pengujian Harian| DB2[("Tabel sppg_uji_rapid_test")]
     end
 
     %% ==========================================
-    %% PHASE 4: PENGOLAHAN & MEMASAK
+    %% 4. PENGOLAHAN DAN MEMASAK
     %% ==========================================
-    subgraph DAPUR ["🍳 4. PENGOLAHAN MENU & PENGEMASAN"]
-        C6 --> D1["Chef Bersertifikat BNSP & Penjamah Makanan"]
+    subgraph DAPUR ["4. PENGOLAHAN MENU DAN PENGEMASAN"]
+        C6 --> D1["Chef Bersertifikat BNSP dan Penjamah Makanan"]
         A3 -.->|Acuan Resep Gizi| D1
-        D1 -->|Proses Memasak Higienis| D2["Pengemasan Porsi Steril (Lunch Box)"]
+        D1 -->|Proses Memasak Higienis| D2["Pengemasan Porsi Steril Lunch Box"]
         D1 -->|Pencatatan Pemakaian Stock Out| DB3[("Tabel sppg_pemakaian_bahan")]
     end
 
     %% ==========================================
-    %% PHASE 5: DISTRIBUSI & LOGISTIK
+    %% 5. DISTRIBUSI DAN LOGISTIK
     %% ==========================================
-    subgraph DISTRIBUSI ["🚚 5. DISTRIBUSI ARMADA TERKONTROL"]
-        D2 --> E1["Kurir / Fleet Logistik SPPG"]
-        E1 -->|Pengiriman Tepat Waktu| E2["Penerima Sekolah (PAUD, SD, SMP, SMA)"]
-        E1 -->|Pengiriman Tepat Waktu| E3["Penerima Posyandu (Bumil, Busui, Balita)"]
+    subgraph DISTRIBUSI ["5. DISTRIBUSI ARMADA TERKONTROL"]
+        D2 --> E1["Kurir Fleet Logistik SPPG"]
+        E1 -->|Pengiriman Tepat Waktu| E2["Penerima Sekolah PAUD SD SMP SMA"]
+        E1 -->|Pengiriman Tepat Waktu| E3["Penerima Posyandu Bumil Busui Balita"]
         E1 -->|Input Laporan Pengiriman| DB4[("Tabel sppg_laporan_aktifitas")]
     end
 
     %% ==========================================
-    %% PHASE 6: VERIFIKASI DUA ARAH
+    %% 6. VERIFIKASI DUA ARAH
     %% ==========================================
-    subgraph VERIFIKASI ["✅ 6. VERIFIKASI DUA ARAH (DITERIMA)"]
-        E2 -->|Cek Fisik & Porsi| F1["Operator Sekolah (Guru)"]
-        E3 -->|Cek Fisik & Porsi| F2["Operator Posyandu (Kader)"]
+    subgraph VERIFIKASI ["6. VERIFIKASI DUA ARAH DITERIMA"]
+        E2 -->|Cek Fisik dan Porsi| F1["Operator Sekolah Guru"]
+        E3 -->|Cek Fisik dan Porsi| F2["Operator Posyandu Kader"]
         
         F1 -->|Input Verifikasi Digital| F3{"Kondisi Makanan Diterima?"}
         F2 -->|Input Verifikasi Digital| F3
         
-        F3 -->|Lengkap & Baik| F4["VERIFIKASI SUKSES (Diterima Lengkap)"]
-        F3 -->|Rusak / Basi / Kurang| F5["VERIFIKASI BERMASALAH (Catat Klaim)"]
+        F3 -->|Lengkap dan Baik| F4["VERIFIKASI SUKSES Diterima Lengkap"]
+        F3 -->|Rusak Basi Kurang| F5["VERIFIKASI BERMASALAH Catat Klaim"]
         
-        F4 --> DB5[("Tabel sekolah/posyandu_laporan_aktifitas")]
+        F4 --> DB5[("Tabel sekolah_posyandu_laporan_aktifitas")]
         F5 --> DB5
     end
 
     %% ==========================================
-    %% PHASE 7: MONITORING & PENGADUAN PUBLIK
+    %% 7. MONITORING DAN PENGADUAN PUBLIK
     %% ==========================================
-    subgraph EVALUASI ["📣 7. PENGAWASAN & LAYANAN PENGADUAN PUBLIK"]
-        G1["Masyarakat / Orang Tua / Kader"] -->|Web Form Direct| G2["Portal Pengaduan MBG"]
-        G1 -->|WhatsApp Bot +6281944114581| G3["LAPOR RUHAY! Pemkab Lebak"]
-        G1 -->|Portal Nasional| G4["SPAN-LAPOR.GO.ID"]
+    subgraph EVALUASI ["7. PENGAWASAN DAN LAYANAN PENGADUAN PUBLIK"]
+        G1["Masyarakat - Orang Tua - Kader"] -->|Web Form Direct| G2["Portal Pengaduan MBG"]
+        G1 -->|WhatsApp Bot 6281944114581| G3["LAPOR RUHAY Pemkab Lebak"]
+        G1 -->|Portal Nasional| G4["SPAN LAPOR GO ID"]
         
         G2 --> DB6[("Tabel pengaduan")]
         G3 -.-> DB6
@@ -93,7 +93,7 @@ flowchart TD
         
         DB6 --> H1["Dashboard Monitoring Admin Dinas Gizi"]
         F5 -.->|Notifikasi Warning| H1
-        H1 -->|Inspeksi / Evaluasi SPPG| A1
+        H1 -->|Inspeksi dan Evaluasi SPPG| A1
     end
 ```
 
