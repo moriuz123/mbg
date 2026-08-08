@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { sppgPembelianBahan, sppgPemakaianBahan, sppgUjiRapidTest, pemasok, jenisPangan, standarMenuGizi } from '@/db/schema';
+import { sppgPembelianBahan, sppgPemakaianBahan, sppgUjiRapidTest, masterParameterUji, pemasok, jenisPangan, standarMenuGizi } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
