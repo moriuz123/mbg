@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Save, Activity, Search, Filter, Package, CheckCircle, Clock } from 'lucide-react';
+import { Plus, X, Save, Activity, Search, Filter, Package, CheckCircle, Clock, Eye, GraduationCap, HeartPulse, Utensils, Calendar, MapPin } from 'lucide-react';
+import Link from 'next/link';
 import { createLaporanAktifitas } from '@/app/actions/laporanAktifitas';
 
 type LaporanType = {
@@ -10,9 +11,14 @@ type LaporanType = {
   tanggal: string | null;
   sppgName: string;
   sekolahName: string;
+  tujuanTipe?: string;
+  tujuanId?: number;
   menu: string;
+  menuDetail?: any;
   jumlahPorsi: number | null;
   status: string | null;
+  catatan?: string | null;
+  fotoDokumentasi?: string | null;
   verifikasi: any;
 };
 
@@ -35,6 +41,7 @@ export default function LaporanAktifitasClient({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedVerifikasi, setSelectedVerifikasi] = useState<any>(null);
+  const [selectedDetailLaporan, setSelectedDetailLaporan] = useState<any | null>(null);
   const [tujuanTipe, setTujuanTipe] = useState<'Sekolah' | 'Posyandu'>('Sekolah');
   
   const [filterTanggal, setFilterTanggal] = useState('');
@@ -235,14 +242,12 @@ export default function LaporanAktifitasClient({
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    {laporan.verifikasi && (
-                      <button 
-                        onClick={() => setSelectedVerifikasi(laporan.verifikasi)}
-                        className="text-xs font-bold text-primary-600 hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-colors"
-                      >
-                        Detail
-                      </button>
-                    )}
+                    <button 
+                      onClick={() => setSelectedDetailLaporan(laporan)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-lg text-xs font-bold transition-all shadow-sm border border-primary-100"
+                    >
+                      <Eye size={14} /> Detail
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -396,6 +401,148 @@ export default function LaporanAktifitasClient({
             
             <div className="p-4 border-t border-slate-100 flex justify-end bg-slate-50">
               <button type="button" onClick={() => setSelectedVerifikasi(null)} className="px-5 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-xl transition-colors">
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>, document.body
+      )}
+
+      {selectedDetailLaporan && mounted && createPortal(
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200" onClick={() => setSelectedDetailLaporan(null)}>
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-6 border-b border-slate-100">
+              <div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-50 text-primary-700 border border-primary-100 mb-1">
+                  <Activity size={12} /> Detail Laporan Distribusi MBG
+                </span>
+                <h3 className="text-xl font-bold text-slate-800">
+                  {selectedDetailLaporan.sekolahName}
+                </h3>
+              </div>
+              <button onClick={() => setSelectedDetailLaporan(null)} className="text-slate-400 hover:text-slate-600 p-1 rounded-full">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-5 text-sm text-slate-700">
+              
+              {/* Info Pengiriman */}
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Tanggal Pengiriman</span>
+                  <span className="font-semibold text-slate-800 flex items-center gap-1">
+                    <Calendar size={14} className="text-slate-400" />
+                    {selectedDetailLaporan.tanggal ? new Date(selectedDetailLaporan.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Status Laporan</span>
+                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                    selectedDetailLaporan.status === 'Diterima' ? 'bg-emerald-100 text-emerald-700' : 
+                    selectedDetailLaporan.status === 'Bermasalah' ? 'bg-red-100 text-red-700' :
+                    'bg-amber-100 text-amber-700'
+                  }`}>
+                    {selectedDetailLaporan.status}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Dapur (SPPG)</span>
+                  <span className="font-bold text-primary-700">{selectedDetailLaporan.sppgName}</span>
+                </div>
+
+                <div>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Jumlah Porsi</span>
+                  <span className="font-bold text-slate-800">{selectedDetailLaporan.jumlahPorsi} Porsi</span>
+                </div>
+              </div>
+
+              {/* Detail Menu Gizi */}
+              <div className="p-4 bg-primary-50/50 rounded-2xl border border-primary-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary-800 block mb-1">Menu Makanan Gizi</span>
+                <p className="font-bold text-slate-800 text-base">{selectedDetailLaporan.menuDetail?.namaMenu || selectedDetailLaporan.menu}</p>
+                {selectedDetailLaporan.menuDetail?.deskripsi && (
+                  <p className="text-xs text-slate-600 mt-1 italic font-medium">"{selectedDetailLaporan.menuDetail.deskripsi}"</p>
+                )}
+
+                {selectedDetailLaporan.menuDetail && (
+                  <div className="grid grid-cols-4 gap-2 mt-3 text-center">
+                    <div className="p-2 bg-white rounded-xl border border-primary-100">
+                      <span className="block text-xs font-bold text-slate-800">{selectedDetailLaporan.menuDetail.kaloriKkal || '-'}</span>
+                      <span className="text-[10px] text-slate-400 font-semibold">Kkal</span>
+                    </div>
+                    <div className="p-2 bg-white rounded-xl border border-primary-100">
+                      <span className="block text-xs font-bold text-slate-800">{selectedDetailLaporan.menuDetail.proteinGram || '-'} g</span>
+                      <span className="text-[10px] text-slate-400 font-semibold">Protein</span>
+                    </div>
+                    <div className="p-2 bg-white rounded-xl border border-primary-100">
+                      <span className="block text-xs font-bold text-slate-800">{selectedDetailLaporan.menuDetail.karbohidratGram || '-'} g</span>
+                      <span className="text-[10px] text-slate-400 font-semibold">Karbo</span>
+                    </div>
+                    <div className="p-2 bg-white rounded-xl border border-primary-100">
+                      <span className="block text-xs font-bold text-slate-800">{selectedDetailLaporan.menuDetail.lemakGram || '-'} g</span>
+                      <span className="text-[10px] text-slate-400 font-semibold">Lemak</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Catatan SPPG */}
+              {selectedDetailLaporan.catatan && (
+                <div>
+                  <span className="block font-semibold text-slate-500 mb-1">Catatan SPPG</span>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700">
+                    {selectedDetailLaporan.catatan}
+                  </div>
+                </div>
+              )}
+
+              {/* Hasil Verifikasi Penerima */}
+              {selectedDetailLaporan.verifikasi ? (
+                <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">Hasil Verifikasi Penerima</span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${selectedDetailLaporan.verifikasi.statusDiterima === 'Ditolak' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                      {selectedDetailLaporan.verifikasi.statusDiterima}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-slate-500 font-medium">Kondisi Makanan:</span>
+                      <p className="font-bold text-slate-800">{selectedDetailLaporan.verifikasi.kondisiMakanan}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium">Porsi Diterima:</span>
+                      <p className="font-bold text-slate-800">{selectedDetailLaporan.verifikasi.jumlahPorsiDiterima} Porsi</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium">Verifikator:</span>
+                      <p className="font-bold text-slate-800">{selectedDetailLaporan.verifikasi.diverifikasiOleh || '-'}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium">Waktu Verifikasi:</span>
+                      <p className="font-bold text-slate-800">{selectedDetailLaporan.verifikasi.tanggalDiterima ? new Date(selectedDetailLaporan.verifikasi.tanggalDiterima).toLocaleString('id-ID') : '-'}</p>
+                    </div>
+                  </div>
+                  {selectedDetailLaporan.verifikasi.catatan && (
+                    <div className="mt-2 pt-2 border-t border-emerald-200/60 text-xs text-slate-700">
+                      <span className="font-semibold text-emerald-800">Catatan Penerima: </span>
+                      "{selectedDetailLaporan.verifikasi.catatan}"
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-800 font-medium flex items-center gap-2">
+                  <Clock size={16} className="shrink-0" /> Belum diverifikasi oleh sekolah/posyandu penerima.
+                </div>
+              )}
+
+            </div>
+
+            <div className="p-4 border-t border-slate-100 flex justify-end bg-slate-50">
+              <button type="button" onClick={() => setSelectedDetailLaporan(null)} className="px-5 py-2.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors text-xs">
                 Tutup
               </button>
             </div>

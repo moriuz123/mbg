@@ -43,9 +43,14 @@ export default async function LaporanAktifitasPage() {
     tanggal: l.tanggal,
     sppgName: l.sppg?.namaSppg || '-',
     sekolahName: l.sekolah?.namaSekolah || l.posyandu?.namaPosyandu || '-',
+    tujuanTipe: l.sekolah ? 'Sekolah' : l.posyandu ? 'Posyandu' : '-',
+    tujuanId: l.sekolahId || l.posyanduId,
     menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+    menuDetail: l.standarMenuGizi,
     jumlahPorsi: l.jumlahPorsi,
     status: l.status,
+    catatan: l.catatan,
+    fotoDokumentasi: l.fotoDokumentasi,
     verifikasi: (l.verifikasiSekolah && l.verifikasiSekolah.length > 0) ? l.verifikasiSekolah[0] : 
                 (l.verifikasiPosyandu && l.verifikasiPosyandu.length > 0) ? l.verifikasiPosyandu[0] : null
   }));
