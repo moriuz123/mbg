@@ -51,6 +51,7 @@ export async function getPublicLaporanAktifitas() {
     with: {
       sppg: true,
       sekolah: true,
+      posyandu: true,
       standarMenuGizi: true
     },
     orderBy: [desc(sppgLaporanAktifitas.tanggal), desc(sppgLaporanAktifitas.createdAt)]
@@ -59,12 +60,24 @@ export async function getPublicLaporanAktifitas() {
   return data.map(p => ({
     id: p.id,
     tanggal: p.tanggal,
+    sppgId: p.sppgId,
+    sekolahId: p.sekolahId,
+    posyanduId: p.posyanduId,
     menu: p.standarMenuGizi?.namaMenu || '-',
+    standarMenuGizi: p.standarMenuGizi ? {
+      namaMenu: p.standarMenuGizi.namaMenu,
+      deskripsi: p.standarMenuGizi.deskripsi,
+      kaloriKkal: p.standarMenuGizi.kaloriKkal,
+      proteinGram: p.standarMenuGizi.proteinGram,
+      karbohidratGram: p.standarMenuGizi.karbohidratGram,
+      lemakGram: p.standarMenuGizi.lemakGram,
+    } : null,
     jumlahPorsi: p.jumlahPorsi,
     status: p.status,
     catatan: p.catatan,
     namaSppg: p.sppg?.namaSppg || null,
-    namaSekolah: p.sekolah?.namaSekolah || null,
+    namaSekolah: p.sekolah?.namaSekolah || p.posyandu?.namaPosyandu || null,
+    tujuanTipe: p.sekolah ? 'Sekolah' : p.posyandu ? 'Posyandu' : '-',
     fotoDokumentasi: p.fotoDokumentasi,
   }));
 }
