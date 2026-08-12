@@ -53,27 +53,32 @@ export async function createPembelianBahan(formData: FormData) {
 }
 
 export async function getPembelianBahan(sppgId?: number) {
-  const { sppgId: userSppgId, isAdmin } = await getSessionData();
-  const targetSppgId = isAdmin ? sppgId : userSppgId;
+  try {
+    const { sppgId: userSppgId, isAdmin } = await getSessionData();
+    const targetSppgId = isAdmin ? sppgId : userSppgId;
 
-  const whereClause = targetSppgId ? eq(sppgPembelianBahan.sppgId, targetSppgId) : undefined;
+    const whereClause = targetSppgId ? eq(sppgPembelianBahan.sppgId, targetSppgId) : undefined;
 
-  const data = await db.query.sppgPembelianBahan.findMany({
-    where: whereClause,
-    with: {
-      pemasok: true,
-      jenisPangan: true,
-    },
-    orderBy: [desc(sppgPembelianBahan.tanggalPembelian), desc(sppgPembelianBahan.createdAt)]
-  });
+    const data = await db.query.sppgPembelianBahan.findMany({
+      where: whereClause,
+      with: {
+        pemasok: true,
+        jenisPangan: true,
+      },
+      orderBy: [desc(sppgPembelianBahan.tanggalPembelian), desc(sppgPembelianBahan.createdAt)]
+    });
 
-  return data.map(d => ({
-    ...d,
-    pemasokNama: d.pemasok?.namaPemasok,
-    tipePemasok: d.pemasok?.tipePemasok,
-    alamatPemasok: d.pemasok?.alamatPemasok,
-    jenisPanganNama: d.jenisPangan?.namaBahan
-  }));
+    return data.map(d => ({
+      ...d,
+      pemasokNama: d.pemasok?.namaPemasok,
+      tipePemasok: d.pemasok?.tipePemasok,
+      alamatPemasok: d.pemasok?.alamatPemasok,
+      jenisPanganNama: d.jenisPangan?.namaBahan
+    }));
+  } catch (error) {
+    console.error('Error getPembelianBahan:', error);
+    return [];
+  }
 }
 
 export async function deletePembelianBahan(id: number) {
@@ -134,25 +139,30 @@ export async function createPemakaianBahan(formData: FormData) {
 }
 
 export async function getPemakaianBahan(sppgId?: number) {
-  const { sppgId: userSppgId, isAdmin } = await getSessionData();
-  const targetSppgId = isAdmin ? sppgId : userSppgId;
+  try {
+    const { sppgId: userSppgId, isAdmin } = await getSessionData();
+    const targetSppgId = isAdmin ? sppgId : userSppgId;
 
-  const whereClause = targetSppgId ? eq(sppgPemakaianBahan.sppgId, targetSppgId) : undefined;
+    const whereClause = targetSppgId ? eq(sppgPemakaianBahan.sppgId, targetSppgId) : undefined;
 
-  const data = await db.query.sppgPemakaianBahan.findMany({
-    where: whereClause,
-    with: {
-      jenisPangan: true,
-      standarMenuGizi: true,
-    },
-    orderBy: [desc(sppgPemakaianBahan.tanggalPemakaian), desc(sppgPemakaianBahan.createdAt)]
-  });
+    const data = await db.query.sppgPemakaianBahan.findMany({
+      where: whereClause,
+      with: {
+        jenisPangan: true,
+        standarMenuGizi: true,
+      },
+      orderBy: [desc(sppgPemakaianBahan.tanggalPemakaian), desc(sppgPemakaianBahan.createdAt)]
+    });
 
-  return data.map(d => ({
-    ...d,
-    jenisPanganNama: d.jenisPangan?.namaBahan,
-    menuNama: d.standarMenuGizi?.namaMenu
-  }));
+    return data.map(d => ({
+      ...d,
+      jenisPanganNama: d.jenisPangan?.namaBahan,
+      menuNama: d.standarMenuGizi?.namaMenu
+    }));
+  } catch (error) {
+    console.error('Error getPemakaianBahan:', error);
+    return [];
+  }
 }
 
 export async function deletePemakaianBahan(id: number) {
@@ -179,10 +189,15 @@ export async function deletePemakaianBahan(id: number) {
 }
 
 export async function getActiveMasterParameterUjiList() {
-  return await db.query.masterParameterUji.findMany({
-    where: eq(masterParameterUji.statusAktif, true),
-    orderBy: [desc(masterParameterUji.createdAt), desc(masterParameterUji.id)]
-  });
+  try {
+    return await db.query.masterParameterUji.findMany({
+      where: eq(masterParameterUji.statusAktif, true),
+      orderBy: [desc(masterParameterUji.createdAt), desc(masterParameterUji.id)]
+    });
+  } catch (error) {
+    console.error('Error getActiveMasterParameterUjiList:', error);
+    return [];
+  }
 }
 
 // ==========================================
@@ -232,25 +247,30 @@ export async function createUjiRapidTest(formData: FormData) {
 }
 
 export async function getUjiRapidTest(sppgId?: number) {
-  const { sppgId: userSppgId, isAdmin } = await getSessionData();
-  const targetSppgId = isAdmin ? sppgId : userSppgId;
+  try {
+    const { sppgId: userSppgId, isAdmin } = await getSessionData();
+    const targetSppgId = isAdmin ? sppgId : userSppgId;
 
-  const whereClause = targetSppgId ? eq(sppgUjiRapidTest.sppgId, targetSppgId) : undefined;
+    const whereClause = targetSppgId ? eq(sppgUjiRapidTest.sppgId, targetSppgId) : undefined;
 
-  const data = await db.query.sppgUjiRapidTest.findMany({
-    where: whereClause,
-    with: {
-      jenisPangan: true,
-      parameterMaster: true,
-    },
-    orderBy: [desc(sppgUjiRapidTest.tanggalUji), desc(sppgUjiRapidTest.createdAt)]
-  });
+    const data = await db.query.sppgUjiRapidTest.findMany({
+      where: whereClause,
+      with: {
+        jenisPangan: true,
+        parameterMaster: true,
+      },
+      orderBy: [desc(sppgUjiRapidTest.tanggalUji), desc(sppgUjiRapidTest.createdAt)]
+    });
 
-  return data.map(d => ({
-    ...d,
-    jenisPanganNama: d.jenisPangan?.namaBahan,
-    parameterMaster: d.parameterMaster,
-  }));
+    return data.map(d => ({
+      ...d,
+      jenisPanganNama: d.jenisPangan?.namaBahan,
+      parameterMaster: d.parameterMaster,
+    }));
+  } catch (error) {
+    console.error('Error getUjiRapidTest:', error);
+    return [];
+  }
 }
 
 export async function deleteUjiRapidTest(id: number) {
