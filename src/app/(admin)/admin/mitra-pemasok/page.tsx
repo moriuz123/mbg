@@ -22,7 +22,7 @@ export default async function MitraPemasokPage() {
 
   const userSppgId = session?.user?.sppgId;
   const suppliers = isSppg 
-    ? await getActiveSuppliersForSppg(userSppgId)
+    ? await getActiveSuppliersForSppg(userSppgId ?? undefined)
     : await getPemasok();
 
   return (

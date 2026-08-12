@@ -198,7 +198,7 @@ export async function getSppgInventorySummary(filterSppgId?: number) {
 /**
  * Fetch Active Suppliers / Vendors supplying to this SPPG
  */
-export async function getActiveSuppliersForSppg(filterSppgId?: number) {
+export async function getActiveSuppliersForSppg(filterSppgId?: number | null) {
   const { isAdmin, sppgId: userSppgId } = await getSessionData();
   const targetSppgId = isAdmin ? (filterSppgId || null) : userSppgId;
 
