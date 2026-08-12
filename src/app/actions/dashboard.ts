@@ -50,7 +50,7 @@ export async function getDashboardStats() {
     LIMIT 5
   `);
   const statsPerSppg = statsPerSppgRes.map(row => ({
-    namaSppg: row.nama_sppg,
+    namaSppg: (row.nama_sppg as string) || 'SPPG',
     jumlahSekolah: parseInt(row.jumlah_sekolah as string) || 0,
     totalSiswa: parseInt(row.total_siswa_penerima as string) || 0,
   }));
