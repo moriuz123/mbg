@@ -11,6 +11,8 @@ import LaporanHarianClient from '@/components/LaporanHarianClient';
 import AnimatedStats from '@/components/AnimatedStats';
 import PengumumanBadgeClient from '@/components/PengumumanBadgeClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Public() {
   const stats = await getPublicStats();
   const laporanHarian = await getPublicLaporanHarian();

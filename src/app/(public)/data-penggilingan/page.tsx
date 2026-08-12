@@ -6,6 +6,8 @@ import { db } from '@/db';
 import { penggilingan, penggilinganSumberGabah, penggilinganDistribusi } from '@/db/schema';
 import { desc } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Data Penggilingan Beras | MBG Kab. Lebak',
   description: 'Transparansi serapan gabah dari petani lokal Kabupaten Lebak.',

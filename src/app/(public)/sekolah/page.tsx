@@ -3,6 +3,8 @@ import SekolahClient from './SekolahClient';
 import PageHeader from '@/components/PageHeader';
 import { getPublicSekolahPenerima, getFilterOptions } from '@/app/actions/publicSekolah';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Daftar Sekolah Penerima MBG | MBG Kab. Lebak',
   description: 'Daftar sekolah penerima manfaat Makan Bergizi Gratis di Kabupaten Lebak',

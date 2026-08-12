@@ -4,6 +4,8 @@ import PageHeader from '@/components/PageHeader';
 import { getPublicSppg, getPublicLaporanAktifitas } from '@/app/actions/publicSppg';
 import { getFilterOptions } from '@/app/actions/publicSekolah';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Direktori Titik Layanan (SPPG) | MBG Kab. Lebak',
   description: 'Data lokasi Satuan Pelayanan Pemenuhan Gizi di wilayah Kabupaten Lebak',

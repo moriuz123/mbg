@@ -3,6 +3,8 @@ import PosyanduClient from './PosyanduClient';
 import PageHeader from '@/components/PageHeader';
 import { getPublicPosyanduPenerima, getFilterOptions } from '@/app/actions/publicPosyandu';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Daftar Posyandu Penerima MBG | MBG Kab. Lebak',
   description: 'Daftar Posyandu penerima manfaat Makan Bergizi Gratis di Kabupaten Lebak',
