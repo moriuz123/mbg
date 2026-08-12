@@ -30,6 +30,16 @@ export default function PengawasanClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedParameterId, setSelectedParameterId] = useState<string>('');
 
+  // Safe Array Checks
+  const safePembelian = Array.isArray(initialPembelian) ? initialPembelian : [];
+  const safePemakaian = Array.isArray(initialPemakaian) ? initialPemakaian : [];
+  const safeUjiRapid = Array.isArray(initialUjiRapid) ? initialUjiRapid : [];
+  const safeMasterParameterList = Array.isArray(masterParameterList) ? masterParameterList : [];
+  const safePemasokList = Array.isArray(pemasokList) ? pemasokList : [];
+  const safeJenisPanganList = Array.isArray(jenisPanganList) ? jenisPanganList : [];
+  const safeStandarMenuList = Array.isArray(standarMenuList) ? standarMenuList : [];
+  const safeSppgList = Array.isArray(sppgList) ? sppgList : [];
+
   // Delete State
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; type: 'pembelian' | 'pemakaian' | 'uji' } | null>(null);
@@ -87,7 +97,7 @@ export default function PengawasanClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full min-w-0">
       <ConfirmModal 
         isOpen={confirmOpen}
         title="Hapus Catatan Pengawasan"
@@ -97,66 +107,109 @@ export default function PengawasanClient({
         onCancel={() => setConfirmOpen(false)}
       />
 
-      <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 p-1">
-        <button 
-          onClick={() => setActiveTab('pembelian')} 
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm transition-all ${activeTab === 'pembelian' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+      <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 p-1 flex-wrap sm:flex-nowrap gap-1">
+        <button
+          onClick={() => setActiveTab('pembelian')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all ${
+            activeTab === 'pembelian'
+              ? 'bg-emerald-600 text-white shadow-md'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
         >
-          <PackagePlus size={18} /> Bahan Pangan Masuk
+          <PackagePlus size={18} />
+          Pembelian Bahan ({safePembelian.length})
         </button>
-        <button 
-          onClick={() => setActiveTab('pemakaian')} 
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm transition-all ${activeTab === 'pemakaian' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+        <button
+          onClick={() => setActiveTab('pemakaian')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all ${
+            activeTab === 'pemakaian'
+              ? 'bg-amber-600 text-white shadow-md'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
         >
-          <PackageMinus size={18} /> Pemakaian Masak
+          <PackageMinus size={18} />
+          Pemakaian Harian ({safePemakaian.length})
         </button>
-        <button 
-          onClick={() => setActiveTab('uji')} 
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm transition-all ${activeTab === 'uji' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+        <button
+          onClick={() => setActiveTab('uji')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all ${
+            activeTab === 'uji'
+              ? 'bg-primary-600 text-white shadow-md'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
         >
-          <TestTube2 size={18} /> Hasil Uji Mutu
+          <TestTube2 size={18} />
+          Uji Rapid Test ({safeUjiRapid.length})
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">
-              {activeTab === 'pembelian' && 'Riwayat Pembelian & Penerimaan Bahan'}
-              {activeTab === 'pemakaian' && 'Realisasi Pemakaian Bahan Harian'}
-              {activeTab === 'uji' && 'Log Inspeksi Uji Rapid Test'}
+            <h2 className="text-base sm:text-lg font-bold text-slate-800">
+              {activeTab === 'pembelian' && 'Riwayat Pembelian & Logistik Masuk'}
+              {activeTab === 'pemakaian' && 'Catatan Pemakaian Bahan Dapur (Keluar)'}
+              {activeTab === 'uji' && 'Hasil Pengujian Rapid Test Keamanan Pangan'}
             </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              {activeTab === 'pembelian' && 'Transparansi sumber pangan dari mitra pemasok lokal.'}
+              {activeTab === 'pemakaian' && 'Volume bahan baku yang diolah untuk menu MBG.'}
+              {activeTab === 'uji' && 'Hasil sampel pengujian bebas bahan kimia berbahaya & mikrobiologi.'}
+            </p>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-semibold text-sm shadow-sm">
-            <Plus size={18} /> Tambah Data
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-bold text-xs sm:text-sm hover:bg-primary-700 transition-all shadow-sm shrink-0"
+          >
+            <Plus size={18} />
+            Catat {activeTab === 'pembelian' ? 'Pembelian' : activeTab === 'pemakaian' ? 'Pemakaian' : 'Hasil Uji'}
           </button>
         </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm border-collapse">
-            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
-              <tr>
-                <th className="px-6 py-4">Tanggal</th>
-                {activeTab === 'pembelian' && <th className="px-6 py-4">Pemasok</th>}
-                <th className="px-6 py-4">Jenis Pangan</th>
-                {(activeTab === 'pembelian' || activeTab === 'pemakaian') && <th className="px-6 py-4">Volume</th>}
-                {activeTab === 'pembelian' && <th className="px-6 py-4 text-right">Harga Total (Rp)</th>}
-                {activeTab === 'pemakaian' && <th className="px-6 py-4">Untuk Menu</th>}
-                {activeTab === 'uji' && <th className="px-6 py-4">Parameter</th>}
-                {activeTab === 'uji' && <th className="px-6 py-4">Hasil</th>}
-                {activeTab === 'uji' && <th className="px-6 py-4">Tindakan</th>}
-                <th className="px-6 py-4 text-right">Aksi</th>
+
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="bg-slate-50/80 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+                {activeTab === 'pembelian' && (
+                  <>
+                    <th className="px-6 py-4">Tanggal</th>
+                    <th className="px-6 py-4">Bahan Pangan</th>
+                    <th className="px-6 py-4">Volume</th>
+                    <th className="px-6 py-4">Pemasok</th>
+                    <th className="px-6 py-4">Harga Total</th>
+                    <th className="px-6 py-4 text-right">Aksi</th>
+                  </>
+                )}
+                {activeTab === 'pemakaian' && (
+                  <>
+                    <th className="px-6 py-4">Tanggal</th>
+                    <th className="px-6 py-4">Bahan Pangan</th>
+                    <th className="px-6 py-4">Volume Digunakan</th>
+                    <th className="px-6 py-4">Menu Terkait</th>
+                    <th className="px-6 py-4 text-right">Aksi</th>
+                  </>
+                )}
+                {activeTab === 'uji' && (
+                  <>
+                    <th className="px-6 py-4">Tanggal Uji</th>
+                    <th className="px-6 py-4">Bahan Pangan</th>
+                    <th className="px-6 py-4">Parameter Uji</th>
+                    <th className="px-6 py-4">Hasil Uji</th>
+                    <th className="px-6 py-4">Tindakan Lanjut</th>
+                    <th className="px-6 py-4 text-right">Aksi</th>
+                  </>
+                )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {activeTab === 'pembelian' && initialPembelian.map((d: any) => (
+            <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+              {activeTab === 'pembelian' && safePembelian.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-700">{new Date(d.tanggalPembelian).toLocaleDateString('id-ID')}</td>
-                  <td className="px-6 py-4 font-semibold text-slate-700">{d.pemasokNama}</td>
-                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama}</td>
-                  <td className="px-6 py-4"><span className="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md font-extrabold">{d.volume} {d.satuan}</span></td>
-                  <td className="px-6 py-4 text-right font-black text-emerald-700">
-                    {d.hargaTotal ? `Rp ${parseFloat(d.hargaTotal).toLocaleString('id-ID')}` : '-'}
+                  <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPembelian}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
+                  <td className="px-6 py-4 font-bold text-emerald-600">{d.volume} {d.satuan}</td>
+                  <td className="px-6 py-4 font-medium text-slate-600">{d.pemasokNama || '-'}</td>
+                  <td className="px-6 py-4 font-bold text-slate-700">
+                    {d.hargaTotal ? `Rp ${Number(d.hargaTotal).toLocaleString('id-ID')}` : '-'}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button 
@@ -169,12 +222,13 @@ export default function PengawasanClient({
                   </td>
                 </tr>
               ))}
-              {activeTab === 'pemakaian' && initialPemakaian.map((d: any) => (
+
+              {activeTab === 'pemakaian' && safePemakaian.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-700">{new Date(d.tanggalPemakaian).toLocaleDateString('id-ID')}</td>
-                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama}</td>
-                  <td className="px-6 py-4"><span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md font-extrabold">{d.volume} {d.satuan}</span></td>
-                  <td className="px-6 py-4 font-medium text-slate-600">{d.menuNama || '-'}</td>
+                  <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPemakaian}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
+                  <td className="px-6 py-4 font-bold text-amber-600">{d.volume} {d.satuan}</td>
+                  <td className="px-6 py-4 font-medium text-slate-600">{d.menuNama || 'Umum / Dapur'}</td>
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => handleDeleteClick(d.id, 'pemakaian')} 
@@ -186,19 +240,16 @@ export default function PengawasanClient({
                   </td>
                 </tr>
               ))}
-              {activeTab === 'uji' && initialUjiRapid.map((d: any) => (
+
+              {activeTab === 'uji' && safeUjiRapid.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-700">{new Date(d.tanggalUji).toLocaleDateString('id-ID')}</td>
-                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama}</td>
+                  <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalUji}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Segar'}</td>
                   <td className="px-6 py-4">
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-slate-800">{d.parameterUji}</span>
-                      {d.parameterMaster && (
-                        <span className="text-[11px] text-slate-500 font-medium">
-                          {d.parameterMaster.kategori || 'Umum'} {d.parameterMaster.ambangBatas ? `• Max: ${d.parameterMaster.ambangBatas}` : ''}
-                        </span>
-                      )}
-                    </div>
+                    <div className="font-semibold text-slate-700">{d.parameterMaster?.namaParameter || d.parameterUji}</div>
+                    {d.parameterMaster?.ambangBatas && (
+                      <div className="text-[11px] text-slate-400">Batas: {d.parameterMaster.ambangBatas}</div>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2.5 py-1 rounded-full font-bold text-xs ${d.hasilUji.toLowerCase().includes('aman') && !d.hasilUji.toLowerCase().includes('tidak aman') ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
@@ -217,9 +268,10 @@ export default function PengawasanClient({
                   </td>
                 </tr>
               ))}
-              {((activeTab === 'pembelian' && initialPembelian.length === 0) ||
-                (activeTab === 'pemakaian' && initialPemakaian.length === 0) ||
-                (activeTab === 'uji' && initialUjiRapid.length === 0)) && (
+
+              {((activeTab === 'pembelian' && safePembelian.length === 0) ||
+                (activeTab === 'pemakaian' && safePemakaian.length === 0) ||
+                (activeTab === 'uji' && safeUjiRapid.length === 0)) && (
                 <tr>
                   <td colSpan={10} className="p-8 text-center text-slate-500">
                     Belum ada catatan data {activeTab}.
@@ -231,27 +283,40 @@ export default function PengawasanClient({
         </div>
       </div>
 
+      {/* POPUP MODAL TAMBAH DATA */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="text-lg font-bold text-slate-800">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            onClick={() => setIsModalOpen(false)} 
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+            aria-hidden="true"
+          />
+
+          {/* Modal Container Box */}
+          <div className="relative bg-white rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col z-10 overflow-hidden border border-slate-200">
+            <div className="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h3 className="text-base sm:text-lg font-bold text-slate-800">
                 {activeTab === 'pembelian' && 'Input Pembelian Bahan Segar'}
                 {activeTab === 'pemakaian' && 'Input Pemakaian Bahan Harian'}
                 {activeTab === 'uji' && 'Input Hasil Uji Rapid Test'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button 
+                type="button" 
+                onClick={() => setIsModalOpen(false)} 
+                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-130px)]">
               {isAdmin && (
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">SPPG (Unit Layanan) <span className="text-red-500">*</span></label>
-                  <select name="sppgId" required className="w-full px-4 py-3 rounded-xl border border-slate-200">
+                  <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">SPPG (Unit Layanan) <span className="text-red-500">*</span></label>
+                  <select name="sppgId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
                     <option value="">-- Pilih SPPG --</option>
-                    {sppgList.map((s: any) => (
+                    {safeSppgList.map((s: any) => (
                       <option key={s.id} value={s.id}>{s.namaSppg}</option>
                     ))}
                   </select>
@@ -261,45 +326,45 @@ export default function PengawasanClient({
               {activeTab === 'pembelian' && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Tanggal Pembelian <span className="text-red-500">*</span></label>
-                    <input type="date" name="tanggalPembelian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Tanggal Pembelian <span className="text-red-500">*</span></label>
+                    <input type="date" name="tanggalPembelian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Pemasok / Supplier <span className="text-red-500">*</span></label>
-                    <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200">
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pemasok / Supplier <span className="text-red-500">*</span></label>
+                    <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
                       <option value="">-- Pilih Pemasok --</option>
-                      {pemasokList.map((p: any) => (
+                      {safePemasokList.map((p: any) => (
                         <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan <span className="text-red-500">*</span></label>
-                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200">
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan <span className="text-red-500">*</span></label>
+                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
                       <option value="">-- Pilih Jenis Pangan --</option>
-                      {jenisPanganList.map((j: any) => (
+                      {safeJenisPanganList.map((j: any) => (
                         <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
                       ))}
                     </select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Volume Total <span className="text-red-500">*</span></label>
-                      <input type="number" step="0.01" min="0" name="volume" required placeholder="Misal: 150" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Volume Total <span className="text-red-500">*</span></label>
+                      <input type="number" step="0.01" min="0" name="volume" required placeholder="Misal: 150" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Satuan <span className="text-red-500">*</span></label>
-                      <input type="text" name="satuan" required defaultValue="Kg" placeholder="Kg / Liter / Ikat" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Satuan <span className="text-red-500">*</span></label>
+                      <input type="text" name="satuan" required defaultValue="Kg" placeholder="Kg / Liter / Ikat" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Harga Total Pembelian (Rp)</label>
-                    <input type="number" name="hargaTotal" min="0" placeholder="Misal: 2250000" className="w-full px-4 py-3 rounded-xl border border-slate-200 font-medium text-slate-800" />
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Harga Total Pembelian (Rp)</label>
+                    <input type="number" name="hargaTotal" min="0" placeholder="Misal: 2250000" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 text-sm" />
                     <p className="text-xs text-slate-400 mt-1">Masukkan total nilai transaksi belanja dari nota/kuitansi.</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Catatan / No. Kuitansi</label>
-                    <input type="text" name="catatan" placeholder="Misal: Nota #10293, Pembelian Beras Medium Super" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Catatan / No. Kuitansi</label>
+                    <input type="text" name="catatan" placeholder="Misal: Nota #10293, Pembelian Beras Medium Super" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                 </>
               )}
@@ -307,26 +372,26 @@ export default function PengawasanClient({
               {activeTab === 'pemakaian' && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Tanggal Pemakaian <span className="text-red-500">*</span></label>
-                    <input type="date" name="tanggalPemakaian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Tanggal Pemakaian <span className="text-red-500">*</span></label>
+                    <input type="date" name="tanggalPemakaian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan Digunakan <span className="text-red-500">*</span></label>
-                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200">
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan Digunakan <span className="text-red-500">*</span></label>
+                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
                       <option value="">-- Pilih Jenis Pangan --</option>
-                      {jenisPanganList.map((j: any) => (
+                      {safeJenisPanganList.map((j: any) => (
                         <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
                       ))}
                     </select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Volume Digunakan <span className="text-red-500">*</span></label>
-                      <input type="number" step="0.01" min="0" name="volume" required placeholder="Misal: 50" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Volume Digunakan <span className="text-red-500">*</span></label>
+                      <input type="number" step="0.01" min="0" name="volume" required placeholder="Misal: 50" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Satuan <span className="text-red-500">*</span></label>
-                      <input type="text" name="satuan" required defaultValue="Kg" placeholder="Kg / Liter" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Satuan <span className="text-red-500">*</span></label>
+                      <input type="text" name="satuan" required defaultValue="Kg" placeholder="Kg / Liter" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     </div>
                   </div>
                 </>
@@ -335,69 +400,69 @@ export default function PengawasanClient({
               {activeTab === 'uji' && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Tanggal Uji <span className="text-red-500">*</span></label>
-                    <input type="date" name="tanggalUji" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Tanggal Uji <span className="text-red-500">*</span></label>
+                    <input type="date" name="tanggalUji" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan Diuji <span className="text-red-500">*</span></label>
-                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200">
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan Diuji <span className="text-red-500">*</span></label>
+                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
                       <option value="">-- Pilih Jenis Pangan --</option>
-                      {jenisPanganList.map((j: any) => (
+                      {safeJenisPanganList.map((j: any) => (
                         <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">
                       Master Parameter Uji <span className="text-red-500">*</span>
                     </label>
-                    {masterParameterList && masterParameterList.length > 0 ? (
+                    {safeMasterParameterList.length > 0 ? (
                       <select 
                         name="parameterUjiId" 
                         required 
                         value={selectedParameterId}
                         onChange={(e) => setSelectedParameterId(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 text-sm"
                       >
                         <option value="">-- Pilih Item Parameter Uji --</option>
-                        {masterParameterList.map((m: any) => (
+                        {safeMasterParameterList.map((m: any) => (
                           <option key={m.id} value={m.id}>
                             {m.namaParameter} ({m.kategori || 'Umum'}{m.ambangBatas ? ` - Batas: ${m.ambangBatas}` : ''})
                           </option>
                         ))}
                       </select>
                     ) : (
-                      <input type="text" name="parameterUji" required placeholder="Ketik nama parameter (Misal: Formalin, Boraks)" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <input type="text" name="parameterUji" required placeholder="Ketik nama parameter (Misal: Formalin, Boraks)" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Hasil Uji <span className="text-red-500">*</span></label>
-                      <select name="hasilUji" required className="w-full px-4 py-3 rounded-xl border border-slate-200">
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Hasil Uji <span className="text-red-500">*</span></label>
+                      <select name="hasilUji" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
                         <option value="Aman">Aman / Bebas</option>
                         <option value="Tidak Aman">Tidak Aman / Positif</option>
                         <option value="Peringatan">Peringatan / Mendekati Batas</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Petugas Penguji <span className="text-red-500">*</span></label>
-                      <input type="text" name="petugasPenguji" required placeholder="Nama Petugas" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Petugas Penguji <span className="text-red-500">*</span></label>
+                      <input type="text" name="petugasPenguji" required placeholder="Nama Petugas" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Tindakan Lanjut</label>
-                    <input type="text" name="tindakanLanjut" placeholder="Misal: Dibuang, Retur ke pemasok, Lanjut Olah" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Tindakan Lanjut</label>
+                    <input type="text" name="tindakanLanjut" placeholder="Misal: Dibuang, Retur ke pemasok, Lanjut Olah" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                 </>
               )}
 
               <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-slate-500 hover:bg-slate-100 rounded-xl font-medium transition-colors">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-slate-500 hover:bg-slate-100 rounded-xl font-medium transition-colors text-sm">
                   Batal
                 </button>
-                <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-primary-600 text-white hover:bg-primary-700 rounded-xl font-semibold transition-colors shadow-sm disabled:opacity-70 flex items-center gap-2">
+                <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-primary-600 text-white hover:bg-primary-700 rounded-xl font-semibold transition-colors shadow-sm disabled:opacity-70 flex items-center gap-2 text-sm">
                   {isSubmitting ? 'Menyimpan...' : 'Simpan Data'}
                 </button>
               </div>
