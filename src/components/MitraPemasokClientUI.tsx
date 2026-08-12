@@ -22,7 +22,7 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 interface MitraPemasokClientUIProps {
   initialSuppliers: any[];
   isAdmin: boolean;
-  userSppgId?: number;
+  userSppgId?: number | null;
 }
 
 export default function MitraPemasokClientUI({ 

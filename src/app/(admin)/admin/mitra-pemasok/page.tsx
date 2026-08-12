@@ -30,7 +30,7 @@ export default async function MitraPemasokPage() {
       <MitraPemasokClientUI 
         initialSuppliers={suppliers}
         isAdmin={isAdmin}
-        userSppgId={userSppgId}
+        userSppgId={userSppgId ?? undefined}
       />
     </main>
   );
