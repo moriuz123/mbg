@@ -1,22 +1,72 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, X, Trash2, Building, ShieldCheck, Home, Edit2 } from 'lucide-react';
+import { Plus, X, Trash2, Building, ShieldCheck, Home, Edit2, Search, Filter, RotateCcw, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { createSppg, deleteSppg, updateSppg } from '@/app/actions/sppg';
 import Toast from '@/components/ui/Toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
-export default function SppgClientUI({ initialData, yayasanData = [] }: { initialData: any[], yayasanData?: any[] }) {
+export default function SppgClientUI({ 
+  initialData, 
+  yayasanData = [],
+  kecamatanData = []
+}: { 
+  initialData: any[]; 
+  yayasanData?: any[]; 
+  kecamatanData?: any[];
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingSppg, setEditingSppg] = useState<any>(null);
+
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedYayasan, setSelectedYayasan] = useState('');
+  const [selectedKecamatan, setSelectedKecamatan] = useState('');
 
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success'|'error'>('success');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Filtered SPPG List
+  const filteredData = initialData.filter((item) => {
+    const matchQuery = !searchQuery || 
+      item.namaSppg?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.idSppgCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.namaKaSppg?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.alamat?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchStatus = !selectedStatus || item.statusOperasional === selectedStatus;
+    const matchYayasan = !selectedYayasan || String(item.yayasanId) === selectedYayasan;
+
+    let matchKecamatan = true;
+    if (selectedKecamatan) {
+      const selectedKecObj = kecamatanData.find(k => String(k.id) === selectedKecamatan);
+      const kecNama = selectedKecObj?.namaKecamatan?.toLowerCase() || '';
+      
+      const itemKecId = item.desa?.kecamatanId || item.yayasan?.kecamatanId || item.kecamatanId;
+      const itemKecNama = item.desa?.kecamatan?.namaKecamatan || item.yayasan?.kecamatan?.namaKecamatan || '';
+      const alamatLower = item.alamat?.toLowerCase() || '';
+
+      matchKecamatan = 
+        String(itemKecId) === selectedKecamatan ||
+        (!!itemKecNama && itemKecNama.toLowerCase() === kecNama) ||
+        (!!kecNama && alamatLower.includes(kecNama));
+    }
+
+    return matchQuery && matchStatus && matchYayasan && matchKecamatan;
+  });
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSelectedStatus('');
+    setSelectedYayasan('');
+    setSelectedKecamatan('');
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -200,8 +250,100 @@ export default function SppgClientUI({ initialData, yayasanData = [] }: { initia
         </div>
       )}
 
+      {/* FILTER BAR */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm mb-4 space-y-3">
+        <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+          {/* Search Input */}
+          <div className="relative w-full md:w-80">
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari SPPG, Kode, PJ, Alamat..."
+              className="w-full pl-10 pr-8 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')} 
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs bg-slate-200 p-0.5 rounded-full"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            {/* Status Operasional Filter */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Filter size={16} className="text-slate-400 shrink-0" />
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="w-full sm:w-auto py-2.5 px-3 bg-slate-50 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+              >
+                <option value="">-- Semua Status Operasional --</option>
+                <option value="Operasional">Operasional (Aktif)</option>
+                <option value="Belum Operasional">Belum Operasional</option>
+                <option value="Tutup">Tutup Sementara</option>
+              </select>
+            </div>
+
+            {/* Kecamatan Filter */}
+            {kecamatanData.length > 0 && (
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <MapPin size={16} className="text-slate-400 shrink-0" />
+                <select
+                  value={selectedKecamatan}
+                  onChange={(e) => setSelectedKecamatan(e.target.value)}
+                  className="w-full sm:w-auto py-2.5 px-3 bg-slate-50 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                >
+                  <option value="">-- Semua Kecamatan --</option>
+                  {kecamatanData.map(k => (
+                    <option key={k.id} value={k.id}>{k.namaKecamatan}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Yayasan Filter */}
+            {yayasanData.length > 0 && (
+              <select
+                value={selectedYayasan}
+                onChange={(e) => setSelectedYayasan(e.target.value)}
+                className="w-full sm:w-auto py-2.5 px-3 bg-slate-50 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+              >
+                <option value="">-- Semua Yayasan --</option>
+                {yayasanData.map(y => (
+                  <option key={y.id} value={y.id}>{y.namaYayasan}</option>
+                ))}
+              </select>
+            )}
+
+            {/* Reset Button */}
+            {(searchQuery || selectedStatus || selectedYayasan || selectedKecamatan) && (
+              <button
+                onClick={resetFilters}
+                className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200 transition-colors"
+                title="Reset Filter"
+              >
+                <RotateCcw size={14} /> Reset
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Counter Badge */}
+        <div className="text-xs font-semibold text-slate-500 pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span>Menampilkan <strong className="text-slate-800">{filteredData.length}</strong> dari total <strong className="text-slate-800">{initialData.length}</strong> SPPG</span>
+          {(searchQuery || selectedStatus || selectedYayasan || selectedKecamatan) && (
+            <span className="text-primary-600 text-[11px] font-bold uppercase tracking-wider">Filter Aktif</span>
+          )}
+        </div>
+      </div>
+
       {/* RENDER TABLE */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden mt-4">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -214,7 +356,7 @@ export default function SppgClientUI({ initialData, yayasanData = [] }: { initia
               </tr>
             </thead>
             <tbody className="text-sm">
-              {initialData.map((item) => (
+              {filteredData.map((item) => (
                 <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
                   <td className="p-5">
                     <div className="font-bold text-slate-900 text-base flex items-center gap-2">
@@ -232,8 +374,8 @@ export default function SppgClientUI({ initialData, yayasanData = [] }: { initia
                   <td className="p-5 text-slate-700 font-medium">{item.namaKaSppg || '-'}</td>
                   <td className="p-5 text-slate-600 text-sm max-w-[200px] truncate">{item.alamat || '-'}</td>
                   <td className="p-5">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold border ${item.statusOperasional === 'Aktif' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                      {item.statusOperasional === 'Aktif' && <ShieldCheck size={14} />}
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold border ${item.statusOperasional === 'Aktif' || item.statusOperasional === 'Operasional' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                      {(item.statusOperasional === 'Aktif' || item.statusOperasional === 'Operasional') && <ShieldCheck size={14} />}
                       {item.statusOperasional || 'Belum Operasional'}
                     </span>
                   </td>
@@ -266,12 +408,12 @@ export default function SppgClientUI({ initialData, yayasanData = [] }: { initia
                   </td>
                 </tr>
               ))}
-              {initialData.length === 0 && (
+              {filteredData.length === 0 && (
                 <tr>
                   <td colSpan={5} className="p-12 text-center text-slate-500">
                     <Building size={48} className="mx-auto mb-4 text-slate-300" />
-                    <p className="font-medium text-lg">Belum ada data SPPG</p>
-                    <p className="text-sm text-slate-400 mt-1">Silakan tambahkan data dapur SPPG baru.</p>
+                    <p className="font-medium text-lg">Tidak ada data SPPG yang sesuai</p>
+                    <p className="text-sm text-slate-400 mt-1">Coba ubah atau reset kata kunci filter Anda.</p>
                   </td>
                 </tr>
               )}

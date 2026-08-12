@@ -22,8 +22,14 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
   // States for pagination and filtering
   const [searchQuery, setSearchQuery] = useState('');
   const [filterKecamatan, setFilterKecamatan] = useState('');
+  const [filterCoverage, setFilterCoverage] = useState<'all' | 'tercover' | 'belum'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Total summary counts
+  const totalCount = initialData.length;
+  const tercoverCount = useMemo(() => initialData.filter(p => p.isTercover).length, [initialData]);
+  const belumTercoverCount = totalCount - tercoverCount;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -107,11 +113,16 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
   // Derived state for filtering and pagination
   const filteredData = useMemo(() => {
     return initialData.filter(item => {
-      const matchesSearch = item.namaPosyandu.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = item.namaPosyandu.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.namaKetuaKader && item.namaKetuaKader.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (item.alamatPosyandu && item.alamatPosyandu.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesKecamatan = filterKecamatan === '' || item.kecamatanId?.toString() === filterKecamatan;
-      return matchesSearch && matchesKecamatan;
+      const matchesCoverage = filterCoverage === 'all' || 
+        (filterCoverage === 'tercover' && item.isTercover) || 
+        (filterCoverage === 'belum' && !item.isTercover);
+      return matchesSearch && matchesKecamatan && matchesCoverage;
     });
-  }, [initialData, searchQuery, filterKecamatan]);
+  }, [initialData, searchQuery, filterKecamatan, filterCoverage]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -126,7 +137,7 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
   // Reset page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filterKecamatan]);
+  }, [searchQuery, filterKecamatan, filterCoverage]);
 
   return (
     <>
@@ -140,6 +151,40 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
         onCancel={() => setConfirmOpen(false)}
       />
 
+      {/* SUMMARY CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div 
+          onClick={() => setFilterCoverage('all')} 
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${filterCoverage === 'all' ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+        >
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Data Posyandu</div>
+          <div className="text-2xl font-black text-slate-900 mt-1">{totalCount}</div>
+          <div className="text-xs text-slate-400 mt-1">Klik untuk lihat semua</div>
+        </div>
+        
+        <div 
+          onClick={() => setFilterCoverage('tercover')} 
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${filterCoverage === 'tercover' ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+        >
+          <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Sudah Tercover SPPG
+          </div>
+          <div className="text-2xl font-black text-emerald-700 mt-1">{tercoverCount}</div>
+          <div className="text-xs text-emerald-600/70 mt-1">Klik untuk lihat posyandu tercover</div>
+        </div>
+
+        <div 
+          onClick={() => setFilterCoverage('belum')} 
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${filterCoverage === 'belum' ? 'bg-rose-50 border-rose-300 ring-2 ring-rose-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+        >
+          <div className="text-xs font-bold text-rose-600 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-500"></span> Belum Tercover SPPG
+          </div>
+          <div className="text-2xl font-black text-rose-700 mt-1">{belumTercoverCount}</div>
+          <div className="text-xs text-rose-600/70 mt-1">Klik untuk lihat posyandu belum tercover</div>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           {/* Search Box */}
@@ -147,7 +192,7 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
-              placeholder="Cari posyandu..." 
+              placeholder="Cari posyandu, kader..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm"
@@ -160,12 +205,25 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
             <select 
               value={filterKecamatan}
               onChange={(e) => setFilterKecamatan(e.target.value)}
-              className="w-full sm:w-64 pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm appearance-none bg-white"
+              className="w-full sm:w-52 pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm appearance-none bg-white"
             >
               <option value="">Semua Kecamatan</option>
               {kecamatanList?.map(kec => (
                 <option key={kec.id} value={kec.id.toString()}>{kec.namaKecamatan}</option>
               ))}
+            </select>
+          </div>
+
+          {/* Filter Status Coverage */}
+          <div className="relative">
+            <select 
+              value={filterCoverage}
+              onChange={(e) => setFilterCoverage(e.target.value as any)}
+              className="w-full sm:w-56 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm bg-white font-semibold text-slate-700"
+            >
+              <option value="all">-- Semua Status Cakupan --</option>
+              <option value="tercover">🟢 Sudah Tercover SPPG</option>
+              <option value="belum">🔴 Belum Tercover SPPG</option>
             </select>
           </div>
         </div>
@@ -284,6 +342,7 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200">
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Posyandu</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status MBG</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Ketua Kader</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Rincian Penerima</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Total</th>
@@ -293,7 +352,7 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
             <tbody className="text-sm">
               {filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-12 text-center text-slate-500">
+                  <td colSpan={6} className="p-12 text-center text-slate-500">
                     <HeartPulse size={48} className="mx-auto mb-4 text-slate-300" />
                     <p className="font-medium text-lg">Data posyandu tidak ditemukan</p>
                     <p className="text-sm text-slate-400 mt-1">Silakan sesuaikan pencarian atau tambahkan data baru.</p>
@@ -309,6 +368,24 @@ export default function PosyanduClientUI({ initialData, isAdmin, kecamatanList, 
                       <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-500">
                         {posyandu.alamatPosyandu || '-'}
                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      {posyandu.isTercover ? (
+                        <div>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            🟢 Tercover SPPG
+                          </span>
+                          {posyandu.namaSppg && (
+                            <div className="text-xs font-medium text-slate-600 mt-1">
+                              {posyandu.namaSppg}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          🔴 Belum Tercover
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-5">
                       <div className="text-slate-800 font-medium">{posyandu.namaKetuaKader || '-'}</div>

@@ -55,6 +55,39 @@ export async function createPenggilingan(data: {
   }
 }
 
+export async function updatePenggilingan(id: number, data: {
+  namaPenggilingan: string;
+  alamat?: string;
+  kecamatanId?: number;
+  penanggungJawab?: string;
+  noHp?: string;
+  kapasitasTerpasangKgMinggu?: string;
+  status?: string;
+}) {
+  try {
+    const { isAdmin, penggilinganId } = await getSessionData();
+    if (!isAdmin && penggilinganId !== id) {
+      return { success: false, error: 'Akses ditolak' };
+    }
+    await db.update(penggilingan)
+      .set({
+        namaPenggilingan: data.namaPenggilingan,
+        alamat: data.alamat || null,
+        kecamatanId: data.kecamatanId || null,
+        penanggungJawab: data.penanggungJawab || null,
+        noHp: data.noHp || null,
+        kapasitasTerpasangKgMinggu: data.kapasitasTerpasangKgMinggu || null,
+        status: data.status || 'Aktif',
+      })
+      .where(eq(penggilingan.id, id));
+    revalidatePath('/admin/penggilingan');
+    revalidatePath(`/admin/penggilingan/${id}`);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'Gagal memperbarui data penggilingan' };
+  }
+}
+
 export async function deletePenggilingan(id: number) {
   try {
     await db.delete(penggilingan).where(eq(penggilingan.id, id));

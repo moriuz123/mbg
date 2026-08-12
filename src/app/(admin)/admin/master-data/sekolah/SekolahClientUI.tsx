@@ -22,8 +22,14 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
   // States for pagination and filtering
   const [searchQuery, setSearchQuery] = useState('');
   const [filterKecamatan, setFilterKecamatan] = useState('');
+  const [filterCoverage, setFilterCoverage] = useState<'all' | 'tercover' | 'belum'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Total summary counts
+  const totalCount = initialData.length;
+  const tercoverCount = useMemo(() => initialData.filter(s => s.isTercover).length, [initialData]);
+  const belumTercoverCount = totalCount - tercoverCount;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -102,11 +108,16 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
   // Derived state for filtering and pagination
   const filteredData = useMemo(() => {
     return initialData.filter(item => {
-      const matchesSearch = item.namaSekolah.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = item.namaSekolah.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.npsn && item.npsn.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (item.namaKepalaSekolah && item.namaKepalaSekolah.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesKecamatan = filterKecamatan === '' || item.kecamatanId?.toString() === filterKecamatan;
-      return matchesSearch && matchesKecamatan;
+      const matchesCoverage = filterCoverage === 'all' || 
+        (filterCoverage === 'tercover' && item.isTercover) || 
+        (filterCoverage === 'belum' && !item.isTercover);
+      return matchesSearch && matchesKecamatan && matchesCoverage;
     });
-  }, [initialData, searchQuery, filterKecamatan]);
+  }, [initialData, searchQuery, filterKecamatan, filterCoverage]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -121,7 +132,7 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
   // Reset page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filterKecamatan]);
+  }, [searchQuery, filterKecamatan, filterCoverage]);
 
   return (
     <>
@@ -135,6 +146,40 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
         onCancel={() => setConfirmOpen(false)}
       />
 
+      {/* SUMMARY CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div 
+          onClick={() => setFilterCoverage('all')} 
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${filterCoverage === 'all' ? 'bg-primary-50 border-primary-300 ring-2 ring-primary-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+        >
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Data Sekolah</div>
+          <div className="text-2xl font-black text-slate-900 mt-1">{totalCount}</div>
+          <div className="text-xs text-slate-400 mt-1">Klik untuk lihat semua</div>
+        </div>
+        
+        <div 
+          onClick={() => setFilterCoverage('tercover')} 
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${filterCoverage === 'tercover' ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+        >
+          <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Sudah Tercover SPPG
+          </div>
+          <div className="text-2xl font-black text-emerald-700 mt-1">{tercoverCount}</div>
+          <div className="text-xs text-emerald-600/70 mt-1">Klik untuk lihat sekolah tercover</div>
+        </div>
+
+        <div 
+          onClick={() => setFilterCoverage('belum')} 
+          className={`p-4 rounded-2xl border transition-all cursor-pointer ${filterCoverage === 'belum' ? 'bg-rose-50 border-rose-300 ring-2 ring-rose-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+        >
+          <div className="text-xs font-bold text-rose-600 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-500"></span> Belum Tercover SPPG
+          </div>
+          <div className="text-2xl font-black text-rose-700 mt-1">{belumTercoverCount}</div>
+          <div className="text-xs text-rose-600/70 mt-1">Klik untuk lihat sekolah belum tercover</div>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           {/* Search Box */}
@@ -142,7 +187,7 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
-              placeholder="Cari sekolah..." 
+              placeholder="Cari sekolah, NPSN, PJ..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm"
@@ -155,12 +200,25 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
             <select 
               value={filterKecamatan}
               onChange={(e) => setFilterKecamatan(e.target.value)}
-              className="w-full sm:w-64 pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm appearance-none bg-white"
+              className="w-full sm:w-52 pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm appearance-none bg-white"
             >
               <option value="">Semua Kecamatan</option>
               {kecamatanList?.map(kec => (
                 <option key={kec.id} value={kec.id.toString()}>{kec.namaKecamatan}</option>
               ))}
+            </select>
+          </div>
+
+          {/* Filter Status Coverage */}
+          <div className="relative">
+            <select 
+              value={filterCoverage}
+              onChange={(e) => setFilterCoverage(e.target.value as any)}
+              className="w-full sm:w-56 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm bg-white font-semibold text-slate-700"
+            >
+              <option value="all">-- Semua Status Cakupan --</option>
+              <option value="tercover">🟢 Sudah Tercover SPPG</option>
+              <option value="belum">🔴 Belum Tercover SPPG</option>
             </select>
           </div>
         </div>
@@ -293,6 +351,7 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200">
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sekolah & Jenjang</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status MBG</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kepala Sekolah</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Total Siswa</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
@@ -322,6 +381,24 @@ export default function SekolahClientUI({ initialData, categories, isAdmin, keca
                           <span className="text-xs font-medium text-slate-400">NPSN: {sekolah.npsn}</span>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      {sekolah.isTercover ? (
+                        <div>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            🟢 Tercover SPPG
+                          </span>
+                          {sekolah.namaSppg && (
+                            <div className="text-xs font-medium text-slate-600 mt-1">
+                              {sekolah.namaSppg}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          🔴 Belum Tercover
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-5">
                       <div className="text-slate-800 font-medium">{sekolah.namaKepalaSekolah || '-'}</div>

@@ -17,7 +17,12 @@ export default async function DataSekolahPage() {
   const dataSekolahRaw = await db.query.sekolah.findMany({
     orderBy: [desc(sekolah.createdAt)],
     with: {
-      kecamatan: true
+      kecamatan: true,
+      sppgPenerima: {
+        with: {
+          sppg: true,
+        }
+      }
     }
   });
   
@@ -33,13 +38,19 @@ export default async function DataSekolahPage() {
     orderBy: [kategoriPenerima.urutan],
   });
   
-  // Create a map for easy lookup in the UI, or we can just join it in DB query
+  // Map data with coverage status and category name
   const dataSekolah = dataSekolahRaw.map(s => {
     const cat = categories.find(c => c.id === s.kategoriId);
+    const activeSppgRecord = s.sppgPenerima?.find((p: any) => p.status === 'Aktif' || !p.status);
+    const isTercover = !!activeSppgRecord;
+    const namaSppg = activeSppgRecord?.sppg?.namaSppg || null;
+
     return {
       ...s,
-      kategori: cat ? cat.namaKategori : 'Lainnya'
-    }
+      kategori: cat ? cat.namaKategori : 'Lainnya',
+      isTercover,
+      namaSppg,
+    };
   });
 
   return (

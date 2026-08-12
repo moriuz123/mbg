@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, X, Trash2, Factory, Phone, Settings } from 'lucide-react';
-import { createPenggilingan, deletePenggilingan } from '@/app/actions/penggilingan';
+import { Plus, X, Trash2, Factory, Phone, Settings, Edit3 } from 'lucide-react';
+import { createPenggilingan, updatePenggilingan, deletePenggilingan } from '@/app/actions/penggilingan';
 import Link from 'next/link';
 import Toast from '@/components/ui/Toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function PenggilinganClientUI({ initialData, kecamatanList, isAdmin = true }: { initialData: any[], kecamatanList: any[], isAdmin?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [editItem, setEditItem] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [toastMessage, setToastMessage] = useState('');
@@ -16,6 +17,16 @@ export default function PenggilinganClientUI({ initialData, kecamatanList, isAdm
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  function handleOpenAdd() {
+    setEditItem(null);
+    setIsOpen(true);
+  }
+
+  function handleOpenEdit(item: any) {
+    setEditItem(item);
+    setIsOpen(true);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,13 +43,20 @@ export default function PenggilinganClientUI({ initialData, kecamatanList, isAdm
       status: formData.get('status') as string || 'Aktif',
     };
 
-    const res = await createPenggilingan(data);
+    let res;
+    if (editItem) {
+      res = await updatePenggilingan(editItem.id, data);
+    } else {
+      res = await createPenggilingan(data);
+    }
+
     setIsSubmitting(false);
     
     if (res.success) {
       setIsOpen(false);
+      setEditItem(null);
       setToastType('success');
-      setToastMessage('Berhasil menambahkan penggilingan!');
+      setToastMessage(editItem ? 'Berhasil memperbarui data penggilingan!' : 'Berhasil menambahkan penggilingan!');
     } else {
       setToastType('error');
       setToastMessage(res.error || 'Terjadi kesalahan');
@@ -81,7 +99,7 @@ export default function PenggilinganClientUI({ initialData, kecamatanList, isAdm
       {isAdmin && (
         <div className="flex justify-end mb-4">
           <button 
-            onClick={() => setIsOpen(true)}
+            onClick={handleOpenAdd}
             className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
           >
             <Plus size={20} /> Tambah Penggilingan
@@ -98,21 +116,23 @@ export default function PenggilinganClientUI({ initialData, kecamatanList, isAdm
             >
               <X size={24} />
             </button>
-            <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">Tambah Penggilingan</h2>
+            <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">
+              {editItem ? 'Edit Data Penggilingan' : 'Tambah Penggilingan'}
+            </h2>
             
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
                 <label className="block mb-2 text-sm font-semibold text-slate-700">Nama Penggilingan *</label>
-                <input required name="namaPenggilingan" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Contoh: Penggilingan Makmur Jaya" />
+                <input required name="namaPenggilingan" defaultValue={editItem?.namaPenggilingan || ''} type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Contoh: Penggilingan Makmur Jaya" />
               </div>
               <div>
                 <label className="block mb-2 text-sm font-semibold text-slate-700">Alamat</label>
-                <textarea name="alamat" rows={2} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Alamat lengkap..."></textarea>
+                <textarea name="alamat" defaultValue={editItem?.alamat || ''} rows={2} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Alamat lengkap..."></textarea>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Kecamatan</label>
-                  <select name="kecamatanId" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
+                  <select name="kecamatanId" defaultValue={editItem?.kecamatanId || ''} className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
                     <option value="">-- Pilih Kecamatan --</option>
                     {kecamatanList?.map(kec => (
                       <option key={kec.id} value={kec.id}>{kec.namaKecamatan}</option>
@@ -121,21 +141,21 @@ export default function PenggilinganClientUI({ initialData, kecamatanList, isAdm
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Penanggung Jawab</label>
-                  <input name="penanggungJawab" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Nama Pemilik/PJ" />
+                  <input name="penanggungJawab" defaultValue={editItem?.penanggungJawab || ''} type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Nama Pemilik/PJ" />
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">No. HP</label>
-                  <input name="noHp" type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="08..." />
+                  <input name="noHp" defaultValue={editItem?.noHp || ''} type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="08..." />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Kapasitas (kg/minggu)</label>
-                  <input name="kapasitasTerpasangKgMinggu" type="number" step="0.01" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Contoh: 1500" />
+                  <input name="kapasitasTerpasangKgMinggu" defaultValue={editItem?.kapasitasTerpasangKgMinggu || ''} type="number" step="0.01" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Contoh: 1500" />
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Status</label>
-                  <select name="status" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
+                  <select name="status" defaultValue={editItem?.status || 'Aktif'} className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
                     <option value="Aktif">Aktif</option>
                     <option value="Tidak Aktif">Tidak Aktif</option>
                   </select>
@@ -147,7 +167,7 @@ export default function PenggilinganClientUI({ initialData, kecamatanList, isAdm
                 disabled={isSubmitting}
                 className={`mt-4 w-full p-4 bg-primary-600 text-white rounded-xl font-bold transition-all shadow-md shadow-primary-600/20 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary-700 hover:-translate-y-0.5'}`}
               >
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Penggilingan'}
+                {isSubmitting ? 'Menyimpan...' : (editItem ? 'Simpan Perubahan' : 'Simpan Penggilingan')}
               </button>
             </form>
           </div>
@@ -199,13 +219,22 @@ export default function PenggilinganClientUI({ initialData, kecamatanList, isAdm
                         <Settings size={14} /> Kelola
                       </Link>
                       {isAdmin && (
-                        <button 
-                          onClick={() => handleDeleteClick(item.id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                          title="Hapus"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        <>
+                          <button 
+                            onClick={() => handleOpenEdit(item)}
+                            className="p-2 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-colors border border-amber-200 shadow-sm"
+                            title="Edit Data Penggilingan"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteClick(item.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                            title="Hapus"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>

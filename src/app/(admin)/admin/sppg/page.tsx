@@ -1,5 +1,6 @@
 import { getSppg } from "@/app/actions/sppg";
 import { getYayasans } from "@/app/actions/yayasan";
+import { getKecamatan } from "@/app/actions/wilayah";
 import React from 'react';
 import { MapPin, AlertCircle } from 'lucide-react';
 import SppgClientUI from './SppgClientUI';
@@ -34,6 +35,7 @@ export default async function SPPGPage() {
 
   const sppgList = await getSppg();
   const yayasanList = await getYayasans();
+  const kecamatanList = await getKecamatan();
 
   return (
     <div>
@@ -43,7 +45,7 @@ export default async function SPPGPage() {
           <p className="text-slate-500 text-sm">Manajemen Satuan Pelayanan Pemenuhan Gizi</p>
         </div>
       </div>
-      <SppgClientUI initialData={sppgList} yayasanData={yayasanList} />
+      <SppgClientUI initialData={sppgList} yayasanData={yayasanList} kecamatanData={kecamatanList} />
     </div>
   );
 }

@@ -539,6 +539,17 @@ export const sppgRelations = relations(sppg, ({ one, many }) => ({
   posyanduManfaat: many(sppgPosyanduManfaat),
 }));
 
+export const yayasanRelations = relations(yayasan, ({ one }) => ({
+  desa: one(desa, {
+    fields: [yayasan.desaId],
+    references: [desa.id],
+  }),
+  kecamatan: one(kecamatan, {
+    fields: [yayasan.kecamatanId],
+    references: [kecamatan.id],
+  }),
+}));
+
 export const sppgSertifikasiRelations = relations(sppgSertifikasi, ({ one }) => ({
   sppg: one(sppg, {
     fields: [sppgSertifikasi.sppgId],
@@ -560,6 +571,7 @@ export const sekolahRelations = relations(sekolah, ({ one, many }) => ({
     references: [kecamatan.id],
   }),
   riwayatMbg: many(sekolahPenerimaanMbg),
+  sppgPenerima: many(sppgPenerimaManfaat),
 }));
 
 export const sppgPenerimaManfaatRelations = relations(sppgPenerimaManfaat, ({ one }) => ({

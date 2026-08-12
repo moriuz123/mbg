@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Wheat, Factory, Truck, Plus, X, Trash2 } from 'lucide-react';
+import { ArrowLeft, Wheat, Factory, Truck, Plus, X, Trash2, Edit3 } from 'lucide-react';
 import Link from 'next/link';
 import { 
   addSumberGabah, 
@@ -9,7 +9,8 @@ import {
   addProduksi, 
   deleteProduksi,
   addDistribusi,
-  deleteDistribusi 
+  deleteDistribusi,
+  updatePenggilingan
 } from '@/app/actions/penggilingan';
 import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -35,9 +36,32 @@ export default function PenggilinganDetailClientUI({
   const [isSumberOpen, setIsSumberOpen] = useState(false);
   const [isProduksiOpen, setIsProduksiOpen] = useState(false);
   const [isDistribusiOpen, setIsDistribusiOpen] = useState(false);
+  const [isEditPenggilinganOpen, setIsEditPenggilinganOpen] = useState(false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tipeTujuan, setTipeTujuan] = useState('SPPG');
+
+  async function handleEditPenggilinganSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    const res = await updatePenggilingan(penggilingan.id, {
+      namaPenggilingan: formData.get('namaPenggilingan') as string,
+      alamat: formData.get('alamat') as string,
+      penanggungJawab: formData.get('penanggungJawab') as string,
+      noHp: formData.get('noHp') as string,
+      kapasitasTerpasangKgMinggu: formData.get('kapasitasTerpasangKgMinggu') as string,
+      status: formData.get('status') as string || 'Aktif',
+    });
+    setIsSubmitting(false);
+    if (res.success) {
+      toast.success('Berhasil memperbarui data penggilingan!');
+      setIsEditPenggilinganOpen(false);
+      window.location.reload();
+    } else {
+      toast.error(res.error || 'Gagal memperbarui data penggilingan');
+    }
+  }
 
   // Delete State
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -177,9 +201,18 @@ export default function PenggilinganDetailClientUI({
             <Factory size={28} />
           </div>
           <div>
-            <span className="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-black uppercase">
-              {penggilingan.status || 'Aktif'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-black uppercase">
+                {penggilingan.status || 'Aktif'}
+              </span>
+              <button 
+                onClick={() => setIsEditPenggilinganOpen(true)} 
+                className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 rounded-full text-xs font-bold transition-colors"
+                title="Edit Info Penggilingan"
+              >
+                <Edit3 size={13} /> Edit Profil
+              </button>
+            </div>
             <h1 className="text-2xl font-black text-slate-800 tracking-tight mt-1">{penggilingan.namaPenggilingan}</h1>
             <p className="text-xs text-slate-500 font-semibold mt-0.5">
               PIC: {penggilingan.penanggungJawab || '-'} ({penggilingan.noHp || '-'}) • Alamat: {penggilingan.alamat || '-'}
@@ -194,6 +227,63 @@ export default function PenggilinganDetailClientUI({
           </div>
         </div>
       </div>
+
+      {/* MODAL EDIT PENGGILINGAN */}
+      {isEditPenggilinganOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg p-8 relative shadow-2xl">
+            <button 
+              onClick={() => setIsEditPenggilinganOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+            <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">Edit Data Penggilingan</h2>
+            
+            <form onSubmit={handleEditPenggilinganSubmit} className="flex flex-col gap-4">
+              <div>
+                <label className="block mb-2 text-sm font-semibold text-slate-700">Nama Penggilingan *</label>
+                <input required name="namaPenggilingan" defaultValue={penggilingan.namaPenggilingan || ''} type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all" />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-semibold text-slate-700">Alamat</label>
+                <textarea name="alamat" defaultValue={penggilingan.alamat || ''} rows={2} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all"></textarea>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Penanggung Jawab</label>
+                  <input name="penanggungJawab" defaultValue={penggilingan.penanggungJawab || ''} type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all" />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">No. HP</label>
+                  <input name="noHp" defaultValue={penggilingan.noHp || ''} type="text" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Kapasitas (kg/minggu)</label>
+                  <input name="kapasitasTerpasangKgMinggu" defaultValue={penggilingan.kapasitasTerpasangKgMinggu || ''} type="number" step="0.01" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all" />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Status</label>
+                  <select name="status" defaultValue={penggilingan.status || 'Aktif'} className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all">
+                    <option value="Aktif">Aktif</option>
+                    <option value="Tidak Aktif">Tidak Aktif</option>
+                  </select>
+                </div>
+              </div>
+              
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={`mt-4 w-full p-4 bg-amber-600 text-white rounded-xl font-bold transition-all shadow-md shadow-amber-600/20 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:bg-amber-700 hover:-translate-y-0.5'}`}
+              >
+                {isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* TAB NAVIGATION */}
       <div className="flex border-b border-slate-200">

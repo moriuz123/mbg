@@ -17,7 +17,12 @@ export default async function DataPosyanduPage() {
   const dataPosyanduRaw = await db.query.posyandu.findMany({
     orderBy: [desc(posyandu.createdAt)],
     with: {
-      kecamatan: true
+      kecamatan: true,
+      posyanduManfaat: {
+        with: {
+          sppg: true,
+        }
+      }
     }
   });
   
@@ -27,6 +32,18 @@ export default async function DataPosyanduPage() {
   
   const desaList = await db.query.desa.findMany({
     orderBy: [desa.namaDesa]
+  });
+
+  const dataPosyandu = dataPosyanduRaw.map(p => {
+    const activeSppgRecord = p.posyanduManfaat?.find((m: any) => m.status === 'Aktif' || !m.status);
+    const isTercover = !!activeSppgRecord;
+    const namaSppg = activeSppgRecord?.sppg?.namaSppg || null;
+
+    return {
+      ...p,
+      isTercover,
+      namaSppg,
+    };
   });
 
   return (
@@ -39,7 +56,7 @@ export default async function DataPosyanduPage() {
           <p className="text-slate-500 m-0">Kelola data posyandu yang menjadi target distribusi SPPG.</p>
         </div>
       </div>
-      <PosyanduClientUI initialData={dataPosyanduRaw} isAdmin={isAdmin} kecamatanList={kecamatanList} desaList={desaList} />
+      <PosyanduClientUI initialData={dataPosyandu} isAdmin={isAdmin} kecamatanList={kecamatanList} desaList={desaList} />
     </div>
   );
 }

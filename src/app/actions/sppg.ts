@@ -19,7 +19,16 @@ export async function getSppg() {
     return await db.query.sppg.findMany({
       orderBy: [desc(sppg.createdAt)],
       with: {
-        yayasan: true,
+        yayasan: {
+          with: {
+            kecamatan: true,
+          }
+        },
+        desa: {
+          with: {
+            kecamatan: true,
+          }
+        }
       }
     });
   }
@@ -29,7 +38,16 @@ export async function getSppg() {
       where: eq(sppg.id, sppgId),
       orderBy: [desc(sppg.createdAt)],
       with: {
-        yayasan: true,
+        yayasan: {
+          with: {
+            kecamatan: true,
+          }
+        },
+        desa: {
+          with: {
+            kecamatan: true,
+          }
+        }
       }
     });
   }
