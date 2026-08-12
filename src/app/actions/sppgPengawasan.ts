@@ -2,7 +2,7 @@
 
 import { db } from '@/db';
 import { sppgPembelianBahan, sppgPemakaianBahan, sppgUjiRapidTest, masterParameterUji, pemasok, jenisPangan, standarMenuGizi } from '@/db/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
@@ -44,6 +44,7 @@ export async function createPembelianBahan(formData: FormData) {
 
     await db.insert(sppgPembelianBahan).values(data);
     revalidatePath('/admin/pengawasan');
+    revalidatePath('/admin/supply-chain');
     return { success: true, message: 'Data pembelian bahan berhasil ditambahkan.' };
   } catch (error: any) {
     console.error('Error createPembelianBahan:', error);
@@ -69,8 +70,33 @@ export async function getPembelianBahan(sppgId?: number) {
   return data.map(d => ({
     ...d,
     pemasokNama: d.pemasok?.namaPemasok,
+    tipePemasok: d.pemasok?.tipePemasok,
+    alamatPemasok: d.pemasok?.alamatPemasok,
     jenisPanganNama: d.jenisPangan?.namaBahan
   }));
+}
+
+export async function deletePembelianBahan(id: number) {
+  try {
+    const { sppgId: userSppgId, isAdmin } = await getSessionData();
+    
+    if (!isAdmin) {
+      if (!userSppgId) return { success: false, message: 'Akses ditolak.' };
+      const item = await db.query.sppgPembelianBahan.findFirst({
+        where: eq(sppgPembelianBahan.id, id)
+      });
+      if (!item || item.sppgId !== userSppgId) {
+        return { success: false, message: 'Akses ditolak: Data ini bukan milik SPPG Anda.' };
+      }
+    }
+
+    await db.delete(sppgPembelianBahan).where(eq(sppgPembelianBahan.id, id));
+    revalidatePath('/admin/pengawasan');
+    revalidatePath('/admin/supply-chain');
+    return { success: true, message: 'Data pembelian berhasil dihapus.' };
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Gagal menghapus data pembelian.' };
+  }
 }
 
 // ==========================================
@@ -99,6 +125,7 @@ export async function createPemakaianBahan(formData: FormData) {
 
     await db.insert(sppgPemakaianBahan).values(data);
     revalidatePath('/admin/pengawasan');
+    revalidatePath('/admin/supply-chain');
     return { success: true, message: 'Data pemakaian bahan berhasil dicatat.' };
   } catch (error: any) {
     console.error('Error createPemakaianBahan:', error);
@@ -128,6 +155,29 @@ export async function getPemakaianBahan(sppgId?: number) {
   }));
 }
 
+export async function deletePemakaianBahan(id: number) {
+  try {
+    const { sppgId: userSppgId, isAdmin } = await getSessionData();
+    
+    if (!isAdmin) {
+      if (!userSppgId) return { success: false, message: 'Akses ditolak.' };
+      const item = await db.query.sppgPemakaianBahan.findFirst({
+        where: eq(sppgPemakaianBahan.id, id)
+      });
+      if (!item || item.sppgId !== userSppgId) {
+        return { success: false, message: 'Akses ditolak: Data ini bukan milik SPPG Anda.' };
+      }
+    }
+
+    await db.delete(sppgPemakaianBahan).where(eq(sppgPemakaianBahan.id, id));
+    revalidatePath('/admin/pengawasan');
+    revalidatePath('/admin/supply-chain');
+    return { success: true, message: 'Data pemakaian berhasil dihapus.' };
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Gagal menghapus data pemakaian.' };
+  }
+}
+
 export async function getActiveMasterParameterUjiList() {
   return await db.query.masterParameterUji.findMany({
     where: eq(masterParameterUji.statusAktif, true),
@@ -152,7 +202,6 @@ export async function createUjiRapidTest(formData: FormData) {
     const parameterUjiId = parameterUjiIdRaw ? parseInt(parameterUjiIdRaw) : null;
     let parameterUjiName = formData.get('parameterUji') as string;
 
-    // Jika parameterUjiId dipasang, ambil nama parameter dari master
     if (parameterUjiId && !isNaN(parameterUjiId)) {
       const masterItem = await db.query.masterParameterUji.findFirst({
         where: eq(masterParameterUji.id, parameterUjiId)
@@ -202,4 +251,96 @@ export async function getUjiRapidTest(sppgId?: number) {
     jenisPanganNama: d.jenisPangan?.namaBahan,
     parameterMaster: d.parameterMaster,
   }));
+}
+
+export async function deleteUjiRapidTest(id: number) {
+  try {
+    const { sppgId: userSppgId, isAdmin } = await getSessionData();
+    
+    if (!isAdmin) {
+      if (!userSppgId) return { success: false, message: 'Akses ditolak.' };
+      const item = await db.query.sppgUjiRapidTest.findFirst({
+        where: eq(sppgUjiRapidTest.id, id)
+      });
+      if (!item || item.sppgId !== userSppgId) {
+        return { success: false, message: 'Akses ditolak: Data ini bukan milik SPPG Anda.' };
+      }
+    }
+
+    await db.delete(sppgUjiRapidTest).where(eq(sppgUjiRapidTest.id, id));
+    revalidatePath('/admin/pengawasan');
+    return { success: true, message: 'Hasil uji rapid test berhasil dihapus.' };
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Gagal menghapus uji rapid test.' };
+  }
+}
+
+/**
+ * DASHBOARD PANGAN SEGAR DIBELI HARIAN
+ * Groups purchases by fresh food item (Tomat, Cabai, Beras, Daging, Sayuran, dll) with daily volume & supplier origin
+ */
+export async function getDailyFreshFoodPurchasesStats(filterSppgId?: number, dateString?: string) {
+  const { sppgId: userSppgId, isAdmin } = await getSessionData();
+  const targetSppgId = isAdmin ? (filterSppgId || null) : userSppgId;
+
+  const sppgFilterSql = targetSppgId ? sql`AND pb.sppg_id = ${targetSppgId}` : sql``;
+  const targetDate = dateString || new Date().toISOString().split('T')[0];
+
+  const rawRows = await db.execute(sql`
+    SELECT 
+      pb.id,
+      pb.tanggal_pembelian,
+      jp.nama_bahan,
+      jp.kategori,
+      pb.volume,
+      pb.satuan,
+      pb.harga_total,
+      pb.catatan,
+      p.nama_pemasok,
+      p.tipe_pemasok,
+      p.alamat_pemasok,
+      s.nama_sppg
+    FROM sppg_pembelian_bahan pb
+    LEFT JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
+    LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
+    LEFT JOIN sppg s ON pb.sppg_id = s.sppg_id
+    WHERE pb.tanggal_pembelian = ${targetDate} ${sppgFilterSql}
+    ORDER BY pb.id DESC
+  `);
+
+  const commodityMap: Record<string, { namaBahan: string; kategori: string; totalVolume: number; satuan: string; totalBiaya: number; suppliers: string[] }> = {};
+
+  rawRows.forEach((row: any) => {
+    const key = row.nama_bahan || 'Pangan Segar';
+    const vol = parseFloat(row.volume as string) || 0;
+    const price = parseFloat(row.harga_total as string) || 0;
+    const supplierInfo = row.nama_pemasok ? `${row.nama_pemasok} (${row.tipe_pemasok || 'Pemasok'})` : 'Pemasok Umum';
+
+    if (!commodityMap[key]) {
+      commodityMap[key] = {
+        namaBahan: key,
+        kategori: row.kategori || 'Sayuran & Segar',
+        totalVolume: 0,
+        satuan: row.satuan || 'Kg',
+        totalBiaya: 0,
+        suppliers: []
+      };
+    }
+
+    commodityMap[key].totalVolume += vol;
+    commodityMap[key].totalBiaya += price;
+    if (!commodityMap[key].suppliers.includes(supplierInfo)) {
+      commodityMap[key].suppliers.push(supplierInfo);
+    }
+  });
+
+  const commodityList = Object.values(commodityMap);
+
+  return {
+    tanggal: targetDate,
+    rawList: rawRows as any[],
+    commodityList,
+    totalItemsPurchased: commodityList.length,
+    totalVolumeOverall: commodityList.reduce((acc, curr) => acc + curr.totalVolume, 0)
+  };
 }

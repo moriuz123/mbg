@@ -56,11 +56,11 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
             <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
             
             <div className="flex flex-col">
-              <span className="font-heading font-extrabold text-[#0a2463] text-lg leading-tight group-hover:text-primary-500 transition-colors">
-                MBG Lebak
+              <span className="font-heading font-extrabold text-[#0a2463] text-base leading-tight group-hover:text-primary-500 transition-colors">
+                Digitalisasi Supply Chain
               </span>
               <span className="text-[0.65rem] text-slate-500 font-semibold uppercase tracking-wider hidden sm:block">
-                Makan Bergizi Gratis
+                Pemkab Lebak
               </span>
             </div>
           </Link>

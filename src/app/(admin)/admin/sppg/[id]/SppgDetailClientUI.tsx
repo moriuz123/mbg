@@ -14,7 +14,8 @@ export default function SppgDetailClientUI({
   assignedPosyandu,
   allPosyandu,
   allActiveSekolahAssignments = [],
-  allActivePosyanduAssignments = []
+  allActivePosyanduAssignments = [],
+  isAdmin = false
 }: { 
   sppg: any;
   assignedSekolah: any[];
@@ -23,6 +24,7 @@ export default function SppgDetailClientUI({
   allPosyandu: any[];
   allActiveSekolahAssignments?: any[];
   allActivePosyanduAssignments?: any[];
+  isAdmin?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPosyanduModalOpen, setIsPosyanduModalOpen] = useState(false);
@@ -143,8 +145,11 @@ export default function SppgDetailClientUI({
         onCancel={() => setConfirmOpen(false)}
       />
       <div className="flex justify-between items-center mb-6">
-        <Link href="/admin/sppg" className="text-slate-500 hover:text-primary-600 flex items-center gap-2 font-medium transition-colors">
-          <ArrowLeft size={18} /> Kembali ke Daftar SPPG
+        <Link 
+          href={isAdmin ? "/admin/sppg" : "/admin"} 
+          className="text-slate-500 hover:text-primary-600 flex items-center gap-2 font-medium transition-colors text-sm"
+        >
+          <ArrowLeft size={18} /> {isAdmin ? "Kembali ke Daftar SPPG" : "Kembali ke Dasbor Utama"}
         </Link>
         <div className="flex gap-3">
           <button 

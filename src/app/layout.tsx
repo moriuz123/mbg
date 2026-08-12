@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Portal Makan Bergizi Gratis - Pemkab Lebak',
-  description: 'Portal pemantauan program Makan Bergizi Gratis Pemerintah Kabupaten Lebak.',
+  title: 'Sistem Digitalisasi Supply Chain - Pemkab Lebak',
+  description: 'Sistem Digitalisasi Supply Chain dan pemantauan distribusi logistik Pemerintah Kabupaten Lebak.',
 };
 
 export default function RootLayout({

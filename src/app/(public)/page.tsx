@@ -50,7 +50,7 @@ export default async function Public() {
             </div>
             
             <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-lg">
-              Makan Bergizi Gratis
+              Sistem Digitalisasi Supply Chain
               <span className="text-accent-500 block mt-3 text-4xl md:text-5xl lg:text-6xl">Kabupaten Lebak</span>
             </h1>
             

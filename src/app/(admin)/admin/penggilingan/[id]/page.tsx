@@ -2,6 +2,8 @@ import { getPenggilinganById, getSumberGabah, getProduksi, getDistribusi } from 
 import { getSppg } from "@/app/actions/sppg";
 import PenggilinganDetailClientUI from "./PenggilinganDetailClientUI";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function PenggilinganDetailPage({ params }: any) {
   const resolvedParams = await params;
@@ -9,6 +11,20 @@ export default async function PenggilinganDetailPage({ params }: any) {
   
   if (isNaN(penggilinganId)) {
     redirect('/admin/penggilingan');
+  }
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const role = session?.user?.role;
+  const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
+
+  // Security Check: Operator can only view their own milling unit
+  if (!isAdmin && role === 'operator_penggilingan') {
+    const userPenggilinganId = session?.user?.penggilinganId;
+    if (userPenggilinganId !== penggilinganId) {
+      redirect('/admin?error=unauthorized_penggilingan');
+    }
   }
 
   const data = await getPenggilinganById(penggilinganId);
@@ -26,7 +42,7 @@ export default async function PenggilinganDetailPage({ params }: any) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Detail Penggilingan: {data.namaPenggilingan}</h1>
-          <p className="text-slate-500 mt-1 text-sm font-medium">Kelola sumber gabah, produksi, dan distribusi beras.</p>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Kelola sumber gabah, realisasi giling, dan penjualan beras.</p>
         </div>
       </div>
 
@@ -36,6 +52,7 @@ export default async function PenggilinganDetailPage({ params }: any) {
         produksiList={produksiList}
         distribusiList={distribusiList}
         sppgList={sppgList}
+        isAdmin={isAdmin}
       />
     </main>
   );

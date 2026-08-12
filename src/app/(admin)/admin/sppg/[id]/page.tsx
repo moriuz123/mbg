@@ -68,6 +68,7 @@ export default async function SppgDetailPage({ params }: any) {
         allPosyandu={allPosyandu}
         allActiveSekolahAssignments={allActiveSekolahAssignments}
         allActivePosyanduAssignments={allActivePosyanduAssignments}
+        isAdmin={isAdmin}
       />
     </main>
   );

@@ -1,9 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PackagePlus, PackageMinus, TestTube2, AlertCircle, Plus, Check, X } from 'lucide-react';
-import { createPembelianBahan, createPemakaianBahan, createUjiRapidTest } from '@/app/actions/sppgPengawasan';
+import { PackagePlus, PackageMinus, TestTube2, AlertCircle, Plus, Check, X, Trash2 } from 'lucide-react';
+import { 
+  createPembelianBahan, 
+  createPemakaianBahan, 
+  createUjiRapidTest,
+  deletePembelianBahan,
+  deletePemakaianBahan,
+  deleteUjiRapidTest
+} from '@/app/actions/sppgPengawasan';
 import toast from 'react-hot-toast';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function PengawasanClient({
   initialPembelian,
@@ -21,6 +29,11 @@ export default function PengawasanClient({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedParameterId, setSelectedParameterId] = useState<string>('');
+
+  // Delete State
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; type: 'pembelian' | 'pemakaian' | 'uji' } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +53,34 @@ export default function PengawasanClient({
     if (res.success) {
       toast.success(res.message);
       setIsModalOpen(false);
-      window.location.reload(); // Quick refresh to get new data
+      window.location.reload();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleDeleteClick = (id: number, type: 'pembelian' | 'pemakaian' | 'uji') => {
+    setDeleteTarget({ id, type });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    let res;
+    if (deleteTarget.type === 'pembelian') {
+      res = await deletePembelianBahan(deleteTarget.id);
+    } else if (deleteTarget.type === 'pemakaian') {
+      res = await deletePemakaianBahan(deleteTarget.id);
+    } else {
+      res = await deleteUjiRapidTest(deleteTarget.id);
+    }
+    setIsDeleting(false);
+    setConfirmOpen(false);
+
+    if (res.success) {
+      toast.success(res.message);
+      window.location.reload();
     } else {
       toast.error(res.message);
     }
@@ -48,6 +88,15 @@ export default function PengawasanClient({
 
   return (
     <div className="space-y-6">
+      <ConfirmModal 
+        isOpen={confirmOpen}
+        title="Hapus Catatan Pengawasan"
+        message="Apakah Anda yakin ingin menghapus data ini? Data yang dihapus akan memperbarui sisa stok gudang otomatis."
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
       <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 p-1">
         <button 
           onClick={() => setActiveTab('pembelian')} 
@@ -84,40 +133,63 @@ export default function PengawasanClient({
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-sm border-collapse">
             <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase text-xs tracking-wider">
               <tr>
                 <th className="px-6 py-4">Tanggal</th>
                 {activeTab === 'pembelian' && <th className="px-6 py-4">Pemasok</th>}
                 <th className="px-6 py-4">Jenis Pangan</th>
                 {(activeTab === 'pembelian' || activeTab === 'pemakaian') && <th className="px-6 py-4">Volume</th>}
+                {activeTab === 'pembelian' && <th className="px-6 py-4 text-right">Harga Total (Rp)</th>}
                 {activeTab === 'pemakaian' && <th className="px-6 py-4">Untuk Menu</th>}
                 {activeTab === 'uji' && <th className="px-6 py-4">Parameter</th>}
                 {activeTab === 'uji' && <th className="px-6 py-4">Hasil</th>}
                 {activeTab === 'uji' && <th className="px-6 py-4">Tindakan</th>}
+                <th className="px-6 py-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {activeTab === 'pembelian' && initialPembelian.map((d: any) => (
-                <tr key={d.id} className="hover:bg-slate-50/50">
-                  <td className="px-6 py-4">{new Date(d.tanggalPembelian).toLocaleDateString('id-ID')}</td>
-                  <td className="px-6 py-4">{d.pemasokNama}</td>
-                  <td className="px-6 py-4 font-medium text-slate-800">{d.jenisPanganNama}</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded font-semibold">{d.volume} {d.satuan}</span></td>
+                <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-700">{new Date(d.tanggalPembelian).toLocaleDateString('id-ID')}</td>
+                  <td className="px-6 py-4 font-semibold text-slate-700">{d.pemasokNama}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama}</td>
+                  <td className="px-6 py-4"><span className="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md font-extrabold">{d.volume} {d.satuan}</span></td>
+                  <td className="px-6 py-4 text-right font-black text-emerald-700">
+                    {d.hargaTotal ? `Rp ${parseFloat(d.hargaTotal).toLocaleString('id-ID')}` : '-'}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => handleDeleteClick(d.id, 'pembelian')} 
+                      className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                      title="Hapus Pembelian"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {activeTab === 'pemakaian' && initialPemakaian.map((d: any) => (
-                <tr key={d.id} className="hover:bg-slate-50/50">
-                  <td className="px-6 py-4">{new Date(d.tanggalPemakaian).toLocaleDateString('id-ID')}</td>
-                  <td className="px-6 py-4 font-medium text-slate-800">{d.jenisPanganNama}</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 bg-amber-50 text-amber-700 rounded font-semibold">{d.volume} {d.satuan}</span></td>
-                  <td className="px-6 py-4">{d.menuNama || '-'}</td>
+                <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-700">{new Date(d.tanggalPemakaian).toLocaleDateString('id-ID')}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama}</td>
+                  <td className="px-6 py-4"><span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md font-extrabold">{d.volume} {d.satuan}</span></td>
+                  <td className="px-6 py-4 font-medium text-slate-600">{d.menuNama || '-'}</td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => handleDeleteClick(d.id, 'pemakaian')} 
+                      className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                      title="Hapus Pemakaian"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {activeTab === 'uji' && initialUjiRapid.map((d: any) => (
-                <tr key={d.id} className="hover:bg-slate-50/50">
-                  <td className="px-6 py-4">{new Date(d.tanggalUji).toLocaleDateString('id-ID')}</td>
-                  <td className="px-6 py-4 font-medium text-slate-800">{d.jenisPanganNama}</td>
+                <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-700">{new Date(d.tanggalUji).toLocaleDateString('id-ID')}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span className="font-semibold text-slate-800">{d.parameterUji}</span>
@@ -129,13 +201,31 @@ export default function PengawasanClient({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full font-bold text-xs ${d.hasilUji.toLowerCase().includes('aman') && !d.hasilUji.toLowerCase().includes('tidak aman') ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`px-2.5 py-1 rounded-full font-bold text-xs ${d.hasilUji.toLowerCase().includes('aman') && !d.hasilUji.toLowerCase().includes('tidak aman') ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                       {d.hasilUji}
                     </span>
                   </td>
-                  <td className="px-6 py-4">{d.tindakanLanjut || '-'}</td>
+                  <td className="px-6 py-4 font-medium text-slate-600">{d.tindakanLanjut || '-'}</td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => handleDeleteClick(d.id, 'uji')} 
+                      className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                      title="Hapus Uji Rapid"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
+              {((activeTab === 'pembelian' && initialPembelian.length === 0) ||
+                (activeTab === 'pemakaian' && initialPemakaian.length === 0) ||
+                (activeTab === 'uji' && initialUjiRapid.length === 0)) && (
+                <tr>
+                  <td colSpan={10} className="p-8 text-center text-slate-500">
+                    Belum ada catatan data {activeTab}.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -195,12 +285,21 @@ export default function PengawasanClient({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Volume Total <span className="text-red-500">*</span></label>
-                      <input type="text" name="volume" required placeholder="Misal: 150" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <input type="number" step="0.01" min="0" name="volume" required placeholder="Misal: 150" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Satuan <span className="text-red-500">*</span></label>
                       <input type="text" name="satuan" required defaultValue="Kg" placeholder="Kg / Liter / Ikat" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Harga Total Pembelian (Rp)</label>
+                    <input type="number" name="hargaTotal" min="0" placeholder="Misal: 2250000" className="w-full px-4 py-3 rounded-xl border border-slate-200 font-medium text-slate-800" />
+                    <p className="text-xs text-slate-400 mt-1">Masukkan total nilai transaksi belanja dari nota/kuitansi.</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Catatan / No. Kuitansi</label>
+                    <input type="text" name="catatan" placeholder="Misal: Nota #10293, Pembelian Beras Medium Super" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
                   </div>
                 </>
               )}
@@ -223,7 +322,7 @@ export default function PengawasanClient({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Volume Digunakan <span className="text-red-500">*</span></label>
-                      <input type="text" name="volume" required placeholder="Misal: 50" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
+                      <input type="number" step="0.01" min="0" name="volume" required placeholder="Misal: 50" className="w-full px-4 py-3 rounded-xl border border-slate-200" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Satuan <span className="text-red-500">*</span></label>

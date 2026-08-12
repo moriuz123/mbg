@@ -350,7 +350,9 @@ export const penggilinganDistribusi = pgTable("penggilingan_distribusi", {
   mingguMulai: date("minggu_mulai").notNull(),
   mingguSelesai: date("minggu_selesai").notNull(),
   volumeKg: numeric("volume_kg", { precision: 12, scale: 2 }).notNull(),
-  tujuanTipe: text("tujuan_tipe").notNull(), // SPPG, Pasar, Lainnya
+  hargaPerKg: numeric("harga_per_kg", { precision: 12, scale: 2 }),
+  hargaTotal: numeric("harga_total", { precision: 12, scale: 2 }),
+  tujuanTipe: text("tujuan_tipe").notNull(), // SPPG, Pasar, BULOG, Retail, Lainnya
   sppgTujuanId: integer("sppg_tujuan_id").references(() => sppg.id),
   lokasiLain: text("lokasi_lain"),
   catatan: text("catatan"),

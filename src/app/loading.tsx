@@ -72,7 +72,7 @@ export default function Loading() {
         fontSize: '0.875rem',
         color: '#64748b'
       }}>
-        Sistem Informasi Makan Bergizi Gratis
+        Sistem Digitalisasi Supply Chain
       </p>
 
       <style>{`

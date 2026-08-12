@@ -3,16 +3,25 @@ import { getKecamatan } from "@/app/actions/wilayah";
 import PenggilinganClientUI from "./PenggilinganClientUI";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function PenggilinganPage() {
-  const initialData = await getPenggilingan();
-  const kecamatanList = await getKecamatan();
-  
   const session = await auth.api.getSession({
     headers: await headers(),
   });
   const role = session?.user?.role;
   const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
+
+  // Security & UX: Operator Penggilingan gets redirected directly to their own milling unit detail page
+  if (!isAdmin && role === 'operator_penggilingan') {
+    const penggilinganId = session?.user?.penggilinganId;
+    if (penggilinganId) {
+      redirect(`/admin/penggilingan/${penggilinganId}`);
+    }
+  }
+
+  const initialData = await getPenggilingan();
+  const kecamatanList = await getKecamatan();
 
   return (
     <main className="max-w-6xl mx-auto space-y-6">

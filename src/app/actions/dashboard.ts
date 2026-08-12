@@ -269,15 +269,122 @@ export async function getPosyanduDashboardStats(posyanduId: number) {
 }
 
 export async function getPenggilinganDashboardStats(penggilinganId: number) {
-  // Info Penggilingan
-  const penggilinganInfoRes = await db.execute(sql`SELECT nama_penggilingan FROM penggilingan WHERE penggilingan_id = ${penggilinganId}`);
-  const namaPenggilingan = penggilinganInfoRes[0]?.nama_penggilingan as string || 'Penggilingan';
-  
-  // Stats for penggilingan (e.g. stock, orders)
-  // For now, let's return some placeholders as we don't have a complex schema for it yet
-  return {
-    namaPenggilingan,
-    totalStok: 0,
-    totalPesanan: 0
-  };
+  try {
+    // Info Penggilingan
+    const penggilinganInfoRes = await db.execute(sql`
+      SELECT nama_penggilingan, kapasitas_terpasang_kg_minggu, penanggung_jawab, no_hp 
+      FROM penggilingan 
+      WHERE penggilingan_id = ${penggilinganId}
+    `);
+    const info = penggilinganInfoRes[0] || {};
+    const namaPenggilingan = (info.nama_penggilingan as string) || 'Penggilingan';
+    const kapasitasKGMinggu = parseFloat(info.kapasitas_terpasang_kg_minggu as string) || 0;
+
+    // 1. Total Suplai Beras (Volume Kg Distribusi) & Total Penjualan (Rp)
+    let totalSuplaiKg = 0;
+    let totalPenjualanRp = 0;
+    try {
+      const suplaiRes = await db.execute(sql`
+        SELECT 
+          SUM(CAST(volume_kg AS NUMERIC)) as total_suplai,
+          SUM(COALESCE(CAST(harga_total AS NUMERIC), CAST(volume_kg AS NUMERIC) * CAST(harga_per_kg AS NUMERIC), 0)) as total_penjualan
+        FROM penggilingan_distribusi 
+        WHERE penggilingan_id = ${penggilinganId}
+      `);
+      totalSuplaiKg = parseFloat(suplaiRes[0]?.total_suplai as string) || 0;
+      totalPenjualanRp = parseFloat(suplaiRes[0]?.total_penjualan as string) || 0;
+    } catch (e) {
+      const suplaiRes = await db.execute(sql`
+        SELECT SUM(CAST(volume_kg AS NUMERIC)) as total_suplai 
+        FROM penggilingan_distribusi 
+        WHERE penggilingan_id = ${penggilinganId}
+      `);
+      totalSuplaiKg = parseFloat(suplaiRes[0]?.total_suplai as string) || 0;
+    }
+
+    // 2. Total Realisasi Produksi (Kg)
+    const prodRes = await db.execute(sql`
+      SELECT SUM(CAST(kapasitas_realisasi_kg AS NUMERIC)) as total_produksi 
+      FROM penggilingan_produksi 
+      WHERE penggilingan_id = ${penggilinganId}
+    `);
+    const totalProduksiKg = parseFloat(prodRes[0]?.total_produksi as string) || 0;
+
+    // 3. Total Gabah Masuk (Kg)
+    const gabahRes = await db.execute(sql`
+      SELECT SUM(CAST(volume_kg AS NUMERIC)) as total_gabah 
+      FROM penggilingan_sumber_gabah 
+      WHERE penggilingan_id = ${penggilinganId}
+    `);
+    const totalGabahKg = parseFloat(gabahRes[0]?.total_gabah as string) || 0;
+
+    // 4. SPPG Terlayani
+    const sppgRes = await db.execute(sql`
+      SELECT COUNT(DISTINCT sppg_tujuan_id) as count 
+      FROM penggilingan_distribusi 
+      WHERE penggilingan_id = ${penggilinganId} AND sppg_tujuan_id IS NOT NULL
+    `);
+    const jumlahSppgTerlayani = parseInt(sppgRes[0]?.count as string) || 0;
+
+    // 5. Riwayat Distribusi Terbaru
+    let recentRes: any[] = [];
+    try {
+      recentRes = await db.execute(sql`
+        SELECT 
+          d.id,
+          d.minggu_mulai,
+          d.minggu_selesai,
+          d.volume_kg,
+          d.harga_per_kg,
+          d.harga_total,
+          d.tujuan_tipe,
+          s.nama_sppg as sppg_name,
+          d.lokasi_lain
+        FROM penggilingan_distribusi d
+        LEFT JOIN sppg s ON d.sppg_tujuan_id = s.sppg_id
+        WHERE d.penggilingan_id = ${penggilinganId}
+        ORDER BY d.minggu_mulai DESC, d.id DESC
+        LIMIT 5
+      `);
+    } catch (e) {
+      recentRes = await db.execute(sql`
+        SELECT 
+          d.id,
+          d.minggu_mulai,
+          d.minggu_selesai,
+          d.volume_kg,
+          d.tujuan_tipe,
+          s.nama_sppg as sppg_name,
+          d.lokasi_lain
+        FROM penggilingan_distribusi d
+        LEFT JOIN sppg s ON d.sppg_tujuan_id = s.sppg_id
+        WHERE d.penggilingan_id = ${penggilinganId}
+        ORDER BY d.minggu_mulai DESC, d.id DESC
+        LIMIT 5
+      `);
+    }
+
+    return {
+      namaPenggilingan,
+      kapasitasKGMinggu,
+      totalSuplaiKg,
+      totalProduksiKg,
+      totalGabahKg,
+      totalPenjualanRp,
+      jumlahSppgTerlayani,
+      recentDistributions: recentRes as any[]
+    };
+  } catch (error) {
+    console.error('Error in getPenggilinganDashboardStats:', error);
+    return {
+      namaPenggilingan: 'Penggilingan',
+      kapasitasKGMinggu: 0,
+      totalSuplaiKg: 0,
+      totalProduksiKg: 0,
+      totalGabahKg: 0,
+      totalPenjualanRp: 0,
+      jumlahSppgTerlayani: 0,
+      recentDistributions: []
+    };
+  }
 }

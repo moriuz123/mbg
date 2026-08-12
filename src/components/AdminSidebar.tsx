@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2 } from 'lucide-react';
+import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { LogoutButtonSidebar } from './LogoutButton';
 
@@ -38,7 +38,7 @@ export default function AdminSidebar({ userRole = 'publik' }: { userRole?: strin
         </div>
         <div className="flex flex-col">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pemkab Lebak</span>
-          <span className="text-lg font-extrabold text-slate-800 leading-tight tracking-tight">Portal MBG</span>
+          <span className="text-base font-extrabold text-slate-800 leading-tight tracking-tight">Digitalisasi Supply Chain</span>
         </div>
       </div>
 
@@ -51,7 +51,13 @@ export default function AdminSidebar({ userRole = 'publik' }: { userRole?: strin
             <NavItem href="/admin" icon={Home} isActive={pathname === '/admin'}>Dasbor Utama</NavItem>
             
             {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
-              <NavItem href="/admin/sppg" icon={LayoutDashboard} isActive={pathname?.includes('/admin/sppg')}>Data SPPG</NavItem>
+              <NavItem 
+                href="/admin/sppg" 
+                icon={isAdmin ? LayoutDashboard : Users} 
+                isActive={pathname?.includes('/admin/sppg')}
+              >
+                {isAdmin ? 'Data SPPG' : 'Penerima Manfaat'}
+              </NavItem>
             )}
             
             {(isAdmin || userRole === 'sekolah' || userRole === 'operator_sekolah' || userRole === 'operator_posyandu') && (
@@ -75,6 +81,10 @@ export default function AdminSidebar({ userRole = 'publik' }: { userRole?: strin
 
             {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
               <NavItem href="/admin/supply-chain" icon={Package} isActive={pathname?.includes('/admin/supply-chain')}>Rantai Pasok</NavItem>
+            )}
+
+            {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
+              <NavItem href="/admin/mitra-pemasok" icon={Building2} isActive={pathname?.includes('/admin/mitra-pemasok')}>Mitra Pemasok</NavItem>
             )}
 
             {isAdmin && (

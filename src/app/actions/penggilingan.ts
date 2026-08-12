@@ -115,6 +115,21 @@ export async function addSumberGabah(data: {
   }
 }
 
+export async function deleteSumberGabah(id: number, targetPenggilinganId: number) {
+  try {
+    const { isAdmin, penggilinganId } = await getSessionData();
+    if (!isAdmin && penggilinganId !== targetPenggilinganId) {
+      return { success: false, error: 'Akses ditolak' };
+    }
+
+    await db.delete(penggilinganSumberGabah).where(eq(penggilinganSumberGabah.id, id));
+    revalidatePath(`/admin/penggilingan/${targetPenggilinganId}`);
+    return { success: true, message: 'Data sumber gabah berhasil dihapus.' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Gagal menghapus data sumber gabah.' };
+  }
+}
+
 export async function getProduksi(penggilinganId: number) {
   return await db.query.penggilinganProduksi.findMany({
     where: eq(penggilinganProduksi.penggilinganId, penggilinganId),
@@ -151,14 +166,34 @@ export async function addProduksi(data: {
   }
 }
 
-export async function getDistribusi(penggilinganId: number) {
-  return await db.query.penggilinganDistribusi.findMany({
-    where: eq(penggilinganDistribusi.penggilinganId, penggilinganId),
-    orderBy: [desc(penggilinganDistribusi.mingguMulai)],
-    with: {
-      sppgTujuan: true
+export async function deleteProduksi(id: number, targetPenggilinganId: number) {
+  try {
+    const { isAdmin, penggilinganId } = await getSessionData();
+    if (!isAdmin && penggilinganId !== targetPenggilinganId) {
+      return { success: false, error: 'Akses ditolak' };
     }
-  });
+
+    await db.delete(penggilinganProduksi).where(eq(penggilinganProduksi.id, id));
+    revalidatePath(`/admin/penggilingan/${targetPenggilinganId}`);
+    return { success: true, message: 'Data produksi berhasil dihapus.' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Gagal menghapus data produksi.' };
+  }
+}
+
+export async function getDistribusi(penggilinganId: number) {
+  try {
+    return await db.query.penggilinganDistribusi.findMany({
+      where: eq(penggilinganDistribusi.penggilinganId, penggilinganId),
+      orderBy: [desc(penggilinganDistribusi.mingguMulai)],
+      with: {
+        sppgTujuan: true
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching getDistribusi:', error);
+    return [];
+  }
 }
 
 export async function addDistribusi(data: {
@@ -166,6 +201,8 @@ export async function addDistribusi(data: {
   mingguMulai: string;
   mingguSelesai: string;
   volumeKg: string;
+  hargaPerKg?: string;
+  hargaTotal?: string;
   tujuanTipe: string;
   sppgTujuanId?: number;
   lokasiLain?: string;
@@ -182,6 +219,8 @@ export async function addDistribusi(data: {
       mingguMulai: data.mingguMulai,
       mingguSelesai: data.mingguSelesai,
       volumeKg: data.volumeKg,
+      hargaPerKg: data.hargaPerKg || null,
+      hargaTotal: data.hargaTotal || null,
       tujuanTipe: data.tujuanTipe,
       sppgTujuanId: data.sppgTujuanId || null,
       lokasiLain: data.lokasiLain,
@@ -191,5 +230,20 @@ export async function addDistribusi(data: {
     return { success: true };
   } catch (error) {
     return { success: false, error: 'Gagal menambah data distribusi' };
+  }
+}
+
+export async function deleteDistribusi(id: number, targetPenggilinganId: number) {
+  try {
+    const { isAdmin, penggilinganId } = await getSessionData();
+    if (!isAdmin && penggilinganId !== targetPenggilinganId) {
+      return { success: false, error: 'Akses ditolak' };
+    }
+
+    await db.delete(penggilinganDistribusi).where(eq(penggilinganDistribusi.id, id));
+    revalidatePath(`/admin/penggilingan/${targetPenggilinganId}`);
+    return { success: true, message: 'Data distribusi beras berhasil dihapus.' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Gagal menghapus data distribusi beras.' };
   }
 }
