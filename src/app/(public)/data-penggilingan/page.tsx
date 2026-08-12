@@ -14,18 +14,35 @@ export const metadata = {
 };
 
 export default async function PublicPenggilingan() {
-  const sumbers = await db.query.penggilinganSumberGabah.findMany({
-    orderBy: [desc(penggilinganSumberGabah.mingguMulai)],
-    limit: 20
-  });
+  let sumbers: any[] = [];
+  let distribusis: any[] = [];
+  let pabriks: any[] = [];
 
-  const distribusis = await db.query.penggilinganDistribusi.findMany({
-    with: { sppgTujuan: true },
-    orderBy: [desc(penggilinganDistribusi.mingguMulai)],
-    limit: 20
-  });
+  try {
+    sumbers = await db.query.penggilinganSumberGabah.findMany({
+      orderBy: [desc(penggilinganSumberGabah.mingguMulai)],
+      limit: 20
+    });
+  } catch (e) {
+    console.error('Error fetching penggilinganSumberGabah:', e);
+  }
 
-  const pabriks = await db.query.penggilingan.findMany();
+  try {
+    distribusis = await db.query.penggilinganDistribusi.findMany({
+      with: { sppgTujuan: true },
+      orderBy: [desc(penggilinganDistribusi.mingguMulai)],
+      limit: 20
+    });
+  } catch (e) {
+    console.error('Error fetching penggilinganDistribusi:', e);
+  }
+
+  try {
+    pabriks = await db.query.penggilingan.findMany();
+  } catch (e) {
+    console.error('Error fetching penggilingan:', e);
+  }
+
   const totalKapasitas = pabriks.reduce((acc, curr) => acc + Number(curr.kapasitasTerpasangKgMinggu || 0), 0);
 
   const formatPeriode = (dateString: string) => {
