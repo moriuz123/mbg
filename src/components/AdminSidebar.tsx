@@ -191,7 +191,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                   <NavItem href="/admin/master-data/posyandu" icon={HeartPulse} isActive={pathname?.includes('posyandu')} isSub>Posyandu</NavItem>
                   <NavItem href="/admin/master-data/kecamatan" icon={MapPin} isActive={pathname?.includes('kecamatan')} isSub>Kecamatan</NavItem>
                   <NavItem href="/admin/master-data/desa" icon={MapPin} isActive={pathname?.includes('desa')} isSub>Desa/Kelurahan</NavItem>
-                  <NavItem href="/admin/master-data/jenis-pangan" icon={ShoppingCart} isActive={pathname?.includes('jenis-pangan')} isSub>Jenis Pangan</NavItem>
+                  <NavItem href="/admin/master-data/komoditas" icon={ShoppingCart} isActive={pathname?.includes('komoditas') || pathname?.includes('jenis-pangan')} isSub>Komoditas</NavItem>
                   <NavItem href="/admin/master-data/pemasok" icon={Truck} isActive={pathname?.includes('pemasok')} isSub>Pemasok</NavItem>
                   <NavItem href="/admin/master-data/parameter-uji" icon={TestTube2} isActive={pathname?.includes('parameter-uji')} isSub>Parameter Uji</NavItem>
                 </div>

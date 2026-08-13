@@ -93,7 +93,7 @@ function PublicSPPG() {
               <table>
                 <thead>
                   <tr>
-                    <th>Jenis Pangan</th>
+                    <th>Komoditas</th>
                     <th>Volume Dibeli (Kg)</th>
                     <th>Volume Dipakai (Kg)</th>
                     <th>Distributor / Lokasi</th>

@@ -297,6 +297,8 @@ export const jenisPangan = pgTable("jenis_pangan", {
   satuanDefault: text("satuan_default").default("Kilogram"),
 });
 
+export const komoditas = jenisPangan;
+
 export const supplyChainKebutuhan = pgTable("supply_chain_kebutuhan", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),

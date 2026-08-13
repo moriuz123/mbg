@@ -339,9 +339,9 @@ export default function PengawasanClient({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan <span className="text-red-500">*</span></label>
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan <span className="text-red-500">*</span></label>
                     <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                      <option value="">-- Pilih Jenis Pangan --</option>
+                      <option value="">-- Pilih Komoditas --</option>
                       {safeJenisPanganList.map((j: any) => (
                         <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
                       ))}
@@ -376,9 +376,9 @@ export default function PengawasanClient({
                     <input type="date" name="tanggalPemakaian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan Digunakan <span className="text-red-500">*</span></label>
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan Digunakan <span className="text-red-500">*</span></label>
                     <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                      <option value="">-- Pilih Jenis Pangan --</option>
+                      <option value="">-- Pilih Komoditas --</option>
                       {safeJenisPanganList.map((j: any) => (
                         <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
                       ))}
@@ -404,9 +404,9 @@ export default function PengawasanClient({
                     <input type="date" name="tanggalUji" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Jenis Pangan / Bahan Diuji <span className="text-red-500">*</span></label>
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan Diuji <span className="text-red-500">*</span></label>
                     <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                      <option value="">-- Pilih Jenis Pangan --</option>
+                      <option value="">-- Pilih Komoditas --</option>
                       {safeJenisPanganList.map((j: any) => (
                         <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
                       ))}

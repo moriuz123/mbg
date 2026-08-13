@@ -90,11 +90,11 @@ async function main() {
     { namaPemasok: "Toko Beras Sejahtera 2", alamatPemasok: "Rangkasbitung", kontak: "081199998888" }
   ]).returning();
 
-  // 10. JENIS PANGAN
+  // 10. KOMODITAS / JENIS PANGAN
   const jps = await db.insert(jenisPangan).values([
-    { namaBahan: "Beras Medium 2", kategori: "Karbohidrat", satuanDefault: "Kilogram" },
+    { namaBahan: "Beras Medium 2", kategori: "Karbohidrat/ Padi- Padian", satuanDefault: "Kilogram" },
     { namaBahan: "Telur Ayam 2", kategori: "Protein Hewani", satuanDefault: "Kilogram" },
-    { namaBahan: "Kacang Hijau 2", kategori: "Kacang-kacangan", satuanDefault: "Kilogram" }
+    { namaBahan: "Kacang Hijau 2", kategori: "Protein Nabati", satuanDefault: "Kilogram" }
   ]).returning();
 
   // 11. SUPPLY CHAIN KEBUTUHAN

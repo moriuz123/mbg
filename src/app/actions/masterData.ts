@@ -43,47 +43,56 @@ export async function deletePemasok(id: number) {
   }
 }
 
-// ==== JENIS PANGAN ====
-export async function getJenisPangan() {
+// ==== KOMODITAS / JENIS PANGAN ====
+export async function getKomoditas() {
   return await db.query.jenisPangan.findMany({
     orderBy: [desc(jenisPangan.id)],
   });
 }
 
-export async function createJenisPangan(data: {
+export async function createKomoditas(data: {
   namaBahan: string;
   kategori?: string;
   satuanDefault?: string;
 }) {
   try {
     await db.insert(jenisPangan).values(data);
+    revalidatePath('/admin/master-data/komoditas');
     revalidatePath('/admin/master-data/jenis-pangan');
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Gagal menambah jenis pangan' };
+    return { success: false, error: 'Gagal menambah komoditas' };
   }
 }
 
-export async function updateJenisPangan(id: number, data: {
+export async function updateKomoditas(id: number, data: {
   namaBahan: string;
   kategori?: string;
   satuanDefault?: string;
 }) {
   try {
     await db.update(jenisPangan).set(data).where(eq(jenisPangan.id, id));
+    revalidatePath('/admin/master-data/komoditas');
     revalidatePath('/admin/master-data/jenis-pangan');
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Gagal mengupdate jenis pangan' };
+    return { success: false, error: 'Gagal mengupdate komoditas' };
   }
 }
 
-export async function deleteJenisPangan(id: number) {
+export async function deleteKomoditas(id: number) {
   try {
     await db.delete(jenisPangan).where(eq(jenisPangan.id, id));
+    revalidatePath('/admin/master-data/komoditas');
     revalidatePath('/admin/master-data/jenis-pangan');
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Gagal menghapus jenis pangan' };
+    return { success: false, error: 'Gagal menghapus komoditas' };
   }
 }
+
+// Legacy aliases
+export const getJenisPangan = getKomoditas;
+export const createJenisPangan = createKomoditas;
+export const updateJenisPangan = updateKomoditas;
+export const deleteJenisPangan = deleteKomoditas;

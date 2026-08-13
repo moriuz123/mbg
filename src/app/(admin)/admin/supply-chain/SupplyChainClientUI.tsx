@@ -200,7 +200,7 @@ export default function SupplyChainClientUI({
             <Layers size={24} />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Jenis Bahan</div>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Komoditas</div>
             <div className="text-2xl font-black text-slate-800">{inventorySummary.totalJenisBahan} Komoditas</div>
           </div>
         </div>
@@ -626,9 +626,9 @@ export default function SupplyChainClientUI({
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-semibold text-slate-700">Jenis Bahan Pangan *</label>
+                <label className="block mb-2 text-sm font-semibold text-slate-700">Komoditas *</label>
                 <select required name="jenisPanganId" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
-                  <option value="">-- Pilih Bahan --</option>
+                  <option value="">-- Pilih Komoditas --</option>
                   {jenisPanganList.map(item => (
                     <option key={item.id} value={item.id}>{item.namaBahan} ({item.satuanDefault})</option>
                   ))}
