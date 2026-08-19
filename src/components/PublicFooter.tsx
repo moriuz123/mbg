@@ -35,7 +35,7 @@ export default function PublicFooter() {
               </div>
               <div className="flex flex-col">
                 <span className="font-heading font-extrabold text-white text-xl tracking-wide">
-                  MBG Lebak
+                  Sistem Digitalisasi Supply Chain
                 </span>
                 <span className="text-xs text-accent-500 font-semibold uppercase tracking-widest mt-0.5">
                   Pemerintah Kabupaten Lebak
@@ -44,7 +44,7 @@ export default function PublicFooter() {
             </div>
             
             <p className="text-white/80 leading-relaxed font-medium mb-8">
-              Sistem informasi dan pengawasan distribusi program Makan Bergizi Gratis (MBG) di Kabupaten Lebak, bermitra dengan Badan Gizi Nasional untuk mewujudkan generasi yang sehat dan cerdas.
+              Sistem Digitalisasi Supply Chain dan pemantauan distribusi logistik Pemerintah Kabupaten Lebak.
             </p>
             
             <div className="flex items-center gap-3">
@@ -61,26 +61,35 @@ export default function PublicFooter() {
             </h4>
             <ul className="flex flex-col gap-4 font-medium">
               <li>
-                <Link href="/" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Beranda
-                </Link>
+                <a href="https://lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Portal Lebak
+                </a>
               </li>
               <li>
-                <Link href="/tentang" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Tentang Program
-                </Link>
+                <a href="https://www.bgn.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Badan Gizi Nasional
+                </a>
               </li>
               <li>
-                <Link href="/sppg" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Direktori SPPG
-                </Link>
+                <a href="https://disketapang.lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Disketapang Kab. Lebak
+                </a>
               </li>
               <li>
-                <Link href="/rantai-pasok" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Rantai Pasok Lokal
-                </Link>
+                <a href="https://dinkes.lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Dinkes Kab. Lebak
+                </a>
               </li>
-
+              <li>
+                <a href="https://www.lapor.go.id/" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Lapor
+                </a>
+              </li>
+              <li>
+                <a href="https://Inspektorat.Lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
+                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Inspektorat Kab. Lebak
+                </a>
+              </li>
             </ul>
           </div>
           
@@ -112,7 +121,7 @@ export default function PublicFooter() {
         
         {/* Copyright */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/50 font-medium">
-          <p>&copy; 2026 Pemerintah Kabupaten Lebak. Hak Cipta Dilindungi.</p>
+          <p>&copy; 2026 Dinas Ketahanan Pangan (Disketapang) Kabupaten Lebak. Hak Cipta Dilindungi.</p>
           <div className="flex items-center gap-6">
             <Link href="#" className="hover:text-white transition-colors">Kebijakan Privasi</Link>
             <Link href="#" className="hover:text-white transition-colors">Syarat & Ketentuan</Link>

@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { standarMenuGizi, kategoriPenerima } from '@/db/schema';
+import { standarMenuGizi, kategoriPenerima, standarKecukupanGizi } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
@@ -11,6 +11,7 @@ export async function getStandarMenu() {
       id: standarMenuGizi.id,
       namaMenu: standarMenuGizi.namaMenu,
       deskripsi: standarMenuGizi.deskripsi,
+      jenisMakan: standarMenuGizi.jenisMakan,
       kaloriKkal: standarMenuGizi.kaloriKkal,
       proteinGram: standarMenuGizi.proteinGram,
       karbohidratGram: standarMenuGizi.karbohidratGram,
@@ -39,11 +40,21 @@ export async function getKategoriPenerima() {
   }
 }
 
+export async function getAKGList() {
+  try {
+    return await db.select().from(standarKecukupanGizi);
+  } catch (error) {
+    console.error('Error fetching AKG list:', error);
+    return [];
+  }
+}
+
 export async function saveStandarMenu(formData: FormData) {
   try {
     const id = formData.get('id') ? parseInt(formData.get('id') as string) : null;
     const namaMenu = formData.get('namaMenu') as string;
     const deskripsi = formData.get('deskripsi') as string;
+    const jenisMakan = formData.get('jenisMakan') as string || 'Siang';
     const kaloriKkal = formData.get('kaloriKkal') ? parseInt(formData.get('kaloriKkal') as string) : null;
     const proteinGram = formData.get('proteinGram') ? formData.get('proteinGram') as string : null;
     const karbohidratGram = formData.get('karbohidratGram') ? formData.get('karbohidratGram') as string : null;
@@ -55,13 +66,13 @@ export async function saveStandarMenu(formData: FormData) {
       // Update
       await db.update(standarMenuGizi)
         .set({
-          namaMenu, deskripsi, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status
+          namaMenu, deskripsi, jenisMakan, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status
         })
         .where(eq(standarMenuGizi.id, id));
     } else {
       // Insert
       await db.insert(standarMenuGizi).values({
-        namaMenu, deskripsi, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status
+        namaMenu, deskripsi, jenisMakan, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status
       });
     }
 

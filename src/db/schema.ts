@@ -1,5 +1,5 @@
-import { pgTable, text, timestamp, boolean, integer, date, numeric, serial, index, uniqueIndex } from "drizzle-orm/pg-core";
-import { sql, relations } from "drizzle-orm";
+import { pgTable, text, timestamp, boolean, integer, date, numeric, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -122,6 +122,7 @@ export const standarMenuGizi = pgTable("standar_menu_gizi", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   namaMenu: text("nama_menu").notNull(),
   deskripsi: text("deskripsi"),
+  jenisMakan: text("jenis_makan").default("Siang"), // 'Pagi' atau 'Siang'
   kaloriKkal: integer("kalori_kkal"),
   proteinGram: numeric("protein_gram", { precision: 5, scale: 2 }),
   karbohidratGram: numeric("karbohidrat_gram", { precision: 5, scale: 2 }),
@@ -822,4 +823,32 @@ export const pengumumanRelations = relations(pengumuman, ({ one }) => ({
     fields: [pengumuman.sppgId],
     references: [sppg.id],
   }),
+}));
+
+// ==== STANDAR KECUKUPAN GIZI (AKG) ====
+export const standarKecukupanGizi = pgTable("standar_kecukupan_gizi", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  kategoriId: integer("kategori_id").notNull().references(() => kategoriPenerima.id, { onDelete: 'cascade' }),
+  jenisMakan: text("jenis_makan").notNull(), // 'Pagi' atau 'Siang'
+  minEnergiKkal: numeric("min_energi_kkal", { precision: 7, scale: 2 }).notNull(),
+  maxEnergiKkal: numeric("max_energi_kkal", { precision: 7, scale: 2 }).notNull(),
+  minProteinGram: numeric("min_protein_gram", { precision: 6, scale: 2 }).notNull(),
+  maxProteinGram: numeric("max_protein_gram", { precision: 6, scale: 2 }).notNull(),
+  minLemakGram: numeric("min_lemak_gram", { precision: 6, scale: 2 }).notNull(),
+  maxLemakGram: numeric("max_lemak_gram", { precision: 6, scale: 2 }).notNull(),
+  minKarbohidratGram: numeric("min_karbohidrat_gram", { precision: 6, scale: 2 }).notNull(),
+  maxKarbohidratGram: numeric("max_karbohidrat_gram", { precision: 6, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const standarKecukupanGiziRelations = relations(standarKecukupanGizi, ({ one }) => ({
+  kategori: one(kategoriPenerima, {
+    fields: [standarKecukupanGizi.kategoriId],
+    references: [kategoriPenerima.id],
+  }),
+}));
+
+export const kategoriPenerimaRelations = relations(kategoriPenerima, ({ many }) => ({
+  standarKecukupanGizi: many(standarKecukupanGizi),
 }));

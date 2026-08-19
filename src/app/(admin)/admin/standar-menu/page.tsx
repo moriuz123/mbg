@@ -1,6 +1,6 @@
 import React from 'react';
 import StandarMenuClient from '@/components/StandarMenuClient';
-import { getStandarMenu, getKategoriPenerima } from '@/app/actions/standarMenu';
+import { getStandarMenu, getKategoriPenerima, getAKGList } from '@/app/actions/standarMenu';
 
 export const metadata = {
   title: 'Manajemen Standar Menu Gizi | Admin MBG',
@@ -9,6 +9,7 @@ export const metadata = {
 export default async function StandarMenuPage() {
   const dataMenu = await getStandarMenu();
   const kategoriList = await getKategoriPenerima();
+  const akgList = await getAKGList();
 
   return (
     <div className="animate-fade-in p-6 space-y-6 max-w-7xl mx-auto">
@@ -21,7 +22,7 @@ export default async function StandarMenuPage() {
         </div>
       </div>
 
-      <StandarMenuClient initialData={dataMenu} kategoriList={kategoriList} />
+      <StandarMenuClient initialData={dataMenu} kategoriList={kategoriList} akgList={akgList} />
     </div>
   );
 }
