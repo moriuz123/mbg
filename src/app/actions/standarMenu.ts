@@ -2,10 +2,10 @@
 
 import { db } from '@/db';
 import { standarMenuGizi, kategoriPenerima, standarKecukupanGizi } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
-export async function getStandarMenu() {
+export async function getStandarMenu(userSppgId?: number | null) {
   try {
     const list = await db.select({
       id: standarMenuGizi.id,
@@ -18,10 +18,12 @@ export async function getStandarMenu() {
       lemakGram: standarMenuGizi.lemakGram,
       status: standarMenuGizi.status,
       kategoriTargetId: standarMenuGizi.kategoriTargetId,
+      sppgId: standarMenuGizi.sppgId,
       kategoriNama: kategoriPenerima.namaKategori
     })
     .from(standarMenuGizi)
     .leftJoin(kategoriPenerima, eq(standarMenuGizi.kategoriTargetId, kategoriPenerima.id))
+    .where(userSppgId ? sql`${standarMenuGizi.sppgId} IS NULL OR ${standarMenuGizi.sppgId} = ${userSppgId}` : undefined)
     .orderBy(standarMenuGizi.namaMenu);
     
     return list;
@@ -51,6 +53,15 @@ export async function getAKGList() {
 
 export async function saveStandarMenu(formData: FormData) {
   try {
+    const { auth } = await import('@/lib/auth');
+    const { headers } = await import('next/headers');
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    const userSppgId = session?.user?.sppgId;
+    const userRole = session?.user?.role;
+    const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
+
     const id = formData.get('id') ? parseInt(formData.get('id') as string) : null;
     const namaMenu = formData.get('namaMenu') as string;
     const deskripsi = formData.get('deskripsi') as string;
@@ -72,7 +83,7 @@ export async function saveStandarMenu(formData: FormData) {
     } else {
       // Insert
       await db.insert(standarMenuGizi).values({
-        namaMenu, deskripsi, jenisMakan, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status
+        namaMenu, deskripsi, jenisMakan, kaloriKkal, proteinGram, karbohidratGram, lemakGram, kategoriTargetId, status, sppgId: isAdmin ? null : (userSppgId || null)
       });
     }
 

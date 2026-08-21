@@ -124,7 +124,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                 <NavItem href="/admin/mitra-pemasok" icon={Building2} isActive={pathname?.includes('/admin/mitra-pemasok')}>Mitra Pemasok</NavItem>
               )}
 
-              {isAdmin && (
+              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
                 <NavItem href="/admin/standar-menu" icon={Utensils} isActive={pathname?.includes('/admin/standar-menu')}>Standar Menu Gizi</NavItem>
               )}
 
@@ -194,6 +194,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                   <NavItem href="/admin/master-data/komoditas" icon={ShoppingCart} isActive={pathname?.includes('komoditas') || pathname?.includes('jenis-pangan')} isSub>Komoditas</NavItem>
                   <NavItem href="/admin/master-data/pemasok" icon={Truck} isActive={pathname?.includes('pemasok')} isSub>Pemasok</NavItem>
                   <NavItem href="/admin/master-data/parameter-uji" icon={TestTube2} isActive={pathname?.includes('parameter-uji')} isSub>Parameter Uji</NavItem>
+                  <NavItem href="/admin/master-data/akg" icon={Utensils} isActive={pathname?.includes('akg')} isSub>Standar Gizi (AKG)</NavItem>
                 </div>
               </div>
             </div>

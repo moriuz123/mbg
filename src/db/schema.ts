@@ -122,6 +122,7 @@ export const standarMenuGizi = pgTable("standar_menu_gizi", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   namaMenu: text("nama_menu").notNull(),
   deskripsi: text("deskripsi"),
+  sppgId: integer("sppg_id").references(() => sppg.id),
   jenisMakan: text("jenis_makan").default("Siang"), // 'Pagi' atau 'Siang'
   kaloriKkal: integer("kalori_kkal"),
   proteinGram: numeric("protein_gram", { precision: 5, scale: 2 }),
@@ -490,6 +491,7 @@ export const masterParameterUji = pgTable("master_parameter_uji", {
   satuan: text("satuan"), // Misal: mg/L, Negative/Positive, PPM
   ambangBatas: text("ambang_batas"), // Misal: 0 mg/L (Bebas)
   deskripsi: text("deskripsi"),
+  sppgId: integer("sppg_id").references(() => sppg.id),
   statusAktif: boolean("status_aktif").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });

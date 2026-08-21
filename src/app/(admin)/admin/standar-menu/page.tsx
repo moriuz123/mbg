@@ -2,12 +2,22 @@ import React from 'react';
 import StandarMenuClient from '@/components/StandarMenuClient';
 import { getStandarMenu, getKategoriPenerima, getAKGList } from '@/app/actions/standarMenu';
 
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+
 export const metadata = {
   title: 'Manajemen Standar Menu Gizi | Admin MBG',
 };
 
 export default async function StandarMenuPage() {
-  const dataMenu = await getStandarMenu();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const userRole = session?.user?.role;
+  const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
+  const userSppgId = session?.user?.sppgId;
+
+  const dataMenu = await getStandarMenu(isAdmin ? undefined : userSppgId);
   const kategoriList = await getKategoriPenerima();
   const akgList = await getAKGList();
 

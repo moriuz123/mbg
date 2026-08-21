@@ -19,6 +19,7 @@ type Menu = {
   lemakGram: string | null;
   status: string | null;
   kategoriTargetId: number | null;
+  sppgId: number | null;
   kategoriNama: string | null;
 };
 
@@ -210,8 +211,15 @@ export default function StandarMenuClient({
               {paginatedData.length > 0 ? paginatedData.map(item => (
                 <tr key={item.id} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
                   <td className="p-4">
-                    <div className="font-semibold text-slate-900">{item.namaMenu}</div>
-                    <div className="text-sm text-slate-500 max-w-xs truncate">{item.deskripsi || '-'}</div>
+                    <div className="font-semibold text-slate-900 flex items-center gap-2">
+                      {item.namaMenu}
+                      {item.sppgId ? (
+                        <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Custom SPPG</span>
+                      ) : (
+                        <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">Global (Dinas)</span>
+                      )}
+                    </div>
+                    <div className="text-sm text-slate-500 max-w-xs truncate mt-1">{item.deskripsi || '-'}</div>
                   </td>
                   <td className="p-4 font-medium text-slate-700">{item.kaloriKkal || '-'}</td>
                   <td className="p-4">

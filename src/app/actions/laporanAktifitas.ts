@@ -3,7 +3,7 @@
 import { db } from '@/db';
 import { sppgLaporanAktifitas, standarMenuGizi, sekolah, posyandu, sppg, sppgPenerimaManfaat, sppgPosyanduManfaat } from '@/db/schema';
 import { revalidatePath } from 'next/cache';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
@@ -127,7 +127,13 @@ export async function getDropdownData() {
     id: standarMenuGizi.id, 
     nama: standarMenuGizi.namaMenu,
     kalori: standarMenuGizi.kaloriKkal
-  }).from(standarMenuGizi).where(eq(standarMenuGizi.status, 'Aktif'));
+  }).from(standarMenuGizi)
+  .where(
+    sql`${standarMenuGizi.status} = 'Aktif' 
+    AND (${isAdmin} 
+      OR ${standarMenuGizi.sppgId} IS NULL 
+      OR ${standarMenuGizi.sppgId} = ${userSppgId || null})`
+  );
 
   return { sppgList, sekolahList, posyanduList, menuList, userSppgId, isAdmin };
 }
