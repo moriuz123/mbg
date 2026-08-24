@@ -30,16 +30,23 @@ export async function createPembelianBahan(formData: FormData) {
       sppgId = userSppgId;
     }
 
+    const pemasokIdRaw = formData.get('pemasokId') as string;
+    const pemasokId = pemasokIdRaw ? parseInt(pemasokIdRaw) : null;
+    const sumberPasokan = formData.get('sumberPasokan') as string || 'Pembelian Lokal';
+    const baseCatatan = formData.get('catatan') as string || '';
+    
+    const catatan = baseCatatan ? `[${sumberPasokan}] ${baseCatatan}` : `[${sumberPasokan}]`;
+
     const data = {
       sppgId,
-      pemasokId: parseInt(formData.get('pemasokId') as string),
+      pemasokId,
       jenisPanganId: parseInt(formData.get('jenisPanganId') as string),
       tanggalPembelian: formData.get('tanggalPembelian') as string,
       mingguKe: parseInt(formData.get('mingguKe') as string) || null,
       volume: formData.get('volume') as string,
       satuan: formData.get('satuan') as string || 'Kg',
       hargaTotal: formData.get('hargaTotal') as string || null,
-      catatan: formData.get('catatan') as string || null,
+      catatan,
     };
 
     await db.insert(sppgPembelianBahan).values(data);

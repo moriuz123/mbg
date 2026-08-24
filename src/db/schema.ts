@@ -427,7 +427,7 @@ export const auditLogRelations = relations(auditLog, ({ one }) => ({
 export const sppgPembelianBahan = pgTable("sppg_pembelian_bahan", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
-  pemasokId: integer("pemasok_id").notNull().references(() => pemasok.id),
+  pemasokId: integer("pemasok_id").references(() => pemasok.id),
   jenisPanganId: integer("jenis_pangan_id").notNull().references(() => jenisPangan.id),
   tanggalPembelian: date("tanggal_pembelian").notNull(),
   mingguKe: integer("minggu_ke"), // e.g., 1, 2, 3, 4 of the month

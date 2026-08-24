@@ -28,6 +28,7 @@ export default function PengawasanClient({
   const [activeTab, setActiveTab] = useState<'pembelian' | 'pemakaian' | 'uji'>('pembelian');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sumberPasokan, setSumberPasokan] = useState('Pembelian Lokal');
   const [selectedParameterId, setSelectedParameterId] = useState<string>('');
 
   // Safe Array Checks
@@ -330,14 +331,29 @@ export default function PengawasanClient({
                     <input type="date" name="tanggalPembelian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pemasok / Supplier <span className="text-red-500">*</span></label>
-                    <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                      <option value="">-- Pilih Pemasok --</option>
-                      {safePemasokList.map((p: any) => (
-                        <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
-                      ))}
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Sumber Pasokan <span className="text-red-500">*</span></label>
+                    <select 
+                      name="sumberPasokan" 
+                      value={sumberPasokan}
+                      onChange={(e) => setSumberPasokan(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm"
+                    >
+                      <option value="Pembelian Lokal">Pembelian Pangan Lokal (Dana Banper)</option>
+                      <option value="Dropping Pusat">Bantuan / Dropping Pusat (Non-pembelian)</option>
                     </select>
                   </div>
+
+                  {sumberPasokan === 'Pembelian Lokal' && (
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pemasok Lokal <span className="text-red-500">*</span></label>
+                      <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
+                        <option value="">-- Pilih Pemasok --</option>
+                        {safePemasokList.map((p: any) => (
+                          <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan <span className="text-red-500">*</span></label>
                     <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">

@@ -13,7 +13,8 @@ import {
   Edit3, 
   Trash2, 
   ShoppingCart,
-  UserCheck
+  UserCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { createPemasok, updatePemasok, deletePemasok } from '@/app/actions/masterData';
 import toast from 'react-hot-toast';
@@ -115,6 +116,17 @@ export default function MitraPemasokClientUI({
         onCancel={() => setConfirmOpen(false)}
       />
 
+      {/* Alert Panduan */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+        <ShieldAlert className="text-blue-600 mt-0.5" size={20} />
+        <div>
+          <h4 className="font-bold text-blue-900">Panduan Kemitraan Pemasok Lokal</h4>
+          <p className="text-sm text-blue-700 mt-1">
+            Modul ini dirancang khusus untuk mendata <b>Pemasok Pangan Lokal</b> (BUMDes, Petani, Nelayan, Pasar Tradisional) guna mendukung pemberdayaan ekonomi sekitar SPPG. Untuk logistik dan peralatan yang didrop langsung dari pusat (seperti susu UHT dan alat makan), pengelolaannya terpusat di aplikasi portal BGN.
+          </p>
+        </div>
+      </div>
+
       {/* HEADER & FILTER BAR */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
@@ -122,9 +134,9 @@ export default function MitraPemasokClientUI({
             <Building2 size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-800">Daftar Mitra Pemasok SPPG</h2>
+            <h2 className="text-xl font-black text-slate-800">Daftar Mitra Pemasok Lokal</h2>
             <p className="text-xs font-semibold text-slate-500 mt-0.5">
-              Direktori BUMDes, Koperasi Pangan, dan Vendor penyuplai bahan baku ke dapur.
+              Direktori BUMDes, Koperasi Pangan, dan pengadaan bahan segar lokal.
             </p>
           </div>
         </div>
@@ -295,17 +307,14 @@ export default function MitraPemasokClientUI({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Tipe Pemasok <span className="text-red-500">*</span></label>
-                  <select 
-                    name="tipePemasok" 
-                    required 
-                    defaultValue={editingItem?.tipePemasok || 'BUMDes'}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-white"
-                  >
+                  <label className="text-sm font-bold text-slate-700">Tipe Pemasok</label>
+                  <select name="tipePemasok" defaultValue={editingItem?.tipePemasok || 'Petani Lokal'} className="w-full p-3 border border-slate-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all">
+                    <option value="Petani Lokal">Petani Lokal</option>
+                    <option value="Nelayan Lokal">Nelayan Lokal</option>
+                    <option value="Pasar Tradisional">Pasar Tradisional</option>
                     <option value="BUMDes">BUMDes</option>
-                    <option value="Koperasi">Koperasi Pangan</option>
-                    <option value="Perusahaan">Perusahaan / PT / CV</option>
-                    <option value="Individu/Petani">Kelompok Tani / Petani</option>
+                    <option value="Koperasi Lokal">Koperasi Lokal</option>
+                    <option value="Pengepul/Grosir Lokal">Pengepul / Grosir Lokal</option>
                   </select>
                 </div>
 
