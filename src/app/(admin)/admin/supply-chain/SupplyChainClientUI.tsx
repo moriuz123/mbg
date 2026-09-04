@@ -616,15 +616,25 @@ export default function SupplyChainClientUI({
             <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">Tambah Data Rantai Pasok</h2>
             
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              <div>
-                <label className="block mb-2 text-sm font-semibold text-slate-700">Dapur SPPG *</label>
-                <select required name="sppgId" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
-                  <option value="">-- Pilih SPPG --</option>
-                  {sppgList.map(item => (
-                    <option key={item.id} value={item.id}>{item.namaSppg}</option>
-                  ))}
-                </select>
-              </div>
+              {sppgList.length === 1 ? (
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Dapur SPPG *</label>
+                  <input type="hidden" name="sppgId" value={sppgList[0].id} />
+                  <div className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium">
+                    {sppgList[0].namaSppg}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Dapur SPPG *</label>
+                  <select required name="sppgId" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
+                    <option value="">-- Pilih SPPG --</option>
+                    {sppgList.map(item => (
+                      <option key={item.id} value={item.id}>{item.namaSppg}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block mb-2 text-sm font-semibold text-slate-700">Komoditas *</label>

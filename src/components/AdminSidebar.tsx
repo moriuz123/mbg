@@ -112,12 +112,12 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                 <NavItem href="/admin/laporan-aktifitas" icon={Activity} isActive={pathname?.includes('/admin/laporan-aktifitas')}>Laporan Aktifitas</NavItem>
               )}
 
-              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
+              {(userRole === 'sppg' || userRole === 'operator_sppg') && (
                 <NavItem href="/admin/pengawasan" icon={ClipboardCheck} isActive={pathname?.includes('/admin/pengawasan')}>Pengawasan Logistik</NavItem>
               )}
 
-              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
-                <NavItem href="/admin/supply-chain" icon={Package} isActive={pathname?.includes('/admin/supply-chain')}>Rantai Pasok</NavItem>
+              {(userRole === 'sppg' || userRole === 'operator_sppg') && (
+                <NavItem href="/admin/supply-chain" icon={Package} isActive={pathname?.includes('/admin/supply-chain')}>Katalog Komoditas</NavItem>
               )}
 
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (

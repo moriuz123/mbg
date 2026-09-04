@@ -26,7 +26,7 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
     { name: 'Sekolah', path: '/sekolah' },
     { name: 'Posyandu', path: '/posyandu' },
     { name: 'SPPG', path: '/sppg' },
-    { name: 'Rantai Pasok', path: '/rantai-pasok' },
+    { name: 'Katalog Komoditas', path: '/katalog-komoditas' },
     { name: 'Lapor / Aduan', path: '/pengaduan', className: 'text-red-600 hover:bg-red-50 hover:text-red-700' },
     { name: 'Tentang', path: '/tentang' },
   ];

@@ -64,6 +64,19 @@ export async function getPublicStats() {
     
     const totalSiswa = totalPenerima; // This was already calculated from sppgPenerimaManfaat
 
+    // Calculate realisasi pengiriman for today
+    const { sppgLaporanAktifitas } = await import("@/db/schema");
+    const today = new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const todayDeliveries = await db.select({
+      status: sppgLaporanAktifitas.status
+    }).from(sppgLaporanAktifitas).where(eq(sppgLaporanAktifitas.tanggal, today));
+
+    let realisasiPengiriman = 0;
+    if (todayDeliveries.length > 0) {
+      const delivered = todayDeliveries.filter(d => d.status === 'Diterima' || d.status === 'Diterima Lengkap' || d.status === 'Terkirim').length;
+      realisasiPengiriman = Math.round((delivered / todayDeliveries.length) * 100);
+    }
+
     return {
       totalPenerima: totalPenerima + totalPosyanduPenerima,
       breakdownPenerima,
@@ -73,7 +86,7 @@ export async function getPublicStats() {
       totalPosyandu,
       totalPosyanduPenerima,
       keamananPangan,
-      realisasiPengiriman: 85 // Static for now, as distribution table is complex
+      realisasiPengiriman
     };
   } catch (error) {
     console.error("Error getting public stats:", error);
@@ -91,10 +104,14 @@ export async function getPublicStats() {
   }
 }
 
-export async function getPublicLaporanHarian() {
+export async function getPublicLaporanHarian(dateStr?: string) {
   try {
     const { sppgLaporanAktifitas } = await import("@/db/schema");
-    const { desc } = await import("drizzle-orm");
+    const { desc, eq } = await import("drizzle-orm");
+
+    // Format target date as YYYY-MM-DD. Use provided dateStr or today's date.
+    // Ensure we use local time (WIB) for today
+    const targetDate = dateStr || new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     const rawData = await db.query.sppgLaporanAktifitas.findMany({
       with: {
@@ -103,8 +120,9 @@ export async function getPublicLaporanHarian() {
         posyandu: true,
         standarMenuGizi: true
       },
-      orderBy: [desc(sppgLaporanAktifitas.tanggal), desc(sppgLaporanAktifitas.createdAt)],
-      limit: 6
+      where: eq(sppgLaporanAktifitas.tanggal, targetDate),
+      orderBy: [desc(sppgLaporanAktifitas.createdAt)],
+      limit: 50 // Get more data for the day instead of just 6
     });
 
     return rawData.map(l => {

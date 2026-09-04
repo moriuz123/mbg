@@ -20,9 +20,8 @@ export default async function SupplyChainPage() {
   });
   
   if (
-    session?.user?.role === 'operator_penggilingan' || 
-    session?.user?.role === 'operator_sekolah' || 
-    session?.user?.role === 'operator_posyandu'
+    session?.user?.role !== 'sppg' && 
+    session?.user?.role !== 'operator_sppg'
   ) {
     const { redirect } = await import('next/navigation');
     redirect('/admin');

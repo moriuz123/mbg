@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MapPin, Utensils, Box, ShieldCheck, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { MapPin, Utensils, Box, ShieldCheck, AlertCircle, Clock, CheckCircle2, Calendar } from 'lucide-react';
 
 type LaporanHarianItem = {
   id: number;
@@ -15,33 +16,65 @@ type LaporanHarianItem = {
 };
 
 export default function LaporanHarianClient({ data }: { data: LaporanHarianItem[] }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'sppg' | 'sekolah'>('sppg');
 
+  const defaultDate = searchParams?.get('date') || new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = e.target.value;
+    if (newDate) {
+      router.push(`/?date=${newDate}`);
+    } else {
+      router.push(`/`);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden flex flex-col">
       
-      {/* TABS */}
-      <div className="flex bg-slate-50 border-b border-slate-100 p-2 gap-2">
-        <button 
-          onClick={() => setActiveTab('sppg')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl font-bold text-sm transition-all duration-300 ${
-            activeTab === 'sppg' 
-              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/60' 
-              : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
-          }`}
-        >
-          <Box size={18} /> Laporan Dapur SPPG
-        </button>
-        <button 
-          onClick={() => setActiveTab('sekolah')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl font-bold text-sm transition-all duration-300 ${
-            activeTab === 'sekolah' 
-              ? 'bg-white text-emerald-600 shadow-sm border border-slate-200/60' 
-              : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
-          }`}
-        >
-          <MapPin size={18} /> Penerimaan Sekolah & Posyandu
-        </button>
+      {/* FILTER & TABS HEADER */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between bg-slate-50 border-b border-slate-100 p-4 gap-4">
+        
+        {/* TABS */}
+        <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1 w-full md:w-auto">
+          <button 
+            onClick={() => setActiveTab('sppg')}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 py-2.5 px-5 rounded-lg font-bold text-sm transition-all duration-300 ${
+              activeTab === 'sppg' 
+                ? 'bg-white text-indigo-600 shadow-sm' 
+                : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-700'
+            }`}
+          >
+            <Box size={16} /> <span className="hidden sm:inline">Laporan Dapur SPPG</span><span className="sm:hidden">SPPG</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('sekolah')}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 py-2.5 px-5 rounded-lg font-bold text-sm transition-all duration-300 ${
+              activeTab === 'sekolah' 
+                ? 'bg-white text-emerald-600 shadow-sm' 
+                : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-700'
+            }`}
+          >
+            <MapPin size={16} /> <span className="hidden sm:inline">Penerimaan Sekolah & Posyandu</span><span className="sm:hidden">Penerima</span>
+          </button>
+        </div>
+
+        {/* DATE FILTER */}
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <label htmlFor="dateFilter" className="text-sm font-bold text-slate-500 flex items-center gap-2">
+            <Calendar size={16} className="text-slate-400" />
+            Filter Tanggal:
+          </label>
+          <input 
+            type="date" 
+            id="dateFilter"
+            value={defaultDate}
+            onChange={handleDateChange}
+            className="flex-1 md:flex-none px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+          />
+        </div>
       </div>
 
       {/* TABLE */}
@@ -148,7 +181,7 @@ export default function LaporanHarianClient({ data }: { data: LaporanHarianItem[
                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
                       <ShieldCheck size={32} className="text-slate-300" />
                     </div>
-                    <p className="text-slate-500 font-medium">Belum ada laporan aktifitas hari ini.</p>
+                    <p className="text-slate-500 font-medium">Belum ada laporan aktifitas distribusi pada tanggal {new Date(defaultDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.</p>
                   </div>
                 </td>
               </tr>

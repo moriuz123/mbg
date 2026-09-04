@@ -22,7 +22,7 @@ export default async function PengawasanPage() {
   const sppgId = session.user.sppgId;
   const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
 
-  if (!isAdmin && role !== 'sppg' && role !== 'operator_sppg') {
+  if (role !== 'sppg' && role !== 'operator_sppg') {
     redirect('/admin');
   }
 
