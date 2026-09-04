@@ -12,12 +12,13 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function KatalogKomoditasPage({
+export default async function KatalogKomoditas({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const pageStr = Array.isArray(searchParams?.page) ? searchParams.page[0] : searchParams?.page;
+  const resolvedSearchParams = await searchParams;
+  const pageStr = Array.isArray(resolvedSearchParams?.page) ? resolvedSearchParams.page[0] : resolvedSearchParams?.page;
   const currentPage = parseInt(pageStr || '1', 10);
   const itemsPerPage = 9;
 

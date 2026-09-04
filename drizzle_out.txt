@@ -1,0 +1,10 @@
+'\\wsl.localhost\Ubuntu\home\mahakarya\mbg'
+CMD.EXE was started with the above path as the current directory.
+UNC paths are not supported.  Defaulting to Windows directory.
+No config path provided, using default 'drizzle.config.json'
+C:\Windows\drizzle.config.json file does not exist
+npm notice
+npm notice New minor version of npm available! 11.5.1 -> 11.19.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.19.1
+npm notice To update run: npm install -g npm@11.19.1
+npm notice

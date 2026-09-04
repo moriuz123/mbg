@@ -16,9 +16,10 @@ export const dynamic = 'force-dynamic';
 export default async function Public({
   searchParams
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const dateStr = Array.isArray(searchParams?.date) ? searchParams.date[0] : searchParams?.date;
+  const resolvedSearchParams = await searchParams;
+  const dateStr = Array.isArray(resolvedSearchParams?.date) ? resolvedSearchParams.date[0] : resolvedSearchParams?.date;
   
   const stats = await getPublicStats();
   const laporanHarian = await getPublicLaporanHarian(dateStr);
