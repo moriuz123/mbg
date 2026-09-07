@@ -31,6 +31,13 @@ export default function PenggilinganDetailClientUI({
   isAdmin?: boolean;
 }) {
   const [activeTab, setActiveTab] = useState<'sumber' | 'produksi' | 'distribusi'>('sumber');
+
+  const totalGabah = sumberGabahList.reduce((acc, curr) => acc + Number(curr.volumeKg || 0), 0);
+  const totalProduksi = produksiList.reduce((acc, curr) => acc + Number(curr.kapasitasRealisasiKg || 0), 0);
+  const totalDistribusi = distribusiList.reduce((acc, curr) => acc + Number(curr.volumeKg || 0), 0);
+  const sisaStok = totalProduksi - totalDistribusi;
+  const avgRendemen = totalGabah > 0 ? ((totalProduksi / totalGabah) * 100).toFixed(2) : 0;
+
   
   // Modal states
   const [isSumberOpen, setIsSumberOpen] = useState(false);
@@ -284,6 +291,47 @@ export default function PenggilinganDetailClientUI({
           </div>
         </div>
       )}
+
+      
+      {/* DASHBOARD STOK PENGGILINGAN */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+            <Wheat size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Serapan Gabah</p>
+            <p className="text-2xl font-black text-slate-800">{totalGabah.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+            <Factory size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Produksi Beras</p>
+            <p className="text-2xl font-black text-slate-800">{totalProduksi.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+            <Truck size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sisa Stok Beras</p>
+            <p className="text-2xl font-black text-slate-800">{sisaStok.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+            <Factory size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Rata-rata Rendemen</p>
+            <p className="text-2xl font-black text-slate-800">{avgRendemen} <span className="text-sm font-medium text-slate-500">%</span></p>
+          </div>
+        </div>
+      </div>
 
       {/* TAB NAVIGATION */}
       <div className="flex border-b border-slate-200">

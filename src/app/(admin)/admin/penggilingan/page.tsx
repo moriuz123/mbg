@@ -22,6 +22,8 @@ export default async function PenggilinganPage() {
 
   const initialData = await getPenggilingan();
   const kecamatanList = await getKecamatan();
+  const { getDesa } = await import('@/app/actions/wilayah');
+  const desaList = await getDesa();
 
   return (
     <main className="max-w-6xl mx-auto space-y-6">
@@ -32,7 +34,7 @@ export default async function PenggilinganPage() {
         </div>
       </div>
 
-      <PenggilinganClientUI initialData={initialData} kecamatanList={kecamatanList} isAdmin={isAdmin} />
+      <PenggilinganClientUI initialData={initialData} kecamatanList={kecamatanList} desaList={desaList} isAdmin={isAdmin} />
     </main>
   );
 }

@@ -149,3 +149,40 @@ export async function getPublicLaporanHarian(dateStr?: string) {
     return [];
   }
 }
+
+export async function getSupplyChainStats() {
+  const { penggilingan, pemasok, penggilinganSumberGabah } = await import("@/db/schema");
+  const { count, sum } = await import("drizzle-orm");
+
+  let totalPenggilingan = 0;
+  let totalPemasok = 0;
+  let serapanGabahKg = 0;
+  let kapasitasGilingKg = 0;
+
+  try {
+    
+    const pengQuery = await db.select({ count: count(), kapasitas: sum(penggilingan.kapasitasTerpasangKgMinggu) }).from(penggilingan);
+    const pengAktifQuery = await db.select({ count: count() }).from(penggilingan).where(eq(penggilingan.status, 'Aktif'));
+    totalPenggilingan = Number(pengAktifQuery[0]?.count || 0); // Override total to only return active
+    kapasitasGilingKg = Number(pengQuery[0]?.kapasitas || 0);
+  } catch (e) {}
+
+  try {
+    const pemQuery = await db.select({ count: count() }).from(pemasok).where(eq(pemasok.status, 'Aktif'));
+    totalPemasok = Number(pemQuery[0]?.count || 0);
+  } catch (e) {}
+
+  try {
+    const serapanQuery = await db.select({ total: sum(penggilinganSumberGabah.volumeKg) }).from(penggilinganSumberGabah);
+    serapanGabahKg = Number(serapanQuery[0]?.total || 0);
+  } catch (e) {}
+
+  
+  return {
+    totalPenggilingan,
+    totalPemasok,
+    serapanGabahTon: serapanGabahKg / 1000,
+    kapasitasGilingTon: kapasitasGilingKg / 1000
+  };
+
+}

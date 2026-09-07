@@ -318,8 +318,21 @@ export const penggilingan = pgTable("penggilingan", {
   namaPenggilingan: text("nama_penggilingan").notNull(),
   alamat: text("alamat"),
   kecamatanId: integer("kecamatan_id").references(() => kecamatan.id),
+  desaId: integer("desa_id").references(() => desa.id),
   penanggungJawab: text("penanggung_jawab"),
   noHp: text("no_hp"),
+  
+  nib: text("nib"),
+  nomorUmku: text("nomor_umku"),
+  kbli: text("kbli"),
+  namaDagang: text("nama_dagang"),
+  nomorRegistrasiPduk: text("nomor_registrasi_pduk"),
+  statusPduk: text("status_pduk"),
+  tanggalDikeluarkanPduk: text("tanggal_dikeluarkan_pduk"),
+  berlakuSampaiPduk: text("berlaku_sampai_pduk"),
+  namaUnitProduksi: text("nama_unit_produksi"),
+  noPermohonanOss: text("no_permohonan_oss"),
+
   kapasitasTerpasangKgMinggu: numeric("kapasitas_terpasang_kg_minggu", { precision: 12, scale: 2 }),
   status: text("status").default("Aktif"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -620,6 +633,10 @@ export const penggilinganRelations = relations(penggilingan, ({ one, many }) => 
   kecamatan: one(kecamatan, {
     fields: [penggilingan.kecamatanId],
     references: [kecamatan.id],
+  }),
+  desa: one(desa, {
+    fields: [penggilingan.desaId],
+    references: [desa.id],
   }),
   sumberGabah: many(penggilinganSumberGabah),
   produksi: many(penggilinganProduksi),

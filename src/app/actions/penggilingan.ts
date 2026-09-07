@@ -25,11 +25,13 @@ export async function getPenggilingan() {
     if (!penggilinganId) return [];
     return await db.query.penggilingan.findMany({
       where: eq(penggilingan.id, penggilinganId),
+      with: { kecamatan: true, desa: true },
       orderBy: [desc(penggilingan.id)],
     });
   }
 
   return await db.query.penggilingan.findMany({
+    with: { kecamatan: true, desa: true },
     orderBy: [desc(penggilingan.id)],
   });
 }
@@ -38,8 +40,19 @@ export async function createPenggilingan(data: {
   namaPenggilingan: string;
   alamat?: string;
   kecamatanId?: number;
+  desaId?: number;
   penanggungJawab?: string;
   noHp?: string;
+  nib?: string;
+  nomorUmku?: string;
+  kbli?: string;
+  namaDagang?: string;
+  nomorRegistrasiPduk?: string;
+  statusPduk?: string;
+  tanggalDikeluarkanPduk?: string;
+  berlakuSampaiPduk?: string;
+  namaUnitProduksi?: string;
+  noPermohonanOss?: string;
   kapasitasTerpasangKgMinggu?: string;
   status?: string;
 }) {
@@ -59,8 +72,19 @@ export async function updatePenggilingan(id: number, data: {
   namaPenggilingan: string;
   alamat?: string;
   kecamatanId?: number;
+  desaId?: number;
   penanggungJawab?: string;
   noHp?: string;
+  nib?: string;
+  nomorUmku?: string;
+  kbli?: string;
+  namaDagang?: string;
+  nomorRegistrasiPduk?: string;
+  statusPduk?: string;
+  tanggalDikeluarkanPduk?: string;
+  berlakuSampaiPduk?: string;
+  namaUnitProduksi?: string;
+  noPermohonanOss?: string;
   kapasitasTerpasangKgMinggu?: string;
   status?: string;
 }) {
@@ -74,8 +98,19 @@ export async function updatePenggilingan(id: number, data: {
         namaPenggilingan: data.namaPenggilingan,
         alamat: data.alamat || null,
         kecamatanId: data.kecamatanId || null,
+        desaId: data.desaId || null,
         penanggungJawab: data.penanggungJawab || null,
         noHp: data.noHp || null,
+        nib: data.nib || null,
+        nomorUmku: data.nomorUmku || null,
+        kbli: data.kbli || null,
+        namaDagang: data.namaDagang || null,
+        nomorRegistrasiPduk: data.nomorRegistrasiPduk || null,
+        statusPduk: data.statusPduk || null,
+        tanggalDikeluarkanPduk: data.tanggalDikeluarkanPduk || null,
+        berlakuSampaiPduk: data.berlakuSampaiPduk || null,
+        namaUnitProduksi: data.namaUnitProduksi || null,
+        noPermohonanOss: data.noPermohonanOss || null,
         kapasitasTerpasangKgMinggu: data.kapasitasTerpasangKgMinggu || null,
         status: data.status || 'Aktif',
       })
@@ -127,10 +162,28 @@ export async function addSumberGabah(data: {
   catatan?: string;
 }) {
   try {
+
     const { isAdmin, penggilinganId } = await getSessionData();
     if (!isAdmin && penggilinganId !== data.penggilinganId) {
       return { success: false, error: 'Akses ditolak' };
     }
+
+    // Validasi sisa stok
+    const produksiList = await db.query.penggilinganProduksi.findMany({
+      where: eq(penggilinganProduksi.penggilinganId, data.penggilinganId)
+    });
+    const distribusiList = await db.query.penggilinganDistribusi.findMany({
+      where: eq(penggilinganDistribusi.penggilinganId, data.penggilinganId)
+    });
+    
+    const totalProduksi = produksiList.reduce((acc, curr) => acc + Number(curr.kapasitasRealisasiKg || 0), 0);
+    const totalDistribusi = distribusiList.reduce((acc, curr) => acc + Number(curr.volumeKg || 0), 0);
+    const sisaStok = totalProduksi - totalDistribusi;
+    
+    if (Number(data.volumeKg) > sisaStok) {
+      return { success: false, error: `Gagal: Volume distribusi (${data.volumeKg} Kg) melebihi sisa stok gudang (${sisaStok} Kg).` };
+    }
+
 
     await db.insert(penggilinganSumberGabah).values({
       penggilinganId: data.penggilinganId,

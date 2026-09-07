@@ -2,10 +2,14 @@ import React from 'react';
 import { 
   ArrowRight, Utensils, ShieldCheck, MapPin, CheckCircle2, 
   ChevronRight, Phone, Mail, Clock, Activity, Users, Home as HomeIcon, 
-  Search, Facebook, Twitter, Instagram, Youtube, MessageSquare, Truck, Package, HeartPulse, Leaf, BarChart2, Star, TrendingUp, Info, Bell 
+  Search, Facebook, Twitter, Instagram, Youtube, MessageSquare, Truck, Package, HeartPulse, Leaf, BarChart2, Star, TrendingUp, Info, Bell, Factory 
 } from 'lucide-react';
 import Link from 'next/link';
-import { getPublicStats, getPublicLaporanHarian } from '@/app/actions/publicStats';
+import { getPublicStats, getPublicLaporanHarian, getSupplyChainStats } from '@/app/actions/publicStats';
+import PenggilinganClient from './data-penggilingan/PenggilinganClient';
+import { db } from '@/db';
+import { penggilingan, penggilinganSumberGabah, penggilinganDistribusi } from '@/db/schema';
+import { desc } from 'drizzle-orm';
 import { getSiteSettings, getPengumumanAktif } from '@/app/actions/frontend';
 import LaporanHarianClient from '@/components/LaporanHarianClient';
 import AnimatedStats from '@/components/AnimatedStats';
@@ -22,6 +26,41 @@ export default async function Public({
   const dateStr = Array.isArray(resolvedSearchParams?.date) ? resolvedSearchParams.date[0] : resolvedSearchParams?.date;
   
   const stats = await getPublicStats();
+  const supplyChainStats = await getSupplyChainStats();
+  
+  // Data Penggilingan
+  let sumbers = [];
+  let distribusis = [];
+  let pabriks = [];
+  try {
+    sumbers = await db.query.penggilinganSumberGabah.findMany({
+      orderBy: [desc(penggilinganSumberGabah.mingguMulai)],
+      limit: 10
+    });
+    distribusis = await db.query.penggilinganDistribusi.findMany({
+      with: { sppgTujuan: true },
+      orderBy: [desc(penggilinganDistribusi.mingguMulai)],
+      limit: 10
+    });
+    pabriks = await db.query.penggilingan.findMany();
+  } catch (e) {}
+
+  const totalKapasitas = pabriks.reduce((acc, curr) => acc + Number(curr.kapasitasTerpasangKgMinggu || 0), 0);
+  const formatPeriode = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  
+  const formattedGabah = sumbers.map(s => ({
+    id: s.id,
+    periode: formatPeriode(s.mingguMulai),
+    sumber: s.sumberGabah,
+    volume: Number(s.volumeKg)
+  }));
+
+  const formattedDistribusi = distribusis.map(d => ({
+    id: d.id,
+    periode: formatPeriode(d.mingguMulai),
+    lokus: d.sppgTujuan?.namaSppg || d.lokasiLain || 'Lainnya',
+    volume: Number(d.volumeKg)
+  }));
   const laporanHarian = await getPublicLaporanHarian(dateStr);
   const settings = await getSiteSettings();
   const pengumumanList = await getPengumumanAktif();
@@ -64,7 +103,7 @@ export default async function Public({
             </h1>
             
             <p className="text-base md:text-lg text-white/80 mb-8 leading-relaxed max-w-2xl mx-auto font-normal">
-              Sistem informasi terpadu yang memantau kualitas gizi, rantai pasok lokal, dan distribusi real-time dari <span className="text-accent-500 font-semibold">Dapur SPPG</span> ke seluruh pelosok sekolah.
+              Sistem ekosistem rantai pasok terintegrasi untuk memperkuat <span className="text-accent-500 font-semibold">Ketahanan Pangan Lokal</span> melalui pendataan serapan gabah petani, penggilingan, dan distribusi komoditas hilir ke Dapur SPPG.
             </p>
 
             <form action="/sppg" method="GET" className="w-full max-w-2xl bg-white/10 p-2 rounded-2xl backdrop-blur-md border border-white/20 flex shadow-[0_8px_32px_rgba(0,0,0,0.3)] mb-10 transition-all focus-within:bg-white/15 focus-within:border-white/30">
@@ -73,7 +112,7 @@ export default async function Public({
                 <input 
                   type="text" 
                   name="q" 
-                  placeholder="Cari direktori SPPG atau Posyandu..." 
+                  placeholder="Cari Katalog Pemasok atau Pabrik Penggilingan..." 
                   className="w-full bg-transparent border-none text-white placeholder-white/60 px-4 py-3 focus:outline-none text-lg font-medium" 
                 />
               </div>
@@ -100,36 +139,48 @@ export default async function Public({
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             
-            {/* CTA Tentang */}
+            {/* CTA Penggilingan */}
             <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-indigo-50/50 to-white border border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500">
               <div className="w-20 h-20 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 mb-6 shrink-0">
-                <Info size={36} strokeWidth={1.5} />
+                <Factory size={36} strokeWidth={1.5} />
               </div>
               <div className="flex flex-col flex-1 justify-center mb-6">
-                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-indigo-700 transition-colors">Tentang Program</h3>
-                <p className="text-slate-500 text-base font-medium leading-relaxed">Pelajari lebih dalam mengenai landasan, visi, dan misi utama MBG di Kabupaten Lebak.</p>
+                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-indigo-700 transition-colors">Data Penggilingan</h3>
+                <p className="text-slate-500 text-base font-medium leading-relaxed">Transparansi serapan gabah dan produksi beras lokal.</p>
               </div>
-              <Link href="/tentang" className="w-full py-4 rounded-xl bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-600 hover:text-white transition-colors">
-                Pelajari Lebih Lanjut
+              <Link href="/data-penggilingan" className="w-full py-4 rounded-xl bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-600 hover:text-white transition-colors">
+                Lihat Pre-Market
               </Link>
             </div>
 
-            {/* CTA Aduan */}
-            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-rose-50/50 to-white border border-rose-100 hover:shadow-2xl hover:shadow-rose-500/10 hover:-translate-y-2 transition-all duration-500">
-              <div className="w-20 h-20 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500 mb-6 shrink-0">
-                <MessageSquare size={36} strokeWidth={1.5} />
+            {/* CTA Pemasok */}
+            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-emerald-50/50 to-white border border-emerald-100 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2 transition-all duration-500">
+              <div className="w-20 h-20 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500 mb-6 shrink-0">
+                <Package size={36} strokeWidth={1.5} />
               </div>
               <div className="flex flex-col flex-1 justify-center mb-6">
-                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-rose-700 transition-colors">Layanan Aduan</h3>
-                <p className="text-slate-500 text-base font-medium leading-relaxed">Sampaikan keluhan atau masukan Anda terkait pelaksanaan program di lapangan.</p>
+                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-emerald-700 transition-colors">Katalog Pemasok</h3>
+                <p className="text-slate-500 text-base font-medium leading-relaxed">Direktori komoditas pangan dari petani dan peternak lokal.</p>
               </div>
-              <Link href="/pengaduan" className="w-full py-4 rounded-xl bg-rose-50 text-rose-600 font-bold hover:bg-rose-600 hover:text-white transition-colors">
-                Buat Laporan
+              <Link href="/katalog-komoditas" className="w-full py-4 rounded-xl bg-emerald-50 text-emerald-600 font-bold hover:bg-emerald-600 hover:text-white transition-colors">
+                Buka Katalog
               </Link>
             </div>
 
-            {/* CTA Pengumuman */}
-            <PengumumanBadgeClient pengumuman={pengumumanList && pengumumanList.length > 0 ? pengumumanList[0] : null} />
+            {/* CTA Hilir MBG */}
+            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-orange-50/50 to-white border border-orange-100 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-2 transition-all duration-500">
+              <div className="w-20 h-20 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 mb-6 shrink-0">
+                <Truck size={36} strokeWidth={1.5} />
+              </div>
+              <div className="flex flex-col flex-1 justify-center mb-6">
+                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-orange-700 transition-colors">Sistem Hilir (MBG)</h3>
+                <p className="text-slate-500 text-base font-medium leading-relaxed">Pantau distribusi dari Dapur Satelit ke sekolah dan posyandu.</p>
+              </div>
+              <Link href="#laporan-harian" className="w-full py-4 rounded-xl bg-orange-50 text-orange-600 font-bold hover:bg-orange-600 hover:text-white transition-colors">
+                Pantau Distribusi
+              </Link>
+            </div>
+            {/* Removed CTA Pengumuman */}
 
           </div>
         </div>
@@ -143,7 +194,24 @@ export default async function Public({
             <h2 className="font-heading text-4xl md:text-5xl font-extrabold text-[#071840] mb-6">Capaian Program Real-Time</h2>
             <div className="w-20 h-1.5 bg-primary-500 mx-auto rounded-full"></div>
           </div>
-          <AnimatedStats stats={stats} />
+          <AnimatedStats stats={stats} supplyChainStats={supplyChainStats} />
+        </div>
+      </section>
+
+      
+      {/* SEKSI PENGGILINGAN */}
+      <section className="py-24 bg-white border-t border-slate-200">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <span className="text-accent-500 font-bold uppercase tracking-widest text-sm mb-3 block">Transparansi Rantai Pasok Hulu</span>
+            <h2 className="font-heading text-4xl font-extrabold text-[#071840] mb-4 tracking-tight">Data Pre-Market Penggilingan</h2>
+            <p className="text-lg text-slate-500 font-medium">Pemantauan volume serapan gabah dari petani lokal ke penggilingan dan distribusi beras ke Dapur SPPG.</p>
+          </div>
+          <PenggilinganClient 
+            gabahData={formattedGabah} 
+            distribusiData={formattedDistribusi} 
+            totalKapasitas={totalKapasitas} 
+          />
         </div>
       </section>
 

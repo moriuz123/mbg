@@ -23,12 +23,12 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
 
   const defaultNavLinks = [
     { name: 'Beranda', path: '/' },
+    { name: 'Data Penggilingan', path: '/data-penggilingan' },
+    { name: 'Katalog Komoditas', path: '/katalog-komoditas' },
+    { name: 'SPPG (Dapur)', path: '/sppg' },
     { name: 'Sekolah', path: '/sekolah' },
     { name: 'Posyandu', path: '/posyandu' },
-    { name: 'SPPG', path: '/sppg' },
-    { name: 'Katalog Komoditas', path: '/katalog-komoditas' },
     { name: 'Lapor / Aduan', path: '/pengaduan', className: 'text-red-600 hover:bg-red-50 hover:text-red-700' },
-    { name: 'Tentang', path: '/tentang' },
   ];
 
   const navLinks = dynamicMenus.length > 0 
