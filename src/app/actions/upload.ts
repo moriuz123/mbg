@@ -8,7 +8,7 @@ import path from 'path';
 export async function uploadFile(formData: FormData) {
   const session = await auth.api.getSession({ headers: await headers() });
   const role = session?.user?.role as string;
-  if (role !== 'admin' && role !== 'admin_dinas' && role !== 'super_admin') {
+  if (role !== 'admin' && role !== 'admin_dinas' && role !== 'super_admin' && role !== 'operator_penggilingan') {
     throw new Error('Forbidden');
   }
 

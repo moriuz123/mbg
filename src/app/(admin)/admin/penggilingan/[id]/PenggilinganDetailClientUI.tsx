@@ -12,6 +12,7 @@ import {
   deleteDistribusi,
   updatePenggilingan
 } from '@/app/actions/penggilingan';
+import { uploadFile } from '@/app/actions/upload';
 import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
@@ -87,6 +88,22 @@ export default function PenggilinganDetailClientUI({
     e.preventDefault();
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
+    
+    let fotoNotaUrl = undefined;
+    const file = formData.get('fotoNota') as File;
+    if (file && file.size > 0) {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      try {
+        const uploadRes = await uploadFile(uploadFormData);
+        fotoNotaUrl = uploadRes.url;
+      } catch (err) {
+        toast.error('Gagal mengupload foto nota');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const res = await addSumberGabah({
       penggilinganId: penggilingan.id,
       mingguMulai: formData.get('mingguMulai') as string,
@@ -102,6 +119,15 @@ export default function PenggilinganDetailClientUI({
       desaLuar: lokasiWilayah === 'Luar Lebak' ? (formData.get('desaLuar') as string) : undefined,
       alamatSumber: formData.get('alamatSumber') as string,
       kontakPerson: formData.get('kontakPerson') as string,
+      
+      kondisiGabah: formData.get('kondisiGabah') as string,
+      kadarAir: formData.get('kadarAir') as string,
+      kadarHampa: formData.get('kadarHampa') as string,
+      varietas: formData.get('varietas') as string,
+      nomorPolisi: formData.get('nomorPolisi') as string,
+      namaSupir: formData.get('namaSupir') as string,
+      fotoNotaUrl,
+
       volumeKg: formData.get('volumeKg') as string,
       catatan: formData.get('catatan') as string,
     });
@@ -415,6 +441,22 @@ export default function PenggilinganDetailClientUI({
                       </div>
                       {item.alamatSumber && <div className="text-xs text-slate-500 mt-0.5">{item.alamatSumber}</div>}
                       {item.kontakPerson && <div className="text-xs text-indigo-600 mt-0.5">{item.kontakPerson}</div>}
+                      
+                      {/* QC & Logistics Details */}
+                      {(item.kondisiGabah || item.varietas || item.nomorPolisi) && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {item.kondisiGabah && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded">{item.kondisiGabah}</span>}
+                          {item.varietas && <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded">{item.varietas}</span>}
+                          {item.kadarAir && <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Air: {item.kadarAir}%</span>}
+                          {item.kadarHampa && <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Kotor: {item.kadarHampa}%</span>}
+                          {item.nomorPolisi && <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-bold rounded uppercase flex items-center gap-1"><Truck size={10} /> {item.nomorPolisi}</span>}
+                          {item.fotoNotaUrl && (
+                            <a href={item.fotoNotaUrl} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 text-[10px] font-bold rounded cursor-pointer transition-colors">
+                              Lihat Nota
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td className="p-4 text-right font-black text-amber-700">{parseFloat(item.volumeKg).toLocaleString('id-ID')} kg</td>
                     <td className="p-4 text-right pr-6">
@@ -555,7 +597,7 @@ export default function PenggilinganDetailClientUI({
       {/* MODAL 1: SUMBER GABAH */}
       {isSumberOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-w-3xl p-8 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={() => setIsSumberOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700"><X size={20} /></button>
             <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Sumber Gabah Masuk</h2>
             <form onSubmit={handleSumberSubmit} className="flex flex-col gap-4">
@@ -660,14 +702,59 @@ export default function PenggilinganDetailClientUI({
                 </div>
               )}
 
-              <div className="mt-4">
-                <label className="block mb-1 text-xs font-bold text-slate-700">Volume Gabah (Kg) *</label>
-                <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 5000" className="w-full p-3 border rounded-xl text-xs font-medium" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 border-t border-slate-100 pt-4">
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Kondisi Gabah *</label>
+                  <select required name="kondisiGabah" className="w-full p-3 border rounded-xl text-xs font-medium">
+                    <option value="">Pilih...</option>
+                    <option value="GKG">GKG (Kering Giling)</option>
+                    <option value="GKP">GKP (Kering Panen)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Varietas *</label>
+                  <select required name="varietas" className="w-full p-3 border rounded-xl text-xs font-medium">
+                    <option value="">Pilih Varietas...</option>
+                    <option value="Ciherang">Ciherang</option>
+                    <option value="IR64">IR64</option>
+                    <option value="Inpari 32">Inpari 32</option>
+                    <option value="Sintanur">Sintanur</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Kadar Air (%)</label>
+                  <input name="kadarAir" type="number" step="0.01" max="100" placeholder="Misal: 14" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Kadar Kotor (%)</label>
+                  <input name="kadarHampa" type="number" step="0.01" max="100" placeholder="Misal: 2" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">No. Polisi Kendaraan</label>
+                  <input name="nomorPolisi" type="text" placeholder="Misal: A 1234 BC" className="w-full p-3 border rounded-xl text-xs font-medium uppercase" />
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Nama Supir</label>
+                  <input name="namaSupir" type="text" placeholder="Nama Supir..." className="w-full p-3 border rounded-xl text-xs font-medium" />
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Upload Nota (Opsional)</label>
+                  <input name="fotoNota" type="file" accept="image/*" className="w-full p-2 border rounded-xl text-xs font-medium file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                </div>
               </div>
 
-              <div>
-                <label className="block mb-1 text-xs font-bold text-slate-700">Catatan / Varietas</label>
-                <input name="catatan" type="text" placeholder="Misal: Gabah Kering Giling (GKG) Ciherang" className="w-full p-3 border rounded-xl text-xs font-medium" />
+              <div className="mt-2 border-t border-slate-100 pt-4">
+                <label className="block mb-1 text-xs font-bold text-slate-700">Volume Gabah (Kg) *</label>
+                <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 5000" className="w-full p-3 border rounded-xl text-xs font-medium text-lg text-amber-700 bg-amber-50" />
+              </div>
+
+              <div className="mt-2">
+                <label className="block mb-1 text-xs font-bold text-slate-700">Catatan Lainnya</label>
+                <input name="catatan" type="text" placeholder="Catatan tambahan (Opsional)" className="w-full p-3 border rounded-xl text-xs font-medium" />
               </div>
 
               <button type="submit" disabled={isSubmitting} className="mt-2 w-full p-3 bg-primary-600 text-white rounded-xl font-bold text-xs shadow-md">
@@ -681,7 +768,7 @@ export default function PenggilinganDetailClientUI({
       {/* MODAL 2: REALISASI PRODUKSI */}
       {isProduksiOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={() => setIsProduksiOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700"><X size={20} /></button>
             <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Realisasi Produksi Giling</h2>
             <form onSubmit={handleProduksiSubmit} className="flex flex-col gap-4">
@@ -723,7 +810,7 @@ export default function PenggilinganDetailClientUI({
       {/* MODAL 3: PENJUALAN & DISTRIBUSI BERAS (Kg & Rp) */}
       {isDistribusiOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={() => setIsDistribusiOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700"><X size={20} /></button>
             <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Penjualan Beras (Kg & Rp)</h2>
             <form onSubmit={handleDistribusiSubmit} className="flex flex-col gap-4">

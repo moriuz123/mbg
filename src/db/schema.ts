@@ -354,6 +354,20 @@ export const penggilinganSumberGabah = pgTable("penggilingan_sumber_gabah", {
   desaLuar: text("desa_luar"),
   alamatSumber: text("alamat_sumber"),
   kontakPerson: text("kontak_person"),
+  
+  // Aspek QC & Spesifikasi
+  kondisiGabah: text("kondisi_gabah"), // GKP, GKG
+  kadarAir: numeric("kadar_air", { precision: 5, scale: 2 }),
+  kadarHampa: numeric("kadar_hampa", { precision: 5, scale: 2 }),
+  varietas: text("varietas"),
+  
+  // Aspek Logistik
+  nomorPolisi: text("nomor_polisi"),
+  namaSupir: text("nama_supir"),
+  
+  // Aspek Dokumen (Anti-Fraud)
+  fotoNotaUrl: text("foto_nota_url"),
+
   volumeKg: numeric("volume_kg", { precision: 12, scale: 2 }).notNull(),
   catatan: text("catatan"),
   createdAt: timestamp("created_at").defaultNow(),

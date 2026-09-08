@@ -29,9 +29,10 @@ export default async function Public({
   const supplyChainStats = await getSupplyChainStats();
   
   // Data Penggilingan
-  let sumbers = [];
-  let distribusis = [];
-  let pabriks = [];
+  let sumbers: any[] = [];
+  let produksis: any[] = [];
+  let distribusis: any[] = [];
+  let pabriks: any[] = [];
   try {
     sumbers = await db.query.penggilinganSumberGabah.findMany({
       orderBy: [desc(penggilinganSumberGabah.mingguMulai)],

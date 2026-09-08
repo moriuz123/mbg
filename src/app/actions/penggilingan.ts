@@ -171,11 +171,19 @@ export async function addSumberGabah(data: {
   desaLuar?: string;
   alamatSumber?: string;
   kontakPerson?: string;
+  
+  kondisiGabah?: string;
+  kadarAir?: string;
+  kadarHampa?: string;
+  varietas?: string;
+  nomorPolisi?: string;
+  namaSupir?: string;
+  fotoNotaUrl?: string;
+  
   volumeKg: string;
   catatan?: string;
 }) {
   try {
-
     const { isAdmin, penggilinganId } = await getSessionData();
     if (!isAdmin && penggilinganId !== data.penggilinganId) {
       return { success: false, error: 'Akses ditolak' };
@@ -196,6 +204,15 @@ export async function addSumberGabah(data: {
       desaLuar: data.desaLuar || null,
       alamatSumber: data.alamatSumber || null,
       kontakPerson: data.kontakPerson || null,
+      
+      kondisiGabah: data.kondisiGabah || null,
+      kadarAir: data.kadarAir || null,
+      kadarHampa: data.kadarHampa || null,
+      varietas: data.varietas || null,
+      nomorPolisi: data.nomorPolisi || null,
+      namaSupir: data.namaSupir || null,
+      fotoNotaUrl: data.fotoNotaUrl || null,
+
       volumeKg: data.volumeKg,
       catatan: data.catatan || null,
     });
