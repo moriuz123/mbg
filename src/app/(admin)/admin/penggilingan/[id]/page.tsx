@@ -1,5 +1,6 @@
 import { getPenggilinganById, getSumberGabah, getProduksi, getDistribusi } from "@/app/actions/penggilingan";
 import { getSppg } from "@/app/actions/sppg";
+import { getKecamatan, getDesa } from "@/app/actions/wilayah";
 import PenggilinganDetailClientUI from "./PenggilinganDetailClientUI";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -36,6 +37,8 @@ export default async function PenggilinganDetailPage({ params }: any) {
   const produksiList = await getProduksi(penggilinganId);
   const distribusiList = await getDistribusi(penggilinganId);
   const sppgList = await getSppg();
+  const kecamatanList = await getKecamatan();
+  const desaList = await getDesa();
 
   return (
     <main className="max-w-6xl mx-auto space-y-6">
@@ -52,6 +55,8 @@ export default async function PenggilinganDetailPage({ params }: any) {
         produksiList={produksiList}
         distribusiList={distribusiList}
         sppgList={sppgList}
+        kecamatanList={kecamatanList}
+        desaList={desaList}
         isAdmin={isAdmin}
       />
     </main>

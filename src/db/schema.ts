@@ -345,10 +345,16 @@ export const penggilinganSumberGabah = pgTable("penggilingan_sumber_gabah", {
   mingguSelesai: date("minggu_selesai").notNull(),
   sumberGabah: text("sumber_gabah").notNull(),
   namaSumber: text("nama_sumber"),
+  lokasiWilayah: text("lokasi_wilayah").default("Dalam Lebak"), // "Dalam Lebak" atau "Luar Lebak"
+  kecamatanId: integer("kecamatan_id").references(() => kecamatan.id, { onDelete: 'set null' }),
+  desaId: integer("desa_id").references(() => desa.id, { onDelete: 'set null' }),
+  provinsiLuar: text("provinsi_luar"),
+  kabupatenLuar: text("kabupaten_luar"),
+  kecamatanLuar: text("kecamatan_luar"),
+  desaLuar: text("desa_luar"),
   alamatSumber: text("alamat_sumber"),
   kontakPerson: text("kontak_person"),
   volumeKg: numeric("volume_kg", { precision: 12, scale: 2 }).notNull(),
-  hargaBeliPerKg: numeric("harga_beli_per_kg", { precision: 12, scale: 2 }),
   catatan: text("catatan"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -650,6 +656,14 @@ export const penggilinganSumberGabahRelations = relations(penggilinganSumberGaba
   penggilingan: one(penggilingan, {
     fields: [penggilinganSumberGabah.penggilinganId],
     references: [penggilingan.id],
+  }),
+  kecamatan: one(kecamatan, {
+    fields: [penggilinganSumberGabah.kecamatanId],
+    references: [kecamatan.id],
+  }),
+  desa: one(desa, {
+    fields: [penggilinganSumberGabah.desaId],
+    references: [desa.id],
   }),
 }));
 

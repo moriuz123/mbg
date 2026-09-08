@@ -21,6 +21,8 @@ export default function PenggilinganDetailClientUI({
   produksiList,
   distribusiList,
   sppgList,
+  kecamatanList = [],
+  desaList = [],
   isAdmin = false
 }: { 
   penggilingan: any;
@@ -28,6 +30,8 @@ export default function PenggilinganDetailClientUI({
   produksiList: any[];
   distribusiList: any[];
   sppgList: any[];
+  kecamatanList?: any[];
+  desaList?: any[];
   isAdmin?: boolean;
 }) {
   const [activeTab, setActiveTab] = useState<'sumber' | 'produksi' | 'distribusi'>('sumber');
@@ -45,6 +49,9 @@ export default function PenggilinganDetailClientUI({
   const [isDistribusiOpen, setIsDistribusiOpen] = useState(false);
   const [isEditPenggilinganOpen, setIsEditPenggilinganOpen] = useState(false);
   
+  const [lokasiWilayah, setLokasiWilayah] = useState('Dalam Lebak');
+  const [selectedKecamatanId, setSelectedKecamatanId] = useState('');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tipeTujuan, setTipeTujuan] = useState('SPPG');
 
@@ -86,10 +93,16 @@ export default function PenggilinganDetailClientUI({
       mingguSelesai: formData.get('mingguSelesai') as string,
       sumberGabah: formData.get('sumberGabah') as string,
       namaSumber: formData.get('namaSumber') as string,
+      lokasiWilayah: lokasiWilayah,
+      kecamatanId: lokasiWilayah === 'Dalam Lebak' ? Number(formData.get('kecamatanId')) : undefined,
+      desaId: lokasiWilayah === 'Dalam Lebak' ? Number(formData.get('desaId')) : undefined,
+      provinsiLuar: lokasiWilayah === 'Luar Lebak' ? (formData.get('provinsiLuar') as string) : undefined,
+      kabupatenLuar: lokasiWilayah === 'Luar Lebak' ? (formData.get('kabupatenLuar') as string) : undefined,
+      kecamatanLuar: lokasiWilayah === 'Luar Lebak' ? (formData.get('kecamatanLuar') as string) : undefined,
+      desaLuar: lokasiWilayah === 'Luar Lebak' ? (formData.get('desaLuar') as string) : undefined,
       alamatSumber: formData.get('alamatSumber') as string,
       kontakPerson: formData.get('kontakPerson') as string,
       volumeKg: formData.get('volumeKg') as string,
-      hargaBeliPerKg: formData.get('hargaBeliPerKg') as string,
       catatan: formData.get('catatan') as string,
     });
     setIsSubmitting(false);
@@ -379,7 +392,6 @@ export default function PenggilinganDetailClientUI({
                   <th className="p-4 text-left">Klasifikasi Sumber</th>
                   <th className="p-4 text-left">Detail Sumber</th>
                   <th className="p-4 text-right">Volume Gabah</th>
-                  <th className="p-4 text-right">Harga Beli (Rp/Kg)</th>
                   <th className="p-4 text-right pr-6">Aksi</th>
                 </tr>
               </thead>
@@ -392,27 +404,32 @@ export default function PenggilinganDetailClientUI({
                     </td>
                     <td className="p-4 text-sm text-slate-600">
                       {item.namaSumber && <div className="font-semibold text-slate-800">{item.namaSumber}</div>}
-                      {item.alamatSumber && <div className="text-xs text-slate-500 mt-1">{item.alamatSumber}</div>}
+                      <div className="text-xs text-slate-500 mt-1">
+                        <span className="font-semibold text-slate-600">{item.lokasiWilayah}</span>
+                        {item.lokasiWilayah === 'Dalam Lebak' && (item.kecamatan || item.desa) && (
+                          <span>: {item.desa?.namaDesa}, Kec. {item.kecamatan?.namaKecamatan}</span>
+                        )}
+                        {item.lokasiWilayah === 'Luar Lebak' && (item.provinsiLuar || item.kabupatenLuar) && (
+                          <span>: {item.kabupatenLuar}, {item.provinsiLuar} {item.kecamatanLuar && `(Kec. ${item.kecamatanLuar})`} {item.desaLuar && `(Desa ${item.desaLuar})`}</span>
+                        )}
+                      </div>
+                      {item.alamatSumber && <div className="text-xs text-slate-500 mt-0.5">{item.alamatSumber}</div>}
                       {item.kontakPerson && <div className="text-xs text-indigo-600 mt-0.5">{item.kontakPerson}</div>}
-                      {!item.namaSumber && !item.alamatSumber && !item.kontakPerson && <span className="text-slate-400 italic">-</span>}
                     </td>
                     <td className="p-4 text-right font-black text-amber-700">{parseFloat(item.volumeKg).toLocaleString('id-ID')} kg</td>
-                    <td className="p-4 text-right font-semibold text-slate-700">
-                      {item.hargaBeliPerKg ? `Rp ${parseFloat(item.hargaBeliPerKg).toLocaleString('id-ID')}` : '-'}
-                    </td>
                     <td className="p-4 text-right pr-6">
                       <button 
                         onClick={() => handleDeleteClick(item.id, 'sumber')}
                         className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
                         title="Hapus Sumber Gabah"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>
                 ))}
                 {sumberGabahList.length === 0 && (
-                  <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada data sumber gabah.</td></tr>
+                  <tr><td colSpan={5} className="p-8 text-center text-slate-500">Belum ada data sumber gabah.</td></tr>
                 )}
               </tbody>
             </table>
@@ -572,14 +589,10 @@ export default function PenggilinganDetailClientUI({
                 <p className="text-[10px] text-slate-500 mt-1">Pilih klasifikasi asal gabah/beras yang masuk ke penggilingan.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block mb-1 text-xs font-bold text-slate-700">Nama Sumber *</label>
                   <input required name="namaSumber" type="text" placeholder="Misal: Bp. Budi / Gapoktan Maju" className="w-full p-3 border rounded-xl text-xs font-medium" />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Alamat Sumber</label>
-                  <input name="alamatSumber" type="text" placeholder="Misal: Desa Maja" className="w-full p-3 border rounded-xl text-xs font-medium" />
                 </div>
                 <div>
                   <label className="block mb-1 text-xs font-bold text-slate-700">Kontak Person</label>
@@ -587,14 +600,69 @@ export default function PenggilinganDetailClientUI({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Volume Gabah (Kg) *</label>
-                  <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 5000" className="w-full p-3 border rounded-xl text-xs font-medium" />
+              <div>
+                <label className="block mb-1 text-xs font-bold text-slate-700">Wilayah Asal Gabah</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <input type="radio" name="lokasiWilayah" value="Dalam Lebak" checked={lokasiWilayah === 'Dalam Lebak'} onChange={(e) => setLokasiWilayah(e.target.value)} />
+                    Dalam Kabupaten Lebak
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <input type="radio" name="lokasiWilayah" value="Luar Lebak" checked={lokasiWilayah === 'Luar Lebak'} onChange={(e) => setLokasiWilayah(e.target.value)} />
+                    Luar Kabupaten Lebak
+                  </label>
                 </div>
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Harga Beli (Rp/Kg)</label>
-                  <input name="hargaBeliPerKg" type="number" min="0" placeholder="Misal: 6500" className="w-full p-3 border rounded-xl text-xs font-medium" />
+              </div>
+
+              {lokasiWilayah === 'Dalam Lebak' ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Kecamatan *</label>
+                    <select required name="kecamatanId" value={selectedKecamatanId} onChange={(e) => setSelectedKecamatanId(e.target.value)} className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
+                      <option value="">Pilih Kecamatan...</option>
+                      {kecamatanList?.map(k => (
+                        <option key={k.id} value={k.id}>{k.namaKecamatan}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Desa *</label>
+                    <select required name="desaId" className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
+                      <option value="">Pilih Desa...</option>
+                      {desaList?.filter(d => String(d.kecamatanId) === String(selectedKecamatanId)).map(d => (
+                        <option key={d.id} value={d.id}>{d.namaDesa}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Jalan / Detail Alamat</label>
+                    <input name="alamatSumber" type="text" placeholder="Misal: Kp. Sawah RT 01" className="w-full p-3 border rounded-xl text-xs font-medium bg-white" />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Provinsi *</label>
+                    <input required name="provinsiLuar" type="text" placeholder="Misal: Jawa Barat" className="w-full p-3 border rounded-xl text-xs font-medium bg-white" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Kabupaten/Kota *</label>
+                    <input required name="kabupatenLuar" type="text" placeholder="Misal: Sukabumi" className="w-full p-3 border rounded-xl text-xs font-medium bg-white" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Kecamatan</label>
+                    <input name="kecamatanLuar" type="text" placeholder="Kecamatan..." className="w-full p-3 border rounded-xl text-xs font-medium bg-white" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Desa/Alamat</label>
+                    <input name="desaLuar" type="text" placeholder="Desa/Alamat..." className="w-full p-3 border rounded-xl text-xs font-medium bg-white" />
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-4">
+                <label className="block mb-1 text-xs font-bold text-slate-700">Volume Gabah (Kg) *</label>
+                <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 5000" className="w-full p-3 border rounded-xl text-xs font-medium" />
                 </div>
               </div>
 

@@ -148,6 +148,10 @@ export async function getPenggilinganById(id: number) {
 export async function getSumberGabah(penggilinganId: number) {
   return await db.query.penggilinganSumberGabah.findMany({
     where: eq(penggilinganSumberGabah.penggilinganId, penggilinganId),
+    with: {
+      kecamatan: true,
+      desa: true
+    },
     orderBy: [desc(penggilinganSumberGabah.mingguMulai)],
   });
 }
@@ -158,10 +162,16 @@ export async function addSumberGabah(data: {
   mingguSelesai: string;
   sumberGabah: string;
   namaSumber?: string;
+  lokasiWilayah?: string;
+  kecamatanId?: number;
+  desaId?: number;
+  provinsiLuar?: string;
+  kabupatenLuar?: string;
+  kecamatanLuar?: string;
+  desaLuar?: string;
   alamatSumber?: string;
   kontakPerson?: string;
   volumeKg: string;
-  hargaBeliPerKg?: string;
   catatan?: string;
 }) {
   try {
@@ -177,10 +187,16 @@ export async function addSumberGabah(data: {
       mingguSelesai: data.mingguSelesai,
       sumberGabah: data.sumberGabah,
       namaSumber: data.namaSumber || null,
+      lokasiWilayah: data.lokasiWilayah || "Dalam Lebak",
+      kecamatanId: isNaN(Number(data.kecamatanId)) || !data.kecamatanId ? null : data.kecamatanId,
+      desaId: isNaN(Number(data.desaId)) || !data.desaId ? null : data.desaId,
+      provinsiLuar: data.provinsiLuar || null,
+      kabupatenLuar: data.kabupatenLuar || null,
+      kecamatanLuar: data.kecamatanLuar || null,
+      desaLuar: data.desaLuar || null,
       alamatSumber: data.alamatSumber || null,
       kontakPerson: data.kontakPerson || null,
       volumeKg: data.volumeKg,
-      hargaBeliPerKg: data.hargaBeliPerKg || null,
       catatan: data.catatan || null,
     });
     revalidatePath(`/admin/penggilingan/${data.penggilinganId}`);
