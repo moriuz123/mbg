@@ -352,3 +352,9 @@ export async function unassignPosyandu(id: number, sppgId: number) {
     return { success: false, error: 'Gagal menghapus posyandu dari SPPG' };
   }
 }
+
+export async function getAllSppg() {
+  return await db.query.sppg.findMany({
+    orderBy: [desc(sppg.createdAt)]
+  });
+}

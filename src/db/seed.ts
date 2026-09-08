@@ -120,9 +120,9 @@ async function main() {
 
   // 14. PENGGILINGAN PRODUKSI
   await db.insert(penggilinganProduksi).values([
-    { penggilinganId: pengs[0].id, mingguMulai: "2026-08-01", mingguSelesai: "2026-08-07", kapasitasRealisasiKg: "1200", rendemenPersen: "60.0" },
-    { penggilinganId: pengs[1].id, mingguMulai: "2026-08-01", mingguSelesai: "2026-08-07", kapasitasRealisasiKg: "900", rendemenPersen: "60.0" },
-    { penggilinganId: pengs[2].id, mingguMulai: "2026-08-01", mingguSelesai: "2026-08-07", kapasitasRealisasiKg: "1500", rendemenPersen: "60.0" }
+    { penggilinganId: pengs[0].id, mingguMulai: "2026-08-01", mingguSelesai: "2026-08-07", gabahDigilingKg: "1200", berasDihasilkanKg: "720" },
+    { penggilinganId: pengs[1].id, mingguMulai: "2026-08-01", mingguSelesai: "2026-08-07", gabahDigilingKg: "900", berasDihasilkanKg: "540" },
+    { penggilinganId: pengs[2].id, mingguMulai: "2026-08-01", mingguSelesai: "2026-08-07", gabahDigilingKg: "1500", berasDihasilkanKg: "900" }
   ]);
 
   // 15. PENGGILINGAN DISTRIBUSI

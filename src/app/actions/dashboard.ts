@@ -304,7 +304,7 @@ export async function getPenggilinganDashboardStats(penggilinganId: number) {
 
     // 2. Total Realisasi Produksi (Kg)
     const prodRes = await db.execute(sql`
-      SELECT SUM(CAST(kapasitas_realisasi_kg AS NUMERIC)) as total_produksi 
+      SELECT SUM(CAST(beras_dihasilkan_kg AS NUMERIC)) as total_produksi 
       FROM penggilingan_produksi 
       WHERE penggilingan_id = ${penggilinganId}
     `);

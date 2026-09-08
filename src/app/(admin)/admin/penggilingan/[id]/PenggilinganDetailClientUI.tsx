@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Wheat, Factory, Truck, Plus, X, Trash2, Edit3, Info } from 'lucide-react';
+import { ArrowLeft, Printer, CheckCircle, Wheat, Factory, Truck, Plus, X, Trash2, Edit3, Info, MapPin, FileText, Package, Percent } from 'lucide-react';
 import Link from 'next/link';
 import { 
   addSumberGabah, 
@@ -10,7 +10,10 @@ import {
   deleteProduksi,
   addDistribusi,
   deleteDistribusi,
-  updatePenggilingan
+  updatePenggilingan,
+  verifySumberGabah,
+  verifyProduksi,
+  verifyDistribusi
 } from '@/app/actions/penggilingan';
 import { uploadFile } from '@/app/actions/upload';
 import toast from 'react-hot-toast';
@@ -35,13 +38,42 @@ export default function PenggilinganDetailClientUI({
   desaList?: any[];
   isAdmin?: boolean;
 }) {
-  const [activeTab, setActiveTab] = useState<'sumber' | 'produksi' | 'distribusi'>('sumber');
+  const [activeTab, setActiveTab] = useState<'sumber' | 'produksi' | 'distribusi' | 'laporan'>('sumber');
 
   const totalGabah = sumberGabahList.reduce((acc, curr) => acc + Number(curr.volumeKg || 0), 0);
-  const totalProduksi = produksiList.reduce((acc, curr) => acc + Number(curr.kapasitasRealisasiKg || 0), 0);
+  const totalGabahDigiling = produksiList.reduce((acc, curr) => acc + Number(curr.gabahDigilingKg || 0), 0);
+  const totalProduksi = produksiList.reduce((acc, curr) => acc + Number(curr.berasDihasilkanKg || 0), 0);
   const totalDistribusi = distribusiList.reduce((acc, curr) => acc + Number(curr.volumeKg || 0), 0);
-  const sisaStok = totalProduksi - totalDistribusi;
-  const avgRendemen = totalGabah > 0 ? ((totalProduksi / totalGabah) * 100).toFixed(2) : 0;
+  const sisaStokBeras = totalProduksi - totalDistribusi;
+  const sisaStokGabah = totalGabah - totalGabahDigiling;
+  const avgRendemen = totalGabahDigiling > 0 ? ((totalProduksi / totalGabahDigiling) * 100).toFixed(2) : 0;
+
+  // Laporan Bulanan Rekap (Enterprise Reporting)
+  const monthlyStats: Record<string, { gabah: number, beras: number, distribusi: number, byProducts: number }> = {};
+  
+  sumberGabahList.forEach(g => {
+    if (!g.mingguMulai) return;
+    const month = g.mingguMulai.substring(0, 7);
+    if (!monthlyStats[month]) monthlyStats[month] = { gabah: 0, beras: 0, distribusi: 0, byProducts: 0 };
+    monthlyStats[month].gabah += Number(g.volumeKg || 0);
+  });
+  
+  produksiList.forEach(p => {
+    if (!p.mingguMulai) return;
+    const month = p.mingguMulai.substring(0, 7);
+    if (!monthlyStats[month]) monthlyStats[month] = { gabah: 0, beras: 0, distribusi: 0, byProducts: 0 };
+    monthlyStats[month].beras += Number(p.berasDihasilkanKg || 0);
+    monthlyStats[month].byProducts += Number(p.dedakKg || 0) + Number(p.menirKg || 0) + Number(p.sekamKg || 0);
+  });
+  
+  distribusiList.forEach(d => {
+    if (!d.mingguMulai) return;
+    const month = d.mingguMulai.substring(0, 7);
+    if (!monthlyStats[month]) monthlyStats[month] = { gabah: 0, beras: 0, distribusi: 0, byProducts: 0 };
+    monthlyStats[month].distribusi += Number(d.volumeKg || 0);
+  });
+
+  const monthsKeys = Object.keys(monthlyStats).sort((a, b) => b.localeCompare(a));
 
   
   // Modal states
@@ -54,7 +86,9 @@ export default function PenggilinganDetailClientUI({
   const [selectedKecamatanId, setSelectedKecamatanId] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [wilayahDistribusi, setWilayahDistribusi] = useState('Dalam Lebak');
   const [tipeTujuan, setTipeTujuan] = useState('SPPG');
+  const [selectedKecamatanDistribusiId, setSelectedKecamatanDistribusiId] = useState('');
 
   async function handleEditPenggilinganSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -89,7 +123,7 @@ export default function PenggilinganDetailClientUI({
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
     
-    let fotoNotaUrl = undefined;
+    let fotoNotaUrl: string | undefined = undefined;
     const file = formData.get('fotoNota') as File;
     if (file && file.size > 0) {
       const uploadFormData = new FormData();
@@ -176,16 +210,40 @@ export default function PenggilinganDetailClientUI({
     const formData = new FormData(e.currentTarget);
     const sppgId = formData.get('sppgTujuanId') as string;
     
+    let fotoSuratJalan: string | undefined = undefined;
+    const file = formData.get('fotoSuratJalan') as File;
+    if (file && file.size > 0) {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      try {
+        const uploadRes = await uploadFile(uploadFormData);
+        fotoSuratJalan = uploadRes.url;
+      } catch (err) {
+        toast.error('Gagal mengupload surat jalan');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const res = await addDistribusi({
       penggilinganId: penggilingan.id,
       mingguMulai: formData.get('mingguMulai') as string,
       mingguSelesai: formData.get('mingguSelesai') as string,
+      jenisProduk: formData.get('jenisProduk') as string,
       volumeKg: formData.get('volumeKg') as string,
-      hargaPerKg: formData.get('hargaPerKg') as string,
-      hargaTotal: formData.get('hargaTotal') as string,
+      wilayahDistribusi: wilayahDistribusi,
       tujuanTipe: tipeTujuan,
       sppgTujuanId: tipeTujuan === 'SPPG' && sppgId ? parseInt(sppgId, 10) : undefined,
-      lokasiLain: tipeTujuan !== 'SPPG' ? formData.get('lokasiLain') as string : undefined,
+      kecamatanTujuanId: wilayahDistribusi === 'Dalam Lebak' && tipeTujuan !== 'SPPG' && selectedKecamatanDistribusiId ? parseInt(selectedKecamatanDistribusiId, 10) : undefined,
+      desaTujuanId: wilayahDistribusi === 'Dalam Lebak' && tipeTujuan !== 'SPPG' ? (formData.get('desaTujuanId') ? parseInt(formData.get('desaTujuanId') as string, 10) : undefined) : undefined,
+      alamatLengkap: formData.get('alamatLengkap') as string || undefined,
+      kontakPerson: formData.get('kontakPerson') as string || undefined,
+      provinsiTujuan: wilayahDistribusi === 'Luar Kabupaten Lebak' ? formData.get('provinsiTujuan') as string : undefined,
+      kabupatenKotaTujuan: wilayahDistribusi === 'Luar Kabupaten Lebak' ? formData.get('kabupatenKotaTujuan') as string : undefined,
+      lokasiLain: wilayahDistribusi === 'Luar Kabupaten Lebak' ? formData.get('lokasiLain') as string : undefined,
+      nomorPolisi: formData.get('nomorPolisi') as string,
+      namaSupir: formData.get('namaSupir') as string,
+      fotoSuratJalan,
       catatan: formData.get('catatan') as string,
     });
     setIsSubmitting(false);
@@ -202,6 +260,22 @@ export default function PenggilinganDetailClientUI({
   const handleDeleteClick = (id: number, type: 'sumber' | 'produksi' | 'distribusi') => {
     setDeleteTarget({ id, type });
     setConfirmOpen(true);
+  };
+
+  const handleVerifyClick = async (id: number, type: 'sumber' | 'produksi' | 'distribusi') => {
+    if (!confirm('Apakah Anda yakin ingin menyetujui dan mengunci data ini? Data yang terverifikasi tidak bisa dihapus lagi.')) return;
+    
+    let res;
+    if (type === 'sumber') res = await verifySumberGabah(id);
+    else if (type === 'produksi') res = await verifyProduksi(id);
+    else res = await verifyDistribusi(id);
+
+    if (res.success) {
+      toast.success('Data berhasil diverifikasi dan dikunci!');
+      window.location.reload();
+    } else {
+      toast.error(res.error || 'Gagal memverifikasi data');
+    }
   };
 
   // Confirm Delete Action
@@ -341,7 +415,7 @@ export default function PenggilinganDetailClientUI({
 
       
       {/* DASHBOARD STOK PENGGILINGAN */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid gap-4 mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
             <Wheat size={24} />
@@ -351,6 +425,17 @@ export default function PenggilinganDetailClientUI({
             <p className="text-2xl font-black text-slate-800">{totalGabah.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
           </div>
         </div>
+        
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center">
+            <Wheat size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sisa Stok Gabah</p>
+            <p className="text-2xl font-black text-slate-800">{sisaStokGabah.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
+          </div>
+        </div>
+
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
             <Factory size={24} />
@@ -360,18 +445,20 @@ export default function PenggilinganDetailClientUI({
             <p className="text-2xl font-black text-slate-800">{totalProduksi.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
           </div>
         </div>
+        
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-            <Truck size={24} />
+            <Package size={24} />
           </div>
           <div>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sisa Stok Beras</p>
-            <p className="text-2xl font-black text-slate-800">{sisaStok.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
+            <p className="text-2xl font-black text-slate-800">{sisaStokBeras.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></p>
           </div>
         </div>
+        
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-            <Factory size={24} />
+            <Percent size={24} />
           </div>
           <div>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Rata-rata Rendemen</p>
@@ -399,6 +486,12 @@ export default function PenggilinganDetailClientUI({
           className={`px-5 py-3 font-extrabold text-sm flex items-center gap-2 border-b-2 transition-all ${activeTab === 'distribusi' ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
         >
           <Truck size={18} /> 3. Penjualan Beras (Kg & Rp)
+        </button>
+        <button 
+          onClick={() => setActiveTab('laporan')}
+          className={`px-5 py-3 font-extrabold text-sm flex items-center gap-2 border-b-2 transition-all ${activeTab === 'laporan' ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50 rounded-t-xl' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          <FileText size={18} /> 4. Laporan & Rekap
         </button>
       </div>
 
@@ -464,14 +557,25 @@ export default function PenggilinganDetailClientUI({
                       )}
                     </td>
                     <td className="p-4 text-right font-black text-amber-700">{parseFloat(item.volumeKg).toLocaleString('id-ID')} kg</td>
-                    <td className="p-4 text-right pr-6">
-                      <button 
-                        onClick={() => handleDeleteClick(item.id, 'sumber')}
-                        className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
-                        title="Hapus Sumber Gabah"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    <td className="p-4 text-right pr-6 flex items-center justify-end gap-2">
+                      {isAdmin && item.statusVerifikasi !== 'Verified' && (
+                        <button 
+                          onClick={() => handleVerifyClick(item.id, 'sumber')}
+                          className="p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-200"
+                          title="Setujui & Kunci Data"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                        </button>
+                      )}
+                      {item.statusVerifikasi !== 'Verified' && (
+                        <button 
+                          onClick={() => handleDeleteClick(item.id, 'sumber')}
+                          className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Hapus Sumber Gabah"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -513,7 +617,19 @@ export default function PenggilinganDetailClientUI({
               <tbody className="text-sm">
                 {produksiList.map((item) => (
                   <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50/80">
-                    <td className="p-3 pl-6 font-medium text-slate-700 text-xs">{item.mingguMulai} <span className="text-slate-400">s/d</span> {item.mingguSelesai}</td>
+                    <td className="p-3 pl-6">
+                      <div className="font-medium text-slate-700 text-xs">{item.mingguMulai} <span className="text-slate-400">s/d</span> {item.mingguSelesai}</div>
+                      {item.batchNumber && (
+                        <div className="text-[10px] font-mono font-bold text-indigo-600 mt-1 bg-indigo-50 inline-block px-1.5 py-0.5 rounded border border-indigo-100">
+                          {item.batchNumber}
+                        </div>
+                      )}
+                      {item.statusVerifikasi && (
+                        <div className={`text-[10px] font-bold mt-1 inline-block ml-1 px-1.5 py-0.5 rounded border ${item.statusVerifikasi === 'Verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
+                          {item.statusVerifikasi}
+                        </div>
+                      )}
+                    </td>
                     <td className="p-3 text-right font-bold text-amber-700">{parseFloat(item.gabahDigilingKg).toLocaleString('id-ID')}</td>
                     <td className="p-3 text-right font-black text-slate-900">{parseFloat(item.berasDihasilkanKg).toLocaleString('id-ID')}</td>
                     <td className="p-3 text-center">
@@ -529,14 +645,25 @@ export default function PenggilinganDetailClientUI({
                       {!item.dedakKg && !item.menirKg && <span className="text-slate-400">-</span>}
                     </td>
                     <td className="p-3 text-right font-bold text-emerald-600">{item.rendemenPersen ? `${item.rendemenPersen}%` : '-'}</td>
-                    <td className="p-3 text-right pr-6">
-                      <button 
-                        onClick={() => handleDeleteClick(item.id, 'produksi')}
-                        className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
-                        title="Hapus Produksi"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                    <td className="p-3 text-right pr-6 flex items-center justify-end gap-2">
+                      {isAdmin && item.statusVerifikasi !== 'Verified' && (
+                        <button 
+                          onClick={() => handleVerifyClick(item.id, 'produksi')}
+                          className="p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-200"
+                          title="Setujui & Kunci Data"
+                        >
+                          <CheckCircle size={16} />
+                        </button>
+                      )}
+                      {item.statusVerifikasi !== 'Verified' && (
+                        <button 
+                          onClick={() => handleDeleteClick(item.id, 'produksi')}
+                          className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Hapus Produksi"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -549,68 +676,179 @@ export default function PenggilinganDetailClientUI({
         </div>
       )}
 
-      {/* TAB 3: PENJUALAN & DISTRIBUSI BERAS (Kg & Rp) */}
+      {/* TAB 3: DISTRIBUSI & PENJUALAN */}
       {activeTab === 'distribusi' && (
         <div>
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h2 className="text-base font-extrabold text-slate-800">Outbound Logistics: Tujuan Penjualan Beras (Kg & Rp)</h2>
-              <p className="text-xs text-slate-500">Pendistribusian & penjualan beras ke Dapur SPPG, BULOG, atau pasar lokal.</p>
+              <h2 className="text-base font-extrabold text-slate-800">Outbound Logistics: Distribusi & Penjualan</h2>
+              <p className="text-xs text-slate-500">Pendistribusian produk jadi ke Dapur SPPG, BULOG, atau pasar lokal.</p>
             </div>
             <button onClick={() => setIsDistribusiOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-bold text-xs shadow-md">
-              <Plus size={16} /> Catat Penjualan Beras
+              <Plus size={16} /> Catat Distribusi Keluar
             </button>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                  <th className="p-4 pl-6">Periode</th>
-                  <th className="p-4">Tujuan Penjualan</th>
-                  <th className="p-4 text-right">Volume Beras (Kg)</th>
-                  <th className="p-4 text-right">Harga (Rp/Kg)</th>
-                  <th className="p-4 text-right">Total Penjualan (Rp)</th>
-                  <th className="p-4 text-right pr-6">Aksi</th>
+                <tr className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
+                  <th className="p-3 pl-6">Periode</th>
+                  <th className="p-3">Tujuan Pengiriman</th>
+                  <th className="p-3">Produk & Volume</th>
+                  <th className="p-3">Logistik / Armada</th>
+                  <th className="p-3 text-center">Bukti (S.Jalan)</th>
+                  <th className="p-3 text-right pr-6">Aksi</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
                 {distribusiList.map((item) => (
                   <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50/80">
-                    <td className="p-4 pl-6 font-medium text-slate-700">{item.mingguMulai} <span className="text-slate-400">s/d</span> {item.mingguSelesai}</td>
-                    <td className="p-4">
-                      <span className="inline-flex px-2.5 py-0.5 mr-2 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                        {item.tujuanTipe}
-                      </span>
-                      <span className="font-bold text-slate-800">
-                        {item.tujuanTipe === 'SPPG' ? item.sppgTujuan?.namaSppg : item.lokasiLain}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right font-black text-slate-900">{parseFloat(item.volumeKg).toLocaleString('id-ID')} kg</td>
-                    <td className="p-4 text-right font-semibold text-slate-600">
-                      {item.hargaPerKg ? `Rp ${parseFloat(item.hargaPerKg).toLocaleString('id-ID')}` : '-'}
-                    </td>
-                    <td className="p-4 text-right font-black text-emerald-700">
-                      {item.hargaTotal ? `Rp ${parseFloat(item.hargaTotal).toLocaleString('id-ID')}` : (
-                        item.hargaPerKg ? `Rp ${(parseFloat(item.volumeKg) * parseFloat(item.hargaPerKg)).toLocaleString('id-ID')}` : '-'
+                    <td className="p-3 pl-6">
+                      <div className="font-medium text-slate-700 text-xs">{item.mingguMulai} <span className="text-slate-400">s/d</span> {item.mingguSelesai}</div>
+                      {item.statusVerifikasi && (
+                        <div className={`text-[10px] font-bold mt-1 inline-block px-1.5 py-0.5 rounded border ${item.statusVerifikasi === 'Verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
+                          {item.statusVerifikasi}
+                        </div>
                       )}
                     </td>
-                    <td className="p-4 text-right pr-6">
-                      <button 
-                        onClick={() => handleDeleteClick(item.id, 'distribusi')}
-                        className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
-                        title="Hapus Penjualan"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                    <td className="p-3">
+                      <div className="mb-1">
+                        <span className="inline-flex px-2 py-0.5 mr-2 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
+                          {item.wilayahDistribusi || 'Dalam Lebak'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="inline-flex px-2 py-0.5 mr-2 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          {item.tujuanTipe}
+                        </span>
+                        <span className="font-bold text-slate-800 text-xs">
+                          {item.tujuanTipe === 'SPPG' 
+                            ? item.sppgTujuan?.namaSppg 
+                            : item.wilayahDistribusi === 'Dalam Lebak' && item.desaTujuan && item.kecamatanTujuan
+                              ? `Desa ${item.desaTujuan.namaDesa}, Kec. ${item.kecamatanTujuan.namaKecamatan}`
+                              : item.provinsiTujuan
+                                ? `${item.lokasiLain || ''} – ${item.kabupatenKotaTujuan}, ${item.provinsiTujuan}`
+                                : item.lokasiLain}
+                        </span>
+                      </div>
+                      {item.alamatLengkap && <div className="text-[10px] text-slate-500 mt-0.5">{item.alamatLengkap}</div>}
+                      {item.kontakPerson && <div className="text-[10px] text-slate-400 mt-0.5">📞 {item.kontakPerson}</div>}
+                    </td>
+                    <td className="p-3 text-xs">
+                      <div className="font-bold text-slate-800">{item.jenisProduk || 'Beras'}</div>
+                      <div className="font-black text-emerald-600 mt-0.5">{parseFloat(item.volumeKg).toLocaleString('id-ID')} Kg</div>
+                    </td>
+                    <td className="p-3 text-xs">
+                      {item.nomorPolisi ? (
+                        <>
+                          <div className="font-bold text-slate-800 uppercase">{item.nomorPolisi}</div>
+                          <div className="text-slate-500">{item.namaSupir || 'Tanpa Nama'}</div>
+                        </>
+                      ) : <span className="text-slate-400">-</span>}
+                    </td>
+                    <td className="p-3 text-center">
+                      {item.fotoSuratJalan ? (
+                        <a href={item.fotoSuratJalan} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="Lihat Surat Jalan">
+                          <FileText size={16} />
+                        </a>
+                      ) : <span className="text-slate-300">-</span>}
+                    </td>
+                    <td className="p-3 text-right pr-6 flex items-center justify-end gap-2">
+                      {isAdmin && item.statusVerifikasi !== 'Verified' && (
+                        <button 
+                          onClick={() => handleVerifyClick(item.id, 'distribusi')}
+                          className="p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-200"
+                          title="Setujui & Kunci Data"
+                        >
+                          <CheckCircle size={16} />
+                        </button>
+                      )}
+                      {item.statusVerifikasi !== 'Verified' && (
+                        <button 
+                          onClick={() => handleDeleteClick(item.id, 'distribusi')}
+                          className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Hapus Distribusi"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
                 {distribusiList.length === 0 && (
-                  <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada data penjualan beras.</td></tr>
+                  <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada data distribusi / penjualan.</td></tr>
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: LAPORAN */}
+      {activeTab === 'laporan' && (
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden p-6 print-container" id="laporan-print-area">
+          <style dangerouslySetInnerHTML={{__html: `
+            @media print {
+              body * { visibility: hidden; }
+              #laporan-print-area, #laporan-print-area * { visibility: visible; }
+              #laporan-print-area { position: absolute; left: 0; top: 0; width: 100%; border: none !important; }
+              button { display: none !important; }
+            }
+          `}} />
+          <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="text-xl font-black text-slate-800 flex items-center gap-2"><FileText size={24} className="text-indigo-600"/> Laporan Kinerja & Rekapitulasi</h2>
+              <p className="text-sm text-slate-500">Agregasi performa produksi dan distribusi secara bulanan. <b>{penggilingan.namaPenggilingan}</b></p>
+            </div>
+            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-all font-bold text-xs shadow-md">
+              <Printer size={16} /> Cetak Laporan
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-100 border-b-2 border-slate-200">
+                  <th className="p-4 text-xs font-bold text-slate-700 uppercase tracking-wider">Periode (Bulan)</th>
+                  <th className="p-4 text-xs font-bold text-slate-700 uppercase tracking-wider text-right">Gabah Masuk (Kg)</th>
+                  <th className="p-4 text-xs font-bold text-slate-700 uppercase tracking-wider text-right">Beras Utama (Kg)</th>
+                  <th className="p-4 text-xs font-bold text-slate-700 uppercase tracking-wider text-right">Produk Samping (Kg)</th>
+                  <th className="p-4 text-xs font-bold text-slate-700 uppercase tracking-wider text-right">Rendemen (%)</th>
+                  <th className="p-4 text-xs font-bold text-slate-700 uppercase tracking-wider text-right">Distribusi Keluar (Kg)</th>
+                  <th className="p-4 text-xs font-bold text-slate-700 uppercase tracking-wider text-right">Sisa Stok Buku</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                {monthsKeys.map((month) => {
+                  const mStats = monthlyStats[month];
+                  const rend = mStats.gabah > 0 ? ((mStats.beras / mStats.gabah) * 100).toFixed(2) : '0.00';
+                  const sisa = mStats.beras - mStats.distribusi;
+                  return (
+                    <tr key={month} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="p-4 font-black text-slate-800">{month}</td>
+                      <td className="p-4 text-right font-bold text-amber-700">{mStats.gabah.toLocaleString('id-ID')}</td>
+                      <td className="p-4 text-right font-black text-slate-900">{mStats.beras.toLocaleString('id-ID')}</td>
+                      <td className="p-4 text-right font-medium text-slate-600">{mStats.byProducts.toLocaleString('id-ID')}</td>
+                      <td className="p-4 text-right font-bold text-indigo-700">{rend} %</td>
+                      <td className="p-4 text-right font-bold text-emerald-700">{mStats.distribusi.toLocaleString('id-ID')}</td>
+                      <td className={`p-4 text-right font-bold ${sisa < 0 ? 'text-red-600' : 'text-slate-600'}`}>{sisa.toLocaleString('id-ID')}</td>
+                    </tr>
+                  )
+                })}
+                {monthsKeys.length === 0 && (
+                  <tr><td colSpan={7} className="p-8 text-center text-slate-500">Belum ada data historis bulanan.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h3 className="text-sm font-bold text-slate-800 mb-2">Keterangan:</h3>
+            <ul className="text-xs text-slate-600 list-disc pl-4 space-y-1">
+              <li>Laporan ini merekapitulasi total volume dari setiap form input harian/mingguan yang tercatat dalam sistem.</li>
+              <li>Rendemen dihitung berdasarkan (Beras Utama / Gabah Masuk) * 100%.</li>
+              <li>Sisa Stok Buku adalah total beras utama yang diproduksi dikurangi dengan total distribusi yang dilaporkan dalam bulan tersebut.</li>
+            </ul>
           </div>
         </div>
       )}
@@ -649,8 +887,8 @@ export default function PenggilinganDetailClientUI({
 
               <div>
                 <label className="block mb-1 text-xs font-bold text-slate-700">Sumber / Asal Gabah *</label>
-                <select required name="sumberGabah" className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
-                  <option value="" disabled selected>Pilih salah satu sumber...</option>
+                <select required name="sumberGabah" defaultValue="" className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
+                  <option value="" disabled>Pilih salah satu sumber...</option>
                   <option value="Petani Langsung">Petani Langsung (Pembelian individu dari petani lokal)</option>
                   <option value="Gapoktan / Poktan">Gapoktan / Poktan (Pembelian kolektif dari kelompok tani)</option>
                   <option value="Pengepul / Tengkulak">Pengepul / Tengkulak (Pembelian via perantara/agen keliling)</option>
@@ -903,9 +1141,9 @@ export default function PenggilinganDetailClientUI({
       {/* MODAL 3: PENJUALAN & DISTRIBUSI BERAS (Kg & Rp) */}
       {isDistribusiOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl overflow-y-auto max-h-[90vh]">
+          <div className="bg-white rounded-3xl w-full max-w-3xl p-8 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={() => setIsDistribusiOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700"><X size={20} /></button>
-            <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Penjualan Beras (Kg & Rp)</h2>
+            <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Distribusi & Penjualan</h2>
             <form onSubmit={handleDistribusiSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -918,51 +1156,158 @@ export default function PenggilinganDetailClientUI({
                 </div>
               </div>
 
-              <div>
-                <label className="block mb-1 text-xs font-bold text-slate-700">Tipe Tujuan Penjualan *</label>
-                <select value={tipeTujuan} onChange={(e) => setTipeTujuan(e.target.value)} className="w-full p-3 border rounded-xl text-xs font-bold bg-white">
-                  <option value="SPPG">Dapur SPPG (Satuan Pelayanan Gizi)</option>
-                  <option value="BULOG">BULOG</option>
-                  <option value="Pasar Tradisional">Pasar Tradisional</option>
-                  <option value="Retail Modern">Retail Modern</option>
-                  <option value="Agen Distributor">Agen / Distributor / Lainnya</option>
-                </select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 border-t border-slate-100 pt-4">
+                {/* Kolom 1: Tujuan */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-extrabold text-slate-800 flex items-center gap-2"><MapPin size={14} /> Tujuan Pengiriman</h3>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Wilayah Distribusi *</label>
+                    <select value={wilayahDistribusi} onChange={(e) => {
+                      const newWilayah = e.target.value;
+                      setWilayahDistribusi(newWilayah);
+                      if (newWilayah === 'Luar Kabupaten Lebak') {
+                        setTipeTujuan('Pasar Tradisional');
+                      }
+                    }} className="w-full p-3 border rounded-xl text-xs font-bold bg-slate-50">
+                      <option value="Dalam Lebak">Dalam Kabupaten Lebak</option>
+                      <option value="Luar Kabupaten Lebak">Luar Kabupaten Lebak</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Tipe Tujuan *</label>
+                    <select value={tipeTujuan} onChange={(e) => setTipeTujuan(e.target.value)} className="w-full p-3 border rounded-xl text-xs font-bold bg-slate-50">
+                      {wilayahDistribusi === 'Dalam Lebak' && <option value="SPPG">Dapur SPPG (Satuan Pelayanan Gizi)</option>}
+                      <option value="BULOG">BULOG</option>
+                      <option value="Pasar Tradisional">Pasar Tradisional</option>
+                      <option value="Retail Modern">Retail Modern</option>
+                      <option value="Agen Distributor">Agen / Distributor / Lainnya</option>
+                    </select>
+                  </div>
+
+                  {tipeTujuan === 'SPPG' ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Pilih Dapur SPPG *</label>
+                        <select required name="sppgTujuanId" className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
+                          <option value="">-- Pilih SPPG Tujuan --</option>
+                          {sppgList.map(s => <option key={s.id} value={s.id}>{s.namaSppg}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Alamat Lengkap SPPG</label>
+                        <input name="alamatLengkap" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Jl. / Desa / RT-RW / detail lokasi SPPG..." />
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Kontak Person (Nama & No. HP)</label>
+                        <input name="kontakPerson" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Contoh: Ibu Sari – 0812-xxxx-xxxx" />
+                      </div>
+                    </div>
+                  ) : wilayahDistribusi === 'Dalam Lebak' ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block mb-1 text-xs font-bold text-slate-700">Kecamatan Tujuan *</label>
+                          <select required name="kecamatanTujuanId" value={selectedKecamatanDistribusiId} onChange={(e) => setSelectedKecamatanDistribusiId(e.target.value)} className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
+                            <option value="">Pilih Kecamatan...</option>
+                            {kecamatanList.map(k => (
+                              <option key={k.id} value={k.id}>{k.namaKecamatan}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block mb-1 text-xs font-bold text-slate-700">Desa Tujuan *</label>
+                          <select required name="desaTujuanId" className="w-full p-3 border rounded-xl text-xs font-medium bg-white" disabled={!selectedKecamatanDistribusiId}>
+                            <option value="">Pilih Desa...</option>
+                            {desaList?.filter(d => String(d.kecamatanId) === String(selectedKecamatanDistribusiId)).map(d => (
+                              <option key={d.id} value={d.id}>{d.namaDesa}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Alamat Lengkap</label>
+                        <input name="alamatLengkap" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Jl. / Blok / RT-RW / detail lokasi tujuan..." />
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Kontak Person (Nama & No. HP)</label>
+                        <input name="kontakPerson" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Contoh: Pak Dedi – 0813-xxxx-xxxx" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block mb-1 text-xs font-bold text-slate-700">Provinsi *</label>
+                          <input required name="provinsiTujuan" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Contoh: Banten, Jawa Barat..." />
+                        </div>
+                        <div>
+                          <label className="block mb-1 text-xs font-bold text-slate-700">Kabupaten / Kota *</label>
+                          <input required name="kabupatenKotaTujuan" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Contoh: Kab. Serang, Kota Tangerang..." />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Nama Pembeli / Instansi *</label>
+                        <input required name="lokasiLain" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Contoh: Gudang BULOG Sub-Divre Serang" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Alamat Lengkap</label>
+                        <input name="alamatLengkap" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Jl. / Kecamatan / detail lokasi tujuan luar daerah..." />
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-xs font-bold text-slate-700">Kontak Person (Nama & No. HP)</label>
+                        <input name="kontakPerson" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Contoh: Pak Budi – 0821-xxxx-xxxx" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Kolom 2: Produk & Logistik */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-extrabold text-slate-800 flex items-center gap-2"><Truck size={14} /> Produk & Armada Logistik</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block mb-1 text-xs font-bold text-slate-700">Jenis Produk *</label>
+                      <select required name="jenisProduk" className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
+                        <option value="">Pilih...</option>
+                        <option value="Beras Premium">Beras Premium</option>
+                        <option value="Beras Medium">Beras Medium</option>
+                        <option value="Beras Asalan">Beras Asalan</option>
+                        <option value="Dedak / Bekatul">Dedak / Bekatul</option>
+                        <option value="Menir">Menir</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block mb-1 text-xs font-bold text-slate-700">Volume (Kg) *</label>
+                      <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 5000" className="w-full p-3 border rounded-xl text-xs font-medium font-bold text-emerald-700 bg-emerald-50" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block mb-1 text-xs font-bold text-slate-700">Plat Nomor (Opsional)</label>
+                      <input name="nomorPolisi" type="text" placeholder="Misal: A 9012 B" className="w-full p-3 border rounded-xl text-xs font-medium uppercase" />
+                    </div>
+                    <div>
+                      <label className="block mb-1 text-xs font-bold text-slate-700">Nama Supir (Opsional)</label>
+                      <input name="namaSupir" type="text" placeholder="Nama Supir" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Upload Surat Jalan (Opsional)</label>
+                    <input name="fotoSuratJalan" type="file" accept="image/*,application/pdf" className="w-full p-2 border rounded-xl text-xs font-medium file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                  </div>
+                </div>
               </div>
 
-              {tipeTujuan === 'SPPG' ? (
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Pilih Dapur SPPG Tujuan *</label>
-                  <select required name="sppgTujuanId" className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
-                    <option value="">-- Pilih SPPG Tujuan --</option>
-                    {sppgList.map(s => <option key={s.id} value={s.id}>{s.namaSppg}</option>)}
-                  </select>
-                </div>
-              ) : (
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Lokasi / Nama Pembeli *</label>
-                  <input required name="lokasiLain" type="text" className="w-full p-3 border rounded-xl text-xs font-medium" placeholder="Contoh: Gudang BULOG Sub-Divre / Pasar Rangkasbitung" />
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Volume Beras (Kg) *</label>
-                  <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 2000" className="w-full p-3 border rounded-xl text-xs font-medium" />
-                </div>
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Harga Beras (Rp/Kg)</label>
-                  <input name="hargaPerKg" type="number" min="0" placeholder="Misal: 12500" className="w-full p-3 border rounded-xl text-xs font-medium" />
-                </div>
+              <div className="mt-2 border-t border-slate-100 pt-4">
+                <label className="block mb-1 text-xs font-bold text-slate-700">Catatan Lainnya</label>
+                <input name="catatan" type="text" placeholder="Catatan opsional..." className="w-full p-3 border rounded-xl text-xs font-medium" />
               </div>
 
-              <div>
-                <label className="block mb-1 text-xs font-bold text-slate-700">Total Penjualan Beras (Rp)</label>
-                <input name="hargaTotal" type="number" min="0" placeholder="Misal: 25000000" className="w-full p-3 border rounded-xl text-xs font-medium font-bold text-emerald-700" />
-                <p className="text-[10px] text-slate-400 mt-1">Kosongkan jika ingin dihitung otomatis dari (Volume × Harga per Kg).</p>
-              </div>
-
-              <button type="submit" disabled={isSubmitting} className="mt-2 w-full p-3 bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md">
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Penjualan Beras'}
+              <button type="submit" disabled={isSubmitting} className="mt-4 w-full p-4 bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md">
+                {isSubmitting ? 'Menyimpan...' : 'Simpan Distribusi Keluar'}
               </button>
             </form>
           </div>

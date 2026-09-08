@@ -266,15 +266,18 @@ export async function addProduksi(data: {
 
     const giling = parseFloat(data.gabahDigilingKg);
     const beras = parseFloat(data.berasDihasilkanKg);
-    let rendemen = null;
+    let rendemen: string | null = null;
     if (giling > 0) {
       rendemen = ((beras / giling) * 100).toFixed(2);
     }
+
+    const batchNumber = `PRD-${data.penggilinganId}-${Date.now().toString().slice(-6)}`;
 
     await db.insert(penggilinganProduksi).values({
       penggilinganId: data.penggilinganId,
       mingguMulai: data.mingguMulai,
       mingguSelesai: data.mingguSelesai,
+      batchNumber,
       gabahDigilingKg: data.gabahDigilingKg,
       berasDihasilkanKg: data.berasDihasilkanKg,
       mutuBeras: data.mutuBeras || null,
@@ -313,7 +316,9 @@ export async function getDistribusi(penggilinganId: number) {
       where: eq(penggilinganDistribusi.penggilinganId, penggilinganId),
       orderBy: [desc(penggilinganDistribusi.mingguMulai)],
       with: {
-        sppgTujuan: true
+        sppgTujuan: true,
+        kecamatanTujuan: true,
+        desaTujuan: true
       }
     });
   } catch (error) {
@@ -326,12 +331,21 @@ export async function addDistribusi(data: {
   penggilinganId: number;
   mingguMulai: string;
   mingguSelesai: string;
+  jenisProduk: string;
   volumeKg: string;
-  hargaPerKg?: string;
-  hargaTotal?: string;
+  wilayahDistribusi?: string;
   tujuanTipe: string;
   sppgTujuanId?: number;
+  kecamatanTujuanId?: number;
+  desaTujuanId?: number;
+  alamatLengkap?: string;
+  kontakPerson?: string;
+  provinsiTujuan?: string;
+  kabupatenKotaTujuan?: string;
   lokasiLain?: string;
+  nomorPolisi?: string;
+  namaSupir?: string;
+  fotoSuratJalan?: string;
   catatan?: string;
 }) {
   try {
@@ -340,16 +354,49 @@ export async function addDistribusi(data: {
       return { success: false, error: 'Akses ditolak' };
     }
 
+    // --- SYSTEM LOCK: Validasi Sisa Stok Logis ---
+    // 1. Dapatkan Total Produksi Beras
+    const prodRes = await db.query.penggilinganProduksi.findMany({
+      where: eq(penggilinganProduksi.penggilinganId, data.penggilinganId)
+    });
+    const totalProduksi = prodRes.reduce((acc, curr) => acc + Number(curr.berasDihasilkanKg || 0), 0);
+
+    // 2. Dapatkan Total Distribusi Sebelumnya
+    const distRes = await db.query.penggilinganDistribusi.findMany({
+      where: eq(penggilinganDistribusi.penggilinganId, data.penggilinganId)
+    });
+    const totalDistribusi = distRes.reduce((acc, curr) => acc + Number(curr.volumeKg || 0), 0);
+
+    const sisaStok = totalProduksi - totalDistribusi;
+    const requestedVolume = Number(data.volumeKg);
+
+    if (requestedVolume > sisaStok) {
+      return { 
+        success: false, 
+        error: `Validasi Stok Gagal: Anda mencoba mendistribusikan ${requestedVolume.toLocaleString('id-ID')} Kg, sedangkan sisa stok beras di gudang hanya ${sisaStok.toLocaleString('id-ID')} Kg.` 
+      };
+    }
+    // --- End System Lock ---
+
     await db.insert(penggilinganDistribusi).values({
       penggilinganId: data.penggilinganId,
       mingguMulai: data.mingguMulai,
       mingguSelesai: data.mingguSelesai,
+      jenisProduk: data.jenisProduk || null,
       volumeKg: data.volumeKg,
-      hargaPerKg: data.hargaPerKg || null,
-      hargaTotal: data.hargaTotal || null,
+      wilayahDistribusi: data.wilayahDistribusi || null,
       tujuanTipe: data.tujuanTipe,
       sppgTujuanId: data.sppgTujuanId || null,
-      lokasiLain: data.lokasiLain,
+      kecamatanTujuanId: data.kecamatanTujuanId || null,
+      desaTujuanId: data.desaTujuanId || null,
+      alamatLengkap: data.alamatLengkap || null,
+      kontakPerson: data.kontakPerson || null,
+      provinsiTujuan: data.provinsiTujuan || null,
+      kabupatenKotaTujuan: data.kabupatenKotaTujuan || null,
+      lokasiLain: data.lokasiLain || null,
+      nomorPolisi: data.nomorPolisi || null,
+      namaSupir: data.namaSupir || null,
+      fotoSuratJalan: data.fotoSuratJalan || null,
       catatan: data.catatan || null,
     });
     revalidatePath(`/admin/penggilingan/${data.penggilinganId}`);
@@ -371,5 +418,38 @@ export async function deleteDistribusi(id: number, targetPenggilinganId: number)
     return { success: true, message: 'Data distribusi beras berhasil dihapus.' };
   } catch (error: any) {
     return { success: false, error: error.message || 'Gagal menghapus data distribusi beras.' };
+  }
+}
+
+export async function verifySumberGabah(id: number) {
+  try {
+    const { isAdmin } = await getSessionData();
+    if (!isAdmin) return { success: false, error: 'Akses ditolak. Hanya Admin yang dapat memverifikasi.' };
+    await db.update(penggilinganSumberGabah).set({ statusVerifikasi: 'Verified' }).where(eq(penggilinganSumberGabah.id, id));
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function verifyProduksi(id: number) {
+  try {
+    const { isAdmin } = await getSessionData();
+    if (!isAdmin) return { success: false, error: 'Akses ditolak. Hanya Admin yang dapat memverifikasi.' };
+    await db.update(penggilinganProduksi).set({ statusVerifikasi: 'Verified' }).where(eq(penggilinganProduksi.id, id));
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function verifyDistribusi(id: number) {
+  try {
+    const { isAdmin } = await getSessionData();
+    if (!isAdmin) return { success: false, error: 'Akses ditolak. Hanya Admin yang dapat memverifikasi.' };
+    await db.update(penggilinganDistribusi).set({ statusVerifikasi: 'Verified' }).where(eq(penggilinganDistribusi.id, id));
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X } from 'lucide-react';
+import { Home, Map, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { LogoutButtonSidebar } from './LogoutButton';
 
@@ -105,7 +105,12 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
               )}
 
               {(isAdmin || userRole === 'operator_penggilingan') && (
-                <NavItem href="/admin/penggilingan" icon={Factory} isActive={pathname?.includes('/admin/penggilingan')}>Penggilingan Gabah</NavItem>
+                <NavItem href="/admin/penggilingan" icon={Factory} isActive={pathname?.includes('/admin/penggilingan')}>
+                  {isAdmin ? 'Mitra Penggilingan' : 'Operasional Penggilingan'}
+                </NavItem>
+              )}
+              {isAdmin && (
+                <NavItem href="/admin/matriks-logistik" icon={Map} isActive={pathname?.includes('/admin/matriks-logistik')}>Matriks Geo-Logistik</NavItem>
               )}
 
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (

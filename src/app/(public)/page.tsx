@@ -34,34 +34,94 @@ export default async function Public({
   let distribusis: any[] = [];
   let pabriks: any[] = [];
   try {
-    sumbers = await db.query.penggilinganSumberGabah.findMany({
-      orderBy: [desc(penggilinganSumberGabah.mingguMulai)],
-      limit: 10
-    });
-    distribusis = await db.query.penggilinganDistribusi.findMany({
-      with: { sppgTujuan: true },
-      orderBy: [desc(penggilinganDistribusi.mingguMulai)],
-      limit: 10
-    });
+    sumbers = await db.query.penggilinganSumberGabah.findMany();
+    distribusis = await db.query.penggilinganDistribusi.findMany();
+    produksis = await db.query.penggilinganProduksi.findMany();
     pabriks = await db.query.penggilingan.findMany();
   } catch (e) {}
 
   const totalKapasitas = pabriks.reduce((acc, curr) => acc + Number(curr.kapasitasTerpasangKgMinggu || 0), 0);
-  const formatPeriode = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   
-  const formattedGabah = sumbers.map(s => ({
-    id: s.id,
-    periode: formatPeriode(s.mingguMulai),
-    sumber: s.sumberGabah,
-    volume: Number(s.volumeKg)
+  let totalGabah = 0;
+  let totalGabahLokal = 0;
+  sumbers.forEach(s => {
+    const vol = Number(s.volumeKg || 0);
+    totalGabah += vol;
+    if (s.lokasiWilayah === 'Dalam Lebak' || s.lokasiWilayah === 'Dalam Kabupaten Lebak') {
+      totalGabahLokal += vol;
+    }
+  });
+  const gabahLuarLebak = totalGabah - totalGabahLokal;
+
+  let totalBerasUtama = 0;
+  produksis.forEach(p => {
+    totalBerasUtama += Number(p.berasDihasilkanKg || 0);
+  });
+
+  let totalDistribusi = 0;
+  let distribusiSppg = 0;
+  let distribusiLokalUmum = 0;
+  let distribusiLuar = 0;
+
+  distribusis.forEach(d => {
+    const vol = Number(d.volumeKg || 0);
+    totalDistribusi += vol;
+    if (d.tujuanTipe === 'SPPG') {
+      distribusiSppg += vol;
+    } else if (d.wilayahDistribusi === 'Dalam Lebak' || d.wilayahDistribusi === 'Dalam Kabupaten Lebak') {
+      distribusiLokalUmum += vol;
+    } else {
+      distribusiLuar += vol;
+    }
+  });
+
+  const persenLokal = totalGabah > 0 ? ((totalGabahLokal / totalGabah) * 100).toFixed(1) : '0.0';
+  const rataRendemen = totalGabah > 0 ? ((totalBerasUtama / totalGabah) * 100).toFixed(1) : '0.0';
+
+  const uniqueWeeks = new Set(sumbers.map(s => s.mingguMulai).filter(Boolean));
+  const weekCount = uniqueWeeks.size > 0 ? uniqueWeeks.size : 1;
+  const avgGabahPerWeek = totalGabah / weekCount;
+  const utilisasiMesin = totalKapasitas > 0 ? ((avgGabahPerWeek / totalKapasitas) * 100).toFixed(1) : '0.0';
+
+  const gabahBulanan: Record<string, number> = {};
+  sumbers.forEach(s => {
+    if (!s.mingguMulai) return;
+    const month = s.mingguMulai.substring(0, 7);
+    gabahBulanan[month] = (gabahBulanan[month] || 0) + Number(s.volumeKg || 0);
+  });
+
+  const distribusiBulanan: Record<string, number> = {};
+  distribusis.forEach(d => {
+    if (!d.mingguMulai) return;
+    const month = d.mingguMulai.substring(0, 7);
+    distribusiBulanan[month] = (distribusiBulanan[month] || 0) + Number(d.volumeKg || 0);
+  });
+
+  const formattedGabah = Object.entries(gabahBulanan).sort((a, b) => b[0].localeCompare(a[0])).map(([bulan, volume], index) => ({
+    id: index,
+    periode: bulan,
+    volume: volume
   }));
 
-  const formattedDistribusi = distribusis.map(d => ({
-    id: d.id,
-    periode: formatPeriode(d.mingguMulai),
-    lokus: d.sppgTujuan?.namaSppg || d.lokasiLain || 'Lainnya',
-    volume: Number(d.volumeKg)
+  const formattedDistribusi = Object.entries(distribusiBulanan).sort((a, b) => b[0].localeCompare(a[0])).map(([bulan, volume], index) => ({
+    id: index,
+    periode: bulan,
+    volume: volume
   }));
+
+  const macroStats = {
+    totalGabah,
+    totalGabahLokal,
+    gabahLuarLebak,
+    totalDistribusi,
+    distribusiSppg,
+    distribusiLokalUmum,
+    distribusiLuar,
+    totalKapasitas,
+    persenLokal,
+    rataRendemen,
+    utilisasiMesin
+  };
   const laporanHarian = await getPublicLaporanHarian(dateStr);
   const settings = await getSiteSettings();
   const pengumumanList = await getPengumumanAktif();
@@ -211,7 +271,7 @@ export default async function Public({
           <PenggilinganClient 
             gabahData={formattedGabah} 
             distribusiData={formattedDistribusi} 
-            totalKapasitas={totalKapasitas} 
+            macroStats={macroStats} 
           />
         </div>
       </section>

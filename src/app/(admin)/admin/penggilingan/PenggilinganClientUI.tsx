@@ -267,8 +267,8 @@ export default function PenggilinganClientUI({
                 </div>
 
                 <div>
-                  <label className="block mb-2 text-sm font-semibold text-slate-700">Kapasitas Terpasang (kg/minggu)</label>
-                  <input name="kapasitasTerpasangKgMinggu" defaultValue={editItem?.kapasitasTerpasangKgMinggu || ''} type="number" step="0.01" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Contoh: 1500" />
+                  <label className="block mb-2 text-sm font-semibold text-slate-700">Kapasitas Maksimal Mesin (Kg/Minggu)</label>
+                  <input name="kapasitasTerpasangKgMinggu" defaultValue={editItem?.kapasitasTerpasangKgMinggu || ''} type="number" step="0.01" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all" placeholder="Contoh: 15000" />
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Status Operasional</label>
@@ -348,6 +348,7 @@ export default function PenggilinganClientUI({
                 <th className="p-5">Unit / Nama Dagang</th>
                 <th className="p-5">Pelaku Usaha & Kontak</th>
                 <th className="p-5">Reg. PDUK & NIB</th>
+                <th className="p-5">Kapasitas Maks (Kg/Mg)</th>
                 <th className="p-5">Status</th>
                 <th className="p-5 text-right">Aksi</th>
               </tr>
@@ -376,6 +377,10 @@ export default function PenggilinganClientUI({
                   <td className="p-5">
                     <div className="font-semibold text-slate-700 text-xs">PDUK: {item.nomorRegistrasiPduk || '-'}</div>
                     <div className="text-slate-500 text-xs mt-1">NIB: {item.nib || '-'}</div>
+                  </td>
+                  <td className="p-5">
+                    <div className="font-black text-slate-800">{item.kapasitasTerpasangKgMinggu ? Number(item.kapasitasTerpasangKgMinggu).toLocaleString('id-ID') : '-'}</div>
+                    <div className="text-slate-500 text-xs">Kg/Minggu</div>
                   </td>
                   <td className="p-5">
                     <div className="flex flex-col gap-2 items-start">

@@ -176,6 +176,7 @@ export const sppgPenerimaManfaat = pgTable("sppg_penerima_manfaat", {
   tanggalMulai: date("tanggal_mulai").notNull(),
   tanggalSelesai: date("tanggal_selesai"),
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => {
@@ -244,6 +245,7 @@ export const sppgPosyanduManfaat = pgTable("sppg_posyandu_manfaat", {
   tanggalMulai: date("tanggal_mulai").notNull(),
   tanggalSelesai: date("tanggal_selesai"),
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => {
@@ -370,6 +372,7 @@ export const penggilinganSumberGabah = pgTable("penggilingan_sumber_gabah", {
 
   volumeKg: numeric("volume_kg", { precision: 12, scale: 2 }).notNull(),
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -395,7 +398,9 @@ export const penggilinganProduksi = pgTable("penggilingan_produksi", {
   // Financial/Ops
   biayaOperasional: numeric("biaya_operasional", { precision: 15, scale: 2 }),
 
+  batchNumber: text("batch_number"),
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -404,13 +409,31 @@ export const penggilinganDistribusi = pgTable("penggilingan_distribusi", {
   penggilinganId: integer("penggilingan_id").notNull().references(() => penggilingan.id, { onDelete: 'cascade' }),
   mingguMulai: date("minggu_mulai").notNull(),
   mingguSelesai: date("minggu_selesai").notNull(),
+  
+  // Produk
+  jenisProduk: text("jenis_produk"), // Beras Premium, Beras Medium, Dedak, Menir
   volumeKg: numeric("volume_kg", { precision: 12, scale: 2 }).notNull(),
-  hargaPerKg: numeric("harga_per_kg", { precision: 12, scale: 2 }),
-  hargaTotal: numeric("harga_total", { precision: 12, scale: 2 }),
+  
+  // Tujuan - Detail Lokasi
+  wilayahDistribusi: text("wilayah_distribusi"), // Dalam Kabupaten Lebak, Luar Kabupaten Lebak
   tujuanTipe: text("tujuan_tipe").notNull(), // SPPG, Pasar, BULOG, Retail, Lainnya
   sppgTujuanId: integer("sppg_tujuan_id").references(() => sppg.id),
-  lokasiLain: text("lokasi_lain"),
+  kecamatanTujuanId: integer("kecamatan_tujuan_id").references(() => kecamatan.id),
+  desaTujuanId: integer("desa_tujuan_id").references(() => desa.id),
+  alamatLengkap: text("alamat_lengkap"),     // Alamat detail (berlaku untuk dalam & luar lebak)
+  kontakPerson: text("kontak_person"),        // Nama & no. telp penerima (dalam & luar)
+  // Khusus Luar Kabupaten Lebak
+  provinsiTujuan: text("provinsi_tujuan"),
+  kabupatenKotaTujuan: text("kabupaten_kota_tujuan"),
+  lokasiLain: text("lokasi_lain"),            // Nama pembeli / nama tempat (luar lebak)
+  
+  // Logistik Outbound
+  nomorPolisi: text("nomor_polisi"),
+  namaSupir: text("nama_supir"),
+  fotoSuratJalan: text("foto_surat_jalan"),
+
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -487,6 +510,7 @@ export const sppgPembelianBahan = pgTable("sppg_pembelian_bahan", {
   hargaTotal: numeric("harga_total", { precision: 15, scale: 2 }),
   fotoNota: text("foto_nota"),
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -516,6 +540,7 @@ export const sppgPemakaianBahan = pgTable("sppg_pemakaian_bahan", {
   volume: numeric("volume", { precision: 12, scale: 2 }).notNull(),
   satuan: text("satuan").notNull().default("Kg"),
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -712,6 +737,14 @@ export const penggilinganDistribusiRelations = relations(penggilinganDistribusi,
     fields: [penggilinganDistribusi.sppgTujuanId],
     references: [sppg.id],
   }),
+  kecamatanTujuan: one(kecamatan, {
+    fields: [penggilinganDistribusi.kecamatanTujuanId],
+    references: [kecamatan.id],
+  }),
+  desaTujuan: one(desa, {
+    fields: [penggilinganDistribusi.desaTujuanId],
+    references: [desa.id],
+  }),
 }));
 
 // ==== LAPORAN AKTIFITAS SPPG ====
@@ -725,6 +758,7 @@ export const sppgLaporanAktifitas = pgTable("sppg_laporan_aktifitas", {
   jumlahPorsi: integer("jumlah_porsi"),
   status: text("status").default("Terkirim"), // Terkirim, Diterima, Bermasalah
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   fotoDokumentasi: text("foto_dokumentasi"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -760,6 +794,7 @@ export const sekolahLaporanAktifitas = pgTable("sekolah_laporan_aktifitas", {
   jumlahPorsiDiterima: integer("jumlah_porsi_diterima"),
   kondisiMakanan: text("kondisi_makanan").default("Baik"), // Baik, Rusak, Basi, Kurang
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   fotoDokumentasi: text("foto_dokumentasi"),
   diverifikasiOleh: text("diverifikasi_oleh"), // Nama guru/petugas
   createdAt: timestamp("created_at").defaultNow(),
@@ -786,6 +821,7 @@ export const posyanduLaporanAktifitas = pgTable("posyandu_laporan_aktifitas", {
   jumlahPorsiDiterima: integer("jumlah_porsi_diterima"),
   kondisiMakanan: text("kondisi_makanan").default("Baik"), // Baik, Rusak, Basi, Kurang
   catatan: text("catatan"),
+  statusVerifikasi: text("status_verifikasi").default("Draft"),
   fotoDokumentasi: text("foto_dokumentasi"),
   diverifikasiOleh: text("diverifikasi_oleh"), // Nama kader/petugas
   createdAt: timestamp("created_at").defaultNow(),

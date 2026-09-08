@@ -29,8 +29,8 @@ export default async function PenggilinganPage() {
     <main className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Penggilingan Gabah</h1>
-          <p className="text-slate-500 mt-1 text-sm font-medium">Manajemen data mitra penggilingan gabah di Kabupaten Lebak.</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Mitra Penggilingan</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Manajemen data mitra operasional unit penggilingan padi (UPP) di wilayah Lebak.</p>
         </div>
       </div>
 

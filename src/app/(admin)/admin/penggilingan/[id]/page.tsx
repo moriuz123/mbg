@@ -1,5 +1,5 @@
 import { getPenggilinganById, getSumberGabah, getProduksi, getDistribusi } from "@/app/actions/penggilingan";
-import { getSppg } from "@/app/actions/sppg";
+import { getAllSppg } from "@/app/actions/sppg";
 import { getKecamatan, getDesa } from "@/app/actions/wilayah";
 import PenggilinganDetailClientUI from "./PenggilinganDetailClientUI";
 import { redirect } from "next/navigation";
@@ -36,7 +36,7 @@ export default async function PenggilinganDetailPage({ params }: any) {
   const sumberGabahList = await getSumberGabah(penggilinganId);
   const produksiList = await getProduksi(penggilinganId);
   const distribusiList = await getDistribusi(penggilinganId);
-  const sppgList = await getSppg();
+  const sppgList = await getAllSppg();
   const kecamatanList = await getKecamatan();
   const desaList = await getDesa();
 
