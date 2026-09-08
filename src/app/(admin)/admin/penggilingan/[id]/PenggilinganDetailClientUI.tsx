@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Wheat, Factory, Truck, Plus, X, Trash2, Edit3 } from 'lucide-react';
+import { ArrowLeft, Wheat, Factory, Truck, Plus, X, Trash2, Edit3, Info } from 'lucide-react';
 import Link from 'next/link';
 import { 
   addSumberGabah, 
@@ -702,7 +702,20 @@ export default function PenggilinganDetailClientUI({
                 </div>
               )}
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 border-t border-slate-100 pt-4">
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <div className="bg-indigo-50/70 border border-indigo-100 p-4 rounded-xl mb-4 flex gap-3 text-indigo-900 text-xs items-start">
+                  <Info className="w-4 h-4 shrink-0 mt-0.5 text-indigo-600" />
+                  <div>
+                    <strong className="text-indigo-800 text-[13px] block mb-1">Panduan Istilah Kualitas Gabah</strong>
+                    <ul className="list-disc pl-4 space-y-1 text-indigo-700/80">
+                      <li><strong>GKP (Gabah Kering Panen):</strong> Gabah yang baru saja dipanen, masih basah (kadar air tinggi).</li>
+                      <li><strong>GKG (Gabah Kering Giling):</strong> Gabah yang sudah dijemur/dikeringkan dan siap digiling (standar kadar air ~14%).</li>
+                      <li><strong>Varietas:</strong> Jenis bibit padi (Ciherang, IR64, dll) yang menentukan standar kualitas beras yang akan dihasilkan.</li>
+                      <li><strong>Kadar Kotor/Hampa:</strong> Persentase butir gabah yang kosong atau tercampur kotoran (jerami/kerikil).</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block mb-1 text-xs font-bold text-slate-700">Kondisi Gabah *</label>
                   <select required name="kondisiGabah" className="w-full p-3 border rounded-xl text-xs font-medium">
@@ -760,6 +773,7 @@ export default function PenggilinganDetailClientUI({
               <button type="submit" disabled={isSubmitting} className="mt-2 w-full p-3 bg-primary-600 text-white rounded-xl font-bold text-xs shadow-md">
                 {isSubmitting ? 'Menyimpan...' : 'Simpan Sumber Gabah'}
               </button>
+              </div>
             </form>
           </div>
         </div>
