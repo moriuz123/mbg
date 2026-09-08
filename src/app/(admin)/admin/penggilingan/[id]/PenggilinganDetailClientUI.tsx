@@ -663,7 +663,6 @@ export default function PenggilinganDetailClientUI({
               <div className="mt-4">
                 <label className="block mb-1 text-xs font-bold text-slate-700">Volume Gabah (Kg) *</label>
                 <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 5000" className="w-full p-3 border rounded-xl text-xs font-medium" />
-                </div>
               </div>
 
               <div>
