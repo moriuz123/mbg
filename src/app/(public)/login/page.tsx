@@ -18,8 +18,8 @@ export default function Login() {
     setError('');
 
     const { data, error } = await authClient.signIn.username({
-        username,
-        password
+        username: username.trim().toLowerCase(),
+        password: password.trim()
     });
 
     if (error) {
