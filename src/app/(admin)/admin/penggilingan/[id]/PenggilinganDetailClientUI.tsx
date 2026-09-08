@@ -807,7 +807,21 @@ export default function PenggilinganDetailClientUI({
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-3xl p-8 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={() => setIsProduksiOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700"><X size={20} /></button>
-            <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Realisasi Produksi Giling</h2>
+            <h2 className="mt-0 mb-4 text-lg font-bold text-slate-800">Catat Realisasi Produksi Giling</h2>
+            
+            <div className="bg-emerald-50/70 border border-emerald-100 p-4 rounded-xl mb-6 flex gap-3 text-emerald-900 text-xs items-start">
+              <Info className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+              <div>
+                <strong className="text-emerald-800 text-[13px] block mb-1">Kamus Istilah Produksi Penggilingan</strong>
+                <ul className="list-disc pl-4 space-y-1 text-emerald-700/80">
+                  <li><strong>Rendemen:</strong> Persentase beras utuh yang dihasilkan dari gabah yang digiling (Normalnya 60% - 65%). <i>Sistem akan menghitung ini secara otomatis.</i></li>
+                  <li><strong>Dedak / Bekatul:</strong> Produk sampingan berupa serbuk halus kulit ari beras. Sangat bernilai untuk dijual sebagai pakan ternak.</li>
+                  <li><strong>Menir:</strong> Pecahan beras berukuran sangat kecil (kurang dari seperempat butir). Laku dijual untuk pakan burung atau tepung.</li>
+                  <li><strong>Mutu Premium/Medium:</strong> Kualitas beras berdasarkan persentase derajat sosoh, kadar air, dan beras patah.</li>
+                </ul>
+              </div>
+            </div>
+
             <form onSubmit={handleProduksiSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
