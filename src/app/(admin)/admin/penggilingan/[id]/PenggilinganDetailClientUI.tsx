@@ -543,7 +543,20 @@ export default function PenggilinganDetailClientUI({
 
               <div>
                 <label className="block mb-1 text-xs font-bold text-slate-700">Sumber / Asal Gabah *</label>
-                <input required name="sumberGabah" type="text" placeholder="Misal: Gapoktan Tani Makmur / Petani Desa Maja" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                <select required name="sumberGabah" className="w-full p-3 border rounded-xl text-xs font-medium bg-white">
+                  <option value="" disabled selected>Pilih salah satu sumber...</option>
+                  <option value="Petani Langsung">Petani Langsung (Pembelian individu dari petani lokal)</option>
+                  <option value="Gapoktan / Poktan">Gapoktan / Poktan (Pembelian kolektif dari kelompok tani)</option>
+                  <option value="Pengepul / Tengkulak">Pengepul / Tengkulak (Pembelian via perantara/agen keliling)</option>
+                  <option value="Lahan Sendiri">Lahan Sendiri (Hasil panen dari sawah milik penggilingan sendiri)</option>
+                  <option value="Kemitraan">Kemitraan (Dari petani binaan / contract farming)</option>
+                  <option value="Penggilingan Kecil (Huller)">Penggilingan Kecil / Huller (Beli setengah giling dari desa)</option>
+                  <option value="BUMDes / KUD">BUMDes / KUD (Suplai dari badan usaha milik desa/koperasi)</option>
+                  <option value="Lumbung Pangan">Lumbung Pangan (Dari cadangan simpanan komunal masyarakat)</option>
+                  <option value="Pemasok Luar Daerah">Pemasok Luar Daerah (Kiriman dari kabupaten/provinsi lain)</option>
+                  <option value="Bulog / Pemerintah">Bulog / Pemerintah (Titipan giling / skema maklon negara)</option>
+                </select>
+                <p className="text-[10px] text-slate-500 mt-1">Pilih klasifikasi asal gabah/beras yang masuk ke penggilingan.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
