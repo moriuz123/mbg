@@ -599,7 +599,21 @@ export default function PenggilinganDetailClientUI({
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-3xl p-8 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={() => setIsSumberOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700"><X size={20} /></button>
-            <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Sumber Gabah Masuk</h2>
+            <h2 className="mt-0 mb-4 text-lg font-bold text-slate-800">Catat Sumber Gabah Masuk</h2>
+            
+            <div className="bg-indigo-50/70 border border-indigo-100 p-4 rounded-xl mb-6 flex gap-3 text-indigo-900 text-xs items-start">
+              <Info className="w-4 h-4 shrink-0 mt-0.5 text-indigo-600" />
+              <div>
+                <strong className="text-indigo-800 text-[13px] block mb-1">Panduan Istilah Kualitas Gabah</strong>
+                <ul className="list-disc pl-4 space-y-1 text-indigo-700/80">
+                  <li><strong>GKP (Gabah Kering Panen):</strong> Gabah yang baru saja dipanen, masih basah (kadar air tinggi).</li>
+                  <li><strong>GKG (Gabah Kering Giling):</strong> Gabah yang sudah dijemur/dikeringkan dan siap digiling (standar kadar air ~14%).</li>
+                  <li><strong>Varietas:</strong> Jenis bibit padi (Ciherang, IR64, dll) yang menentukan standar kualitas beras yang akan dihasilkan.</li>
+                  <li><strong>Kadar Kotor/Hampa:</strong> Persentase butir gabah yang kosong atau tercampur kotoran (jerami/kerikil).</li>
+                </ul>
+              </div>
+            </div>
+
             <form onSubmit={handleSumberSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -703,18 +717,6 @@ export default function PenggilinganDetailClientUI({
               )}
 
               <div className="mt-4 border-t border-slate-100 pt-4">
-                <div className="bg-indigo-50/70 border border-indigo-100 p-4 rounded-xl mb-4 flex gap-3 text-indigo-900 text-xs items-start">
-                  <Info className="w-4 h-4 shrink-0 mt-0.5 text-indigo-600" />
-                  <div>
-                    <strong className="text-indigo-800 text-[13px] block mb-1">Panduan Istilah Kualitas Gabah</strong>
-                    <ul className="list-disc pl-4 space-y-1 text-indigo-700/80">
-                      <li><strong>GKP (Gabah Kering Panen):</strong> Gabah yang baru saja dipanen, masih basah (kadar air tinggi).</li>
-                      <li><strong>GKG (Gabah Kering Giling):</strong> Gabah yang sudah dijemur/dikeringkan dan siap digiling (standar kadar air ~14%).</li>
-                      <li><strong>Varietas:</strong> Jenis bibit padi (Ciherang, IR64, dll) yang menentukan standar kualitas beras yang akan dihasilkan.</li>
-                      <li><strong>Kadar Kotor/Hampa:</strong> Persentase butir gabah yang kosong atau tercampur kotoran (jerami/kerikil).</li>
-                    </ul>
-                  </div>
-                </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block mb-1 text-xs font-bold text-slate-700">Kondisi Gabah *</label>
