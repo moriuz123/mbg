@@ -157,6 +157,9 @@ export async function addSumberGabah(data: {
   mingguMulai: string;
   mingguSelesai: string;
   sumberGabah: string;
+  namaSumber?: string;
+  alamatSumber?: string;
+  kontakPerson?: string;
   volumeKg: string;
   hargaBeliPerKg?: string;
   catatan?: string;
@@ -168,28 +171,14 @@ export async function addSumberGabah(data: {
       return { success: false, error: 'Akses ditolak' };
     }
 
-    // Validasi sisa stok
-    const produksiList = await db.query.penggilinganProduksi.findMany({
-      where: eq(penggilinganProduksi.penggilinganId, data.penggilinganId)
-    });
-    const distribusiList = await db.query.penggilinganDistribusi.findMany({
-      where: eq(penggilinganDistribusi.penggilinganId, data.penggilinganId)
-    });
-    
-    const totalProduksi = produksiList.reduce((acc, curr) => acc + Number(curr.kapasitasRealisasiKg || 0), 0);
-    const totalDistribusi = distribusiList.reduce((acc, curr) => acc + Number(curr.volumeKg || 0), 0);
-    const sisaStok = totalProduksi - totalDistribusi;
-    
-    if (Number(data.volumeKg) > sisaStok) {
-      return { success: false, error: `Gagal: Volume distribusi (${data.volumeKg} Kg) melebihi sisa stok gudang (${sisaStok} Kg).` };
-    }
-
-
     await db.insert(penggilinganSumberGabah).values({
       penggilinganId: data.penggilinganId,
       mingguMulai: data.mingguMulai,
       mingguSelesai: data.mingguSelesai,
       sumberGabah: data.sumberGabah,
+      namaSumber: data.namaSumber || null,
+      alamatSumber: data.alamatSumber || null,
+      kontakPerson: data.kontakPerson || null,
       volumeKg: data.volumeKg,
       hargaBeliPerKg: data.hargaBeliPerKg || null,
       catatan: data.catatan || null,

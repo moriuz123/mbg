@@ -85,6 +85,9 @@ export default function PenggilinganDetailClientUI({
       mingguMulai: formData.get('mingguMulai') as string,
       mingguSelesai: formData.get('mingguSelesai') as string,
       sumberGabah: formData.get('sumberGabah') as string,
+      namaSumber: formData.get('namaSumber') as string,
+      alamatSumber: formData.get('alamatSumber') as string,
+      kontakPerson: formData.get('kontakPerson') as string,
       volumeKg: formData.get('volumeKg') as string,
       hargaBeliPerKg: formData.get('hargaBeliPerKg') as string,
       catatan: formData.get('catatan') as string,
@@ -372,9 +375,10 @@ export default function PenggilinganDetailClientUI({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                  <th className="p-4 pl-6">Periode (Mingguan)</th>
-                  <th className="p-4">Sumber / Asal Gabah</th>
-                  <th className="p-4 text-right">Volume Gabah (Kg)</th>
+                  <th className="p-4 text-left">Periode (Minggu)</th>
+                  <th className="p-4 text-left">Klasifikasi Sumber</th>
+                  <th className="p-4 text-left">Detail Sumber</th>
+                  <th className="p-4 text-right">Volume Gabah</th>
                   <th className="p-4 text-right">Harga Beli (Rp/Kg)</th>
                   <th className="p-4 text-right pr-6">Aksi</th>
                 </tr>
@@ -383,7 +387,15 @@ export default function PenggilinganDetailClientUI({
                 {sumberGabahList.map((item) => (
                   <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50/80">
                     <td className="p-4 pl-6 font-medium text-slate-700">{item.mingguMulai} <span className="text-slate-400">s/d</span> {item.mingguSelesai}</td>
-                    <td className="p-4 font-bold text-slate-800">{item.sumberGabah}</td>
+                    <td className="p-4 font-bold text-slate-800">
+                      {item.sumberGabah}
+                    </td>
+                    <td className="p-4 text-sm text-slate-600">
+                      {item.namaSumber && <div className="font-semibold text-slate-800">{item.namaSumber}</div>}
+                      {item.alamatSumber && <div className="text-xs text-slate-500 mt-1">{item.alamatSumber}</div>}
+                      {item.kontakPerson && <div className="text-xs text-indigo-600 mt-0.5">{item.kontakPerson}</div>}
+                      {!item.namaSumber && !item.alamatSumber && !item.kontakPerson && <span className="text-slate-400 italic">-</span>}
+                    </td>
                     <td className="p-4 text-right font-black text-amber-700">{parseFloat(item.volumeKg).toLocaleString('id-ID')} kg</td>
                     <td className="p-4 text-right font-semibold text-slate-700">
                       {item.hargaBeliPerKg ? `Rp ${parseFloat(item.hargaBeliPerKg).toLocaleString('id-ID')}` : '-'}
@@ -400,7 +412,7 @@ export default function PenggilinganDetailClientUI({
                   </tr>
                 ))}
                 {sumberGabahList.length === 0 && (
-                  <tr><td colSpan={5} className="p-8 text-center text-slate-500">Belum ada data sumber gabah.</td></tr>
+                  <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada data sumber gabah.</td></tr>
                 )}
               </tbody>
             </table>
@@ -555,11 +567,27 @@ export default function PenggilinganDetailClientUI({
                   <option value="Lumbung Pangan">Lumbung Pangan (Dari cadangan simpanan komunal masyarakat)</option>
                   <option value="Pemasok Luar Daerah">Pemasok Luar Daerah (Kiriman dari kabupaten/provinsi lain)</option>
                   <option value="Bulog / Pemerintah">Bulog / Pemerintah (Titipan giling / skema maklon negara)</option>
+                  <option value="Lainnya">Lainnya (Sumber gabah lainnya)</option>
                 </select>
                 <p className="text-[10px] text-slate-500 mt-1">Pilih klasifikasi asal gabah/beras yang masuk ke penggilingan.</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Nama Sumber *</label>
+                  <input required name="namaSumber" type="text" placeholder="Misal: Bp. Budi / Gapoktan Maju" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Alamat Sumber</label>
+                  <input name="alamatSumber" type="text" placeholder="Misal: Desa Maja" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700">Kontak Person</label>
+                  <input name="kontakPerson" type="text" placeholder="Misal: 0812xxxxxx" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label className="block mb-1 text-xs font-bold text-slate-700">Volume Gabah (Kg) *</label>
                   <input required name="volumeKg" type="number" step="0.01" placeholder="Misal: 5000" className="w-full p-3 border rounded-xl text-xs font-medium" />
