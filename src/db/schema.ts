@@ -378,8 +378,23 @@ export const penggilinganProduksi = pgTable("penggilingan_produksi", {
   penggilinganId: integer("penggilingan_id").notNull().references(() => penggilingan.id, { onDelete: 'cascade' }),
   mingguMulai: date("minggu_mulai").notNull(),
   mingguSelesai: date("minggu_selesai").notNull(),
-  kapasitasRealisasiKg: numeric("kapasitas_realisasi_kg", { precision: 12, scale: 2 }).notNull(),
-  rendemenPersen: numeric("rendemen_persen", { precision: 5, scale: 2 }),
+  
+  // Input Baku
+  gabahDigilingKg: numeric("gabah_digiling_kg", { precision: 12, scale: 2 }).notNull(),
+  
+  // Output Utama
+  berasDihasilkanKg: numeric("beras_dihasilkan_kg", { precision: 12, scale: 2 }).notNull(),
+  mutuBeras: text("mutu_beras"), // Premium, Medium, Asalan
+  rendemenPersen: numeric("rendemen_persen", { precision: 5, scale: 2 }), // Auto-calculated
+  
+  // Output Sampingan (By-products)
+  dedakKg: numeric("dedak_kg", { precision: 12, scale: 2 }),
+  menirKg: numeric("menir_kg", { precision: 12, scale: 2 }),
+  sekamKg: numeric("sekam_kg", { precision: 12, scale: 2 }),
+  
+  // Financial/Ops
+  biayaOperasional: numeric("biaya_operasional", { precision: 15, scale: 2 }),
+
   catatan: text("catatan"),
   createdAt: timestamp("created_at").defaultNow(),
 });

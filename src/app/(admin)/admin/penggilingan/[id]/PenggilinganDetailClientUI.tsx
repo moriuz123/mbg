@@ -150,8 +150,13 @@ export default function PenggilinganDetailClientUI({
       penggilinganId: penggilingan.id,
       mingguMulai: formData.get('mingguMulai') as string,
       mingguSelesai: formData.get('mingguSelesai') as string,
-      kapasitasRealisasiKg: formData.get('kapasitasRealisasiKg') as string,
-      rendemenPersen: formData.get('rendemenPersen') as string,
+      gabahDigilingKg: formData.get('gabahDigilingKg') as string,
+      berasDihasilkanKg: formData.get('berasDihasilkanKg') as string,
+      mutuBeras: formData.get('mutuBeras') as string,
+      dedakKg: formData.get('dedakKg') as string,
+      menirKg: formData.get('menirKg') as string,
+      sekamKg: formData.get('sekamKg') as string,
+      biayaOperasional: formData.get('biayaOperasional') as string,
       catatan: formData.get('catatan') as string,
     });
     setIsSubmitting(false);
@@ -495,20 +500,36 @@ export default function PenggilinganDetailClientUI({
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                  <th className="p-4 pl-6">Periode (Mingguan)</th>
-                  <th className="p-4 text-right">Realisasi Produksi (Kg)</th>
-                  <th className="p-4 text-right">Rendemen (%)</th>
-                  <th className="p-4 text-right pr-6">Aksi</th>
+                <tr className="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
+                  <th className="p-3 pl-6">Periode</th>
+                  <th className="p-3 text-right">Gabah Masuk (Kg)</th>
+                  <th className="p-3 text-right">Beras Utama (Kg)</th>
+                  <th className="p-3 text-center">Mutu Beras</th>
+                  <th className="p-3 text-right">Produk Samping (Kg)</th>
+                  <th className="p-3 text-right">Rendemen</th>
+                  <th className="p-3 text-right pr-6">Aksi</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
                 {produksiList.map((item) => (
                   <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50/80">
-                    <td className="p-4 pl-6 font-medium text-slate-700">{item.mingguMulai} <span className="text-slate-400">s/d</span> {item.mingguSelesai}</td>
-                    <td className="p-4 text-right font-black text-slate-900">{parseFloat(item.kapasitasRealisasiKg).toLocaleString('id-ID')} kg</td>
-                    <td className="p-4 text-right font-bold text-emerald-600">{item.rendemenPersen ? `${item.rendemenPersen}%` : '-'}</td>
-                    <td className="p-4 text-right pr-6">
+                    <td className="p-3 pl-6 font-medium text-slate-700 text-xs">{item.mingguMulai} <span className="text-slate-400">s/d</span> {item.mingguSelesai}</td>
+                    <td className="p-3 text-right font-bold text-amber-700">{parseFloat(item.gabahDigilingKg).toLocaleString('id-ID')}</td>
+                    <td className="p-3 text-right font-black text-slate-900">{parseFloat(item.berasDihasilkanKg).toLocaleString('id-ID')}</td>
+                    <td className="p-3 text-center">
+                      {item.mutuBeras ? (
+                        <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold rounded-full">{item.mutuBeras}</span>
+                      ) : (
+                        <span className="text-slate-400">-</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-right text-xs">
+                      {item.dedakKg && <div className="text-slate-600">Dedak: <span className="font-bold">{parseFloat(item.dedakKg).toLocaleString('id-ID')}</span></div>}
+                      {item.menirKg && <div className="text-slate-600">Menir: <span className="font-bold">{parseFloat(item.menirKg).toLocaleString('id-ID')}</span></div>}
+                      {!item.dedakKg && !item.menirKg && <span className="text-slate-400">-</span>}
+                    </td>
+                    <td className="p-3 text-right font-bold text-emerald-600">{item.rendemenPersen ? `${item.rendemenPersen}%` : '-'}</td>
+                    <td className="p-3 text-right pr-6">
                       <button 
                         onClick={() => handleDeleteClick(item.id, 'produksi')}
                         className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
@@ -520,7 +541,7 @@ export default function PenggilinganDetailClientUI({
                   </tr>
                 ))}
                 {produksiList.length === 0 && (
-                  <tr><td colSpan={4} className="p-8 text-center text-slate-500">Belum ada data realisasi produksi.</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-slate-500">Belum ada data realisasi produksi.</td></tr>
                 )}
               </tbody>
             </table>
@@ -784,7 +805,7 @@ export default function PenggilinganDetailClientUI({
       {/* MODAL 2: REALISASI PRODUKSI */}
       {isProduksiOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl overflow-y-auto max-h-[90vh]">
+          <div className="bg-white rounded-3xl w-full max-w-3xl p-8 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={() => setIsProduksiOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700"><X size={20} /></button>
             <h2 className="mt-0 mb-6 text-lg font-bold text-slate-800">Catat Realisasi Produksi Giling</h2>
             <form onSubmit={handleProduksiSubmit} className="flex flex-col gap-4">
@@ -799,20 +820,62 @@ export default function PenggilinganDetailClientUI({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Realisasi Giling (Kg) *</label>
-                  <input required name="kapasitasRealisasiKg" type="number" step="0.01" placeholder="Misal: 3500" className="w-full p-3 border rounded-xl text-xs font-medium" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 border-t border-slate-100 pt-4">
+                {/* Kolom 1: Input Gabah */}
+                <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100">
+                  <h3 className="text-xs font-extrabold text-amber-800 mb-3 flex items-center gap-2"><Wheat size={14} /> Bahan Baku Masuk</h3>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-amber-900">Gabah Digiling (Kg) *</label>
+                    <input required name="gabahDigilingKg" type="number" step="0.01" placeholder="Misal: 10000" className="w-full p-3 border border-amber-200 rounded-xl text-xs font-bold text-amber-900 bg-white" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block mb-1 text-xs font-bold text-slate-700">Rendemen Beras (%)</label>
-                  <input name="rendemenPersen" type="number" step="0.1" placeholder="Misal: 62.5" className="w-full p-3 border rounded-xl text-xs font-medium" />
+
+                {/* Kolom 2: Output Beras */}
+                <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                  <h3 className="text-xs font-extrabold text-emerald-800 mb-3 flex items-center gap-2"><Factory size={14} /> Hasil Beras Utama</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block mb-1 text-xs font-bold text-emerald-900">Beras Dihasilkan (Kg) *</label>
+                      <input required name="berasDihasilkanKg" type="number" step="0.01" placeholder="Misal: 6250" className="w-full p-3 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-900 bg-white" />
+                    </div>
+                    <div>
+                      <label className="block mb-1 text-xs font-bold text-emerald-900">Mutu Beras *</label>
+                      <select required name="mutuBeras" className="w-full p-3 border border-emerald-200 rounded-xl text-xs font-medium bg-white">
+                        <option value="">Pilih Mutu...</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Asalan">Asalan</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block mb-1 text-xs font-bold text-slate-700">Catatan Mutu / Hasil Sampingan</label>
-                <textarea name="catatan" rows={2} placeholder="Catatan mutu beras, dedak, sekam..." className="w-full p-3 border rounded-xl text-xs font-medium" />
+              <div className="mt-2 border-t border-slate-100 pt-4">
+                <h3 className="text-xs font-extrabold text-slate-800 mb-3">Produk Sampingan & Operasional</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Dedak / Bekatul (Kg)</label>
+                    <input name="dedakKg" type="number" step="0.01" placeholder="Misal: 800" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Menir (Kg)</label>
+                    <input name="menirKg" type="number" step="0.01" placeholder="Misal: 150" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Sekam (Kg)</label>
+                    <input name="sekamKg" type="number" step="0.01" placeholder="Misal: 2000" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-700">Biaya Operasional (Rp)</label>
+                    <input name="biayaOperasional" type="number" placeholder="Misal: 150000" className="w-full p-3 border rounded-xl text-xs font-medium" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-2">
+                <label className="block mb-1 text-xs font-bold text-slate-700">Catatan Tambahan</label>
+                <input name="catatan" type="text" placeholder="Catatan mengenai proses giling (opsional)" className="w-full p-3 border rounded-xl text-xs font-medium" />
               </div>
 
               <button type="submit" disabled={isSubmitting} className="mt-2 w-full p-3 bg-primary-600 text-white rounded-xl font-bold text-xs shadow-md">

@@ -249,8 +249,13 @@ export async function addProduksi(data: {
   penggilinganId: number;
   mingguMulai: string;
   mingguSelesai: string;
-  kapasitasRealisasiKg: string;
-  rendemenPersen?: string;
+  gabahDigilingKg: string;
+  berasDihasilkanKg: string;
+  mutuBeras?: string;
+  dedakKg?: string;
+  menirKg?: string;
+  sekamKg?: string;
+  biayaOperasional?: string;
   catatan?: string;
 }) {
   try {
@@ -259,12 +264,25 @@ export async function addProduksi(data: {
       return { success: false, error: 'Akses ditolak' };
     }
 
+    const giling = parseFloat(data.gabahDigilingKg);
+    const beras = parseFloat(data.berasDihasilkanKg);
+    let rendemen = null;
+    if (giling > 0) {
+      rendemen = ((beras / giling) * 100).toFixed(2);
+    }
+
     await db.insert(penggilinganProduksi).values({
       penggilinganId: data.penggilinganId,
       mingguMulai: data.mingguMulai,
       mingguSelesai: data.mingguSelesai,
-      kapasitasRealisasiKg: data.kapasitasRealisasiKg,
-      rendemenPersen: data.rendemenPersen || null,
+      gabahDigilingKg: data.gabahDigilingKg,
+      berasDihasilkanKg: data.berasDihasilkanKg,
+      mutuBeras: data.mutuBeras || null,
+      rendemenPersen: rendemen,
+      dedakKg: data.dedakKg || null,
+      menirKg: data.menirKg || null,
+      sekamKg: data.sekamKg || null,
+      biayaOperasional: data.biayaOperasional || null,
       catatan: data.catatan || null,
     });
     revalidatePath(`/admin/penggilingan/${data.penggilinganId}`);
