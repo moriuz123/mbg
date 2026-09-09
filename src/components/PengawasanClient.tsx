@@ -168,13 +168,15 @@ export default function PengawasanClient({
               {activeTab === 'uji' && 'Hasil sampel pengujian bebas bahan kimia berbahaya & mikrobiologi.'}
             </p>
           </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-bold text-xs sm:text-sm hover:bg-primary-700 transition-all shadow-sm shrink-0"
-          >
-            <Plus size={18} />
-            Catat {activeTab === 'pembelian' ? 'Pembelian' : activeTab === 'pemakaian' ? 'Pemakaian' : 'Hasil Uji'}
-          </button>
+          {activeTab !== 'stok' && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-bold text-xs sm:text-sm hover:bg-primary-700 transition-all shadow-sm shrink-0"
+            >
+              <Plus size={18} />
+              Catat {activeTab === 'pembelian' ? 'Pembelian' : activeTab === 'pemakaian' ? 'Pemakaian' : 'Hasil Uji'}
+            </button>
+          )}
         </div>
 
         <div className="overflow-x-auto w-full">
