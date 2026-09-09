@@ -177,7 +177,7 @@ export default function PengawasanClient({
                     <th className="px-6 py-4">Bahan Pangan</th>
                     <th className="px-6 py-4">Volume</th>
                     <th className="px-6 py-4">Pemasok</th>
-                    <th className="px-6 py-4">Harga Total</th>
+                    
                     <th className="px-6 py-4 text-right">Aksi</th>
                   </>
                 )}
@@ -209,9 +209,6 @@ export default function PengawasanClient({
                   <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
                   <td className="px-6 py-4 font-bold text-emerald-600">{d.volume} {d.satuan}</td>
                   <td className="px-6 py-4 font-medium text-slate-600">{d.pemasokNama || '-'}</td>
-                  <td className="px-6 py-4 font-bold text-slate-700">
-                    {d.hargaTotal ? `Rp ${Number(d.hargaTotal).toLocaleString('id-ID')}` : '-'}
-                  </td>
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => handleDeleteClick(d.id, 'pembelian')} 
@@ -373,11 +370,7 @@ export default function PengawasanClient({
                       <input type="text" name="satuan" required defaultValue="Kg" placeholder="Kg / Liter / Ikat" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Harga Total Pembelian (Rp)</label>
-                    <input type="number" name="hargaTotal" min="0" placeholder="Misal: 2250000" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 text-sm" />
-                    <p className="text-xs text-slate-400 mt-1">Masukkan total nilai transaksi belanja dari nota/kuitansi.</p>
-                  </div>
+                  
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Catatan / No. Kuitansi</label>
                     <input type="text" name="catatan" placeholder="Misal: Nota #10293, Pembelian Beras Medium Super" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
