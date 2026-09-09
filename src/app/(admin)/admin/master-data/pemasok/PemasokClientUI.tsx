@@ -20,7 +20,8 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
 
   // Pagination & Filtering state
   const [searchQuery, setSearchQuery] = useState('');
-  const [regionFilter, setRegionFilter] = useState('Semua'); // Semua, Dalam Lebak, Luar Lebak
+  const [regionFilter, setRegionFilter] = useState('Semua');
+  const [tipeFilter, setTipeFilter] = useState('Semua'); // Semua, Lokal, Koperasi, dll
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -132,10 +133,15 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
       if (regionFilter === 'Luar Lebak') {
         return !!(item.kabupaten?.isLuarBanten || (item.kabupaten && item.kabupaten.namaKabupaten !== 'Kabupaten Lebak'));
       }
+
+      // Tipe Pemasok Filter
+      if (tipeFilter !== 'Semua') {
+        if ((item.tipePemasok || 'Lokal') !== tipeFilter) return false;
+      }
       
       return true;
     });
-  }, [initialData, searchQuery, regionFilter]);
+  }, [initialData, searchQuery, regionFilter, tipeFilter]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
@@ -201,6 +207,18 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
             <option value="Semua">Semua Wilayah</option>
             <option value="Dalam Lebak">Dalam Lebak</option>
             <option value="Luar Lebak">Luar Lebak</option>
+          </select>
+          <select 
+            value={tipeFilter}
+            onChange={(e) => { setTipeFilter(e.target.value); setCurrentPage(1); }}
+            className="w-full sm:w-auto p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm font-medium text-slate-700 bg-white"
+          >
+            <option value="Semua">Semua Tipe</option>
+            <option value="Lokal">Lokal (Petani/KWT)</option>
+            <option value="Koperasi">Koperasi</option>
+            <option value="BUMDes">BUMDes</option>
+            <option value="Perusahaan">Perusahaan/PT/CV</option>
+            <option value="Individu">Individu/Mandiri</option>
           </select>
         </div>
 
