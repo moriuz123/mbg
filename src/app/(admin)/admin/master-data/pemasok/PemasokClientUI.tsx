@@ -38,9 +38,6 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
       email: formData.get('email') as string,
       alamatPemasok: formData.get('alamatPemasok') as string,
       status: formData.get('status') as string || 'Aktif',
-      bankNama: formData.get('bankNama') as string,
-      bankRekening: formData.get('bankRekening') as string,
-      bankAtasNama: formData.get('bankAtasNama') as string,
       kontak: formData.get('kontak') as string,
     };
     
@@ -314,27 +311,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
                 </div>
               </div>
 
-              {/* Seksi Rekening Bank */}
-              <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                  <span className="w-1.5 h-4 bg-primary-500 rounded-full"></span>
-                  Informasi Rekening Bank
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block mb-2 text-sm font-semibold text-slate-700">Nama Bank</label>
-                    <input name="bankNama" type="text" defaultValue={editData?.bankNama || ''} className="w-full p-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="Contoh: Bank bjb" />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-semibold text-slate-700">Nomor Rekening</label>
-                    <input name="bankRekening" type="text" defaultValue={editData?.bankRekening || ''} className="w-full p-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="1234567890" />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-semibold text-slate-700">Atas Nama</label>
-                    <input name="bankAtasNama" type="text" defaultValue={editData?.bankAtasNama || ''} className="w-full p-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="Atas nama di rekening..." />
-                  </div>
-                </div>
-              </div>
+              {
               
               <button 
                 type="submit" 
@@ -356,7 +333,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
                 <th className="p-5">Nama Pemasok / Tipe</th>
                 <th className="p-5">Wilayah & Alamat</th>
                 <th className="p-5">Kontak & PIC</th>
-                <th className="p-5">Bank & Rekening</th>
+                
                 <th className="p-5 text-center">Status</th>
                 <th className="p-5 text-right">Aksi</th>
               </tr>
@@ -384,17 +361,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
                     <div className="text-xs text-slate-500 mt-0.5">{item.picKontak || item.kontak || '-'}</div>
                     {item.email && <div className="text-xs text-slate-500 mt-0.5">{item.email}</div>}
                   </td>
-                  <td className="p-5 border-t border-slate-100">
-                    {item.bankNama ? (
-                      <div className="text-sm">
-                        <div className="font-bold text-slate-700">{item.bankNama}</div>
-                        <div className="text-xs text-slate-600">{item.bankRekening}</div>
-                        <div className="text-xs text-slate-500">a.n {item.bankAtasNama}</div>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-slate-400 italic">Belum diatur</span>
-                    )}
-                  </td>
+                  
                   <td className="p-5 border-t border-slate-100 text-center">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
                       item.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
@@ -424,7 +391,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
               ))}
               {filteredData.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-slate-500">
+                  <td colSpan={5} className="p-12 text-center text-slate-500">
                     <Truck size={48} className="mx-auto mb-4 text-slate-300" />
                     <p className="font-medium text-lg">Data Pemasok tidak ditemukan</p>
                   </td>
