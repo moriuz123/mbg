@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 // ==== PEMASOK ====
 export async function getPemasok() {
   return await db.query.pemasok.findMany({
+    with: { kabupaten: true },
     orderBy: [desc(pemasok.id)],
   });
 }

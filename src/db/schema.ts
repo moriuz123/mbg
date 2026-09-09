@@ -11,6 +11,7 @@ export const user = pgTable("user", {
   image: text("image"),
   role: text("role").default("publik").notNull(), // admin_dinas, operator_sppg, operator_penggilingan, operator_sekolah, operator_posyandu
   sppgId: integer("sppg_id"),
+  kabupatenId: integer("kabupaten_id"),
   kecamatanId: integer("kecamatan_id"),
   penggilinganId: integer("penggilingan_id"),
   sekolahId: integer("sekolah_id"),
@@ -289,6 +290,7 @@ export const pemasok = pgTable("pemasok", {
   picKontak: text("pic_kontak"),
   email: text("email"),
   alamatPemasok: text("alamat_pemasok"),
+  kabupatenId: integer("kabupaten_id"),
   kecamatanId: integer("kecamatan_id"),
   desaId: integer("desa_id"),
   status: text("status").default("Aktif"),
@@ -958,4 +960,11 @@ export const standarKecukupanGiziRelations = relations(standarKecukupanGizi, ({ 
 
 export const kategoriPenerimaRelations = relations(kategoriPenerima, ({ many }) => ({
   standarKecukupanGizi: many(standarKecukupanGizi),
+}));
+
+export const pemasokRelations = relations(pemasok, ({ one }) => ({
+  kabupaten: one(kabupaten, {
+    fields: [pemasok.kabupatenId],
+    references: [kabupaten.id],
+  }),
 }));

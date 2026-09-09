@@ -1,8 +1,10 @@
 import { getPemasok } from "@/app/actions/masterData";
+import { getKabupaten } from "@/app/actions/wilayah";
 import PemasokClientUI from "./PemasokClientUI";
 
 export default async function PemasokPage() {
   const data = await getPemasok();
+  const kabupaten = await getKabupaten();
 
   return (
     <main className="max-w-6xl mx-auto space-y-6">
@@ -13,7 +15,7 @@ export default async function PemasokPage() {
         </div>
       </div>
 
-      <PemasokClientUI initialData={data} />
+      <PemasokClientUI initialData={data} kabupatenList={kabupaten} />
     </main>
   );
 }

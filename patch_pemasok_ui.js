@@ -1,3 +1,6 @@
+const fs = require('fs');
+
+const code = `
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -396,11 +399,11 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
                     )}
                   </td>
                   <td className="p-5 border-t border-slate-100 text-center">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                    <span className={\`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border \${
                       item.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
                       item.status === 'Diblacklist' ? 'bg-red-50 text-red-700 border-red-200' :
                       'bg-slate-50 text-slate-700 border-slate-200'
-                    }`}>
+                    }\`}>
                       {item.status || 'Aktif'}
                     </span>
                   </td>
@@ -461,7 +464,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
                     <button
                       key={pageNum}
                       onClick={() => goToPage(pageNum)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors ${currentPage === pageNum ? 'bg-primary-600 text-white shadow-sm' : 'hover:bg-slate-100 text-slate-600'}`}
+                      className={\`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors \${currentPage === pageNum ? 'bg-primary-600 text-white shadow-sm' : 'hover:bg-slate-100 text-slate-600'}\`}
                     >
                       {pageNum}
                     </button>
@@ -483,3 +486,6 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
     </>
   );
 }
+`;
+
+fs.writeFileSync('src/app/(admin)/admin/master-data/pemasok/PemasokClientUI.tsx', code);
