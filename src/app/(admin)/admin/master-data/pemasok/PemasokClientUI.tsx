@@ -6,7 +6,7 @@ import { createPemasok, deletePemasok, updatePemasok } from '@/app/actions/maste
 import Toast from '@/components/ui/Toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
-export default function PemasokClientUI({ initialData, kabupatenList = [] }: { initialData: any[], kabupatenList?: any[] }) {
+export default function PemasokClientUI({ initialData, kabupatenList = [] }: { initialData: any[], kabupatenList?: any[] }) 
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -24,12 +24,12 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) 
     e.preventDefault();
     setIsSubmitting(true);
     
     const formData = new FormData(e.currentTarget);
-    const data: any = {
+    const data: any = 
       namaPemasok: formData.get('namaPemasok') as string,
       tipePemasok: formData.get('tipePemasok') as string,
       npwp: formData.get('npwp') as string,
@@ -41,49 +41,49 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
       kontak: formData.get('kontak') as string,
     };
     
-    if (formData.get('kabupatenId')) {
+    if (formData.get('kabupatenId')) 
       data.kabupatenId = parseInt(formData.get('kabupatenId') as string, 10);
     }
 
     let res;
-    if (editingId) {
+    if (editingId) 
       res = await updatePemasok(editingId, data);
-    } else {
+    } else 
       res = await createPemasok(data);
     }
     
     setIsSubmitting(false);
     
-    if (res.success) {
+    if (res.success) 
       setToastMessage(editingId ? 'Pemasok berhasil diupdate!' : 'Pemasok berhasil ditambahkan!');
       setToastType('success');
       setIsOpen(false);
-    } else {
+    } else 
       setToastMessage(res.error || 'Terjadi kesalahan');
       setToastType('error');
     }
   }
 
-  const handleEditClick = (item: any) => {
+  const handleEditClick = (item: any) => 
     setEditData(item);
     setEditingId(item.id);
     setIsOpen(true);
   };
 
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: number) => 
     setConfirmId(id);
     setConfirmOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async () => 
     if (!confirmId) return;
     setIsDeleting(true);
     
     const res = await deletePemasok(confirmId);
-    if (res.success) {
+    if (res.success) 
       setToastMessage('Pemasok berhasil dihapus!');
       setToastType('success');
-    } else {
+    } else 
       setToastMessage(res.error || 'Terjadi kesalahan');
       setToastType('error');
     }
@@ -92,22 +92,22 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
     setConfirmOpen(false);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = () => 
     if (!isSubmitting) setIsOpen(false);
   };
 
   // Compute stats for Lebak vs Luar Lebak
-  const stats = useMemo(() => {
+  const stats = useMemo(() => 
     let dalamLebak = 0;
     let luarLebak = 0;
     const citiesLuar = new Set<string>();
 
-    initialData.forEach(p => {
+    initialData.forEach(p => 
       // Logic for determining Lebak. If kabupatenId is 1 (Lebak) or not explicitly marked outside Banten/other regency
-      if (p.kabupaten?.isLuarBanten || (p.kabupaten && p.kabupaten.namaKabupaten !== 'Kabupaten Lebak')) {
+      if (p.kabupaten?.isLuarBanten || (p.kabupaten && p.kabupaten.namaKabupaten !== 'Kabupaten Lebak')) 
         luarLebak++;
         if (p.kabupaten.namaKabupaten) citiesLuar.add(p.kabupaten.namaKabupaten);
-      } else {
+      } else 
         dalamLebak++;
       }
     });
@@ -116,8 +116,8 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
   }, [initialData]);
 
   // Filtering
-  const filteredData = useMemo(() => {
-    return initialData.filter(item => {
+  const filteredData = useMemo(() => 
+    return initialData.filter(item => 
       // Text search
       const query = searchQuery.toLowerCase();
       const matchesSearch = item.namaPemasok?.toLowerCase().includes(query) || 
@@ -126,10 +126,10 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
       if (!matchesSearch) return false;
 
       // Region Filter
-      if (regionFilter === 'Dalam Lebak') {
+      if (regionFilter === 'Dalam Lebak') 
         return !(item.kabupaten?.isLuarBanten || (item.kabupaten && item.kabupaten.namaKabupaten !== 'Kabupaten Lebak'));
       }
-      if (regionFilter === 'Luar Lebak') {
+      if (regionFilter === 'Luar Lebak') 
         return !!(item.kabupaten?.isLuarBanten || (item.kabupaten && item.kabupaten.namaKabupaten !== 'Kabupaten Lebak'));
       }
       
@@ -141,7 +141,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
   const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
   const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const goToPage = (page: number) => {
+  const goToPage = (page: number) => 
     setCurrentPage(page);
   };
 
@@ -205,7 +205,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
         </div>
 
         <button 
-          onClick={() => {
+          onClick={() => 
             setEditingId(null);
             setEditData(null);
             setIsOpen(true);
@@ -311,7 +311,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
                 </div>
               </div>
 
-              {
+              
               
               <button 
                 type="submit" 
@@ -417,7 +417,7 @@ export default function PemasokClientUI({ initialData, kabupatenList = [] }: { i
               </button>
               
               <div className="flex items-center gap-1 px-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => 
                   let pageNum = currentPage;
                   if (totalPages <= 5) pageNum = i + 1;
                   else if (currentPage <= 3) pageNum = i + 1;
