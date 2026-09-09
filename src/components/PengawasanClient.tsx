@@ -17,6 +17,7 @@ export default function PengawasanClient({
   initialPembelian,
   initialPemakaian,
   initialUjiRapid,
+  initialKartuStok,
   masterParameterList,
   pemasokList,
   jenisPanganList,
@@ -25,7 +26,7 @@ export default function PengawasanClient({
   isAdmin,
   userSppgId
 }: any) {
-  const [activeTab, setActiveTab] = useState<'pembelian' | 'pemakaian' | 'uji'>('pembelian');
+  const [activeTab, setActiveTab] = useState<'stok' | 'pembelian' | 'pemakaian' | 'uji'>('stok');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sumberPasokan, setSumberPasokan] = useState('Pembelian Lokal');
@@ -35,6 +36,7 @@ export default function PengawasanClient({
   const safePembelian = Array.isArray(initialPembelian) ? initialPembelian : [];
   const safePemakaian = Array.isArray(initialPemakaian) ? initialPemakaian : [];
   const safeUjiRapid = Array.isArray(initialUjiRapid) ? initialUjiRapid : [];
+  const safeKartuStok = Array.isArray(initialKartuStok) ? initialKartuStok : [];
   const safeMasterParameterList = Array.isArray(masterParameterList) ? masterParameterList : [];
   const safePemasokList = Array.isArray(pemasokList) ? pemasokList : [];
   const safeJenisPanganList = Array.isArray(jenisPanganList) ? jenisPanganList : [];
@@ -109,6 +111,14 @@ export default function PengawasanClient({
       />
 
       <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 p-1 flex-wrap sm:flex-nowrap gap-1">
+        
+        <button
+          onClick={() => setActiveTab('stok')}
+          className={`px-4 py-3 text-sm font-bold transition-all border-b-2 ${activeTab === 'stok' ? 'border-primary-600 text-primary-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+        >
+          Kartu Stok Gudang
+        </button>
+
         <button
           onClick={() => setActiveTab('pembelian')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all ${
@@ -171,7 +181,46 @@ export default function PengawasanClient({
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr className="bg-slate-50/80 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
-                {activeTab === 'pembelian' && (
+                
+              {activeTab === 'stok' && (
+                <>
+                  <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50/80 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                            <th className="px-6 py-4">Bahan Pangan</th>
+                            <th className="px-6 py-4 text-center">Total Masuk</th>
+                            <th className="px-6 py-4 text-center">Total Keluar</th>
+                            <th className="px-6 py-4 text-center">Saldo Akhir</th>
+                            <th className="px-6 py-4">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-sm">
+                          {safeKartuStok.length === 0 && (
+                            <tr><td colSpan={5} className="text-center py-8 text-slate-400">Belum ada data stok</td></tr>
+                          )}
+                          {safeKartuStok.map((s: any) => (
+                            <tr key={s.id} className="hover:bg-slate-50/50">
+                              <td className="px-6 py-4 font-bold text-slate-800">{s.nama}</td>
+                              <td className="px-6 py-4 text-center font-medium text-emerald-600">+{s.totalIn} {s.satuan}</td>
+                              <td className="px-6 py-4 text-center font-medium text-amber-600">-{s.totalOut} {s.satuan}</td>
+                              <td className="px-6 py-4 text-center font-bold text-slate-800 text-lg">{s.sisa} <span className="text-sm text-slate-500">{s.satuan}</span></td>
+                              <td className="px-6 py-4">
+                                {s.sisa <= 0 ? <span className="px-2.5 py-1 bg-red-50 text-red-700 rounded-full text-xs font-bold">Habis</span> : 
+                                 s.sisa < 5 ? <span className="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold">Menipis</span> : 
+                                 <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold">Aman</span>}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'pembelian' && (
                   <>
                     <th className="px-6 py-4">Tanggal</th>
                     <th className="px-6 py-4">Bahan Pangan</th>
@@ -208,7 +257,10 @@ export default function PengawasanClient({
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPembelian}</td>
                   <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
                   <td className="px-6 py-4 font-bold text-emerald-600">{d.volume} {d.satuan}</td>
-                  <td className="px-6 py-4 font-medium text-slate-600">{d.pemasokNama || '-'}</td>
+                  <td className="px-6 py-4 font-medium text-slate-600">
+                    <div>{d.pemasokNama || '-'}</div>
+                    {d.fotoNota && <a href={d.fotoNota} target="_blank" className="text-xs text-blue-600 hover:underline mt-1 inline-block">Bukti Nota</a>}
+                  </td>
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => handleDeleteClick(d.id, 'pembelian')} 
@@ -375,6 +427,12 @@ export default function PengawasanClient({
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Catatan / No. Kuitansi</label>
                     <input type="text" name="catatan" placeholder="Misal: Nota #10293, Pembelian Beras Medium Super" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Bukti Nota / Surat Jalan (URL/File) <span className="text-slate-400 font-normal">(Opsional)</span></label>
+                    <input type="text" name="fotoNota" placeholder="URL gambar nota/faktur..." className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
+                  </div>
+
                 </>
               )}
 

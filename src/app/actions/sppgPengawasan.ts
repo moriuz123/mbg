@@ -47,6 +47,7 @@ export async function createPembelianBahan(formData: FormData) {
       satuan: formData.get('satuan') as string || 'Kg',
       hargaTotal: formData.get('hargaTotal') as string || null,
       catatan,
+      fotoNota: formData.get('fotoNota') as string || null,
     };
 
     await db.insert(sppgPembelianBahan).values(data);
@@ -212,36 +213,37 @@ export async function getActiveMasterParameterUjiList() {
 // ==========================================
 export async function createUjiRapidTest(formData: FormData) {
   try {
-    const { sppgId: userSppgId, isAdmin } = await getSessionData();
-    let sppgId = parseInt(formData.get('sppgId') as string);
+    let { sppgId, isAdmin } = await getSessionData();
+    const userSppgId = sppgId;
     
-    if (!isAdmin) {
-      if (!userSppgId) return { success: false, message: 'Anda tidak memiliki akses SPPG.' };
+    if (isAdmin && formData.get('sppgId')) {
+      sppgId = parseInt(formData.get('sppgId') as string, 10);
+    } else if (!sppgId) {
       sppgId = userSppgId;
     }
 
     const parameterUjiIdRaw = formData.get('parameterUjiId') as string;
-    const parameterUjiId = parameterUjiIdRaw ? parseInt(parameterUjiIdRaw) : null;
-    let parameterUjiName = formData.get('parameterUji') as string;
-
-    if (parameterUjiId && !isNaN(parameterUjiId)) {
-      const masterItem = await db.query.masterParameterUji.findFirst({
-        where: eq(masterParameterUji.id, parameterUjiId)
-      });
-      if (masterItem) {
-        parameterUjiName = masterItem.namaParameter;
-      }
+    let parameterUjiStr = formData.get('parameterUji') as string;
+    
+    if (parameterUjiIdRaw) {
+      const p = await db.query.masterParameterUji.findFirst({ where: eq(masterParameterUji.id, parseInt(parameterUjiIdRaw)) });
+      if (p) parameterUjiStr = p.namaParameter;
     }
 
+    const pembelianIdRaw = formData.get('pembelianId') as string;
+    const pembelianId = pembelianIdRaw ? parseInt(pembelianIdRaw) : null;
+    
     const data = {
       sppgId,
       jenisPanganId: parseInt(formData.get('jenisPanganId') as string),
-      parameterUjiId: parameterUjiId && !isNaN(parameterUjiId) ? parameterUjiId : null,
+      parameterUjiId: parameterUjiIdRaw ? parseInt(parameterUjiIdRaw) : null,
       tanggalUji: formData.get('tanggalUji') as string,
-      parameterUji: parameterUjiName || 'Pengujian Rutin',
+      parameterUji: parameterUjiStr,
       hasilUji: formData.get('hasilUji') as string,
       petugasPenguji: formData.get('petugasPenguji') as string,
       tindakanLanjut: formData.get('tindakanLanjut') as string || null,
+      pembelianId,
+      fotoBukti: formData.get('fotoBukti') as string || null,
     };
 
     await db.insert(sppgUjiRapidTest).values(data);
@@ -265,6 +267,7 @@ export async function getUjiRapidTest(sppgId?: number) {
       with: {
         jenisPangan: true,
         parameterMaster: true,
+        pembelian: { with: { pemasok: true } },
       },
       orderBy: [desc(sppgUjiRapidTest.tanggalUji), desc(sppgUjiRapidTest.createdAt)]
     });
@@ -370,4 +373,56 @@ export async function getDailyFreshFoodPurchasesStats(filterSppgId?: number, dat
     totalItemsPurchased: commodityList.length,
     totalVolumeOverall: commodityList.reduce((acc, curr) => acc + curr.totalVolume, 0)
   };
+}
+
+export async function getKartuStok(sppgId?: number) {
+  try {
+    const { sppgId: userSppgId, isAdmin } = await getSessionData();
+    const targetSppgId = isAdmin ? sppgId : userSppgId;
+
+    const whereClause = targetSppgId ? eq(sppgPembelianBahan.sppgId, targetSppgId) : undefined;
+    
+    // Get all IN
+    const inData = await db.query.sppgPembelianBahan.findMany({
+      where: whereClause,
+      with: { jenisPangan: true }
+    });
+    
+    // Get all OUT
+    const outClause = targetSppgId ? eq(sppgPemakaianBahan.sppgId, targetSppgId) : undefined;
+    const outData = await db.query.sppgPemakaianBahan.findMany({
+      where: outClause,
+      with: { jenisPangan: true }
+    });
+    
+    // Calculate Balance
+    const stokMap = new Map();
+    
+    inData.forEach(d => {
+      if (!d.jenisPangan) return;
+      const key = d.jenisPangan.id;
+      if (!stokMap.has(key)) {
+        stokMap.set(key, { id: key, nama: d.jenisPangan.namaBahan, satuan: d.satuan || 'Kg', totalIn: 0, totalOut: 0, sisa: 0 });
+      }
+      const vol = parseFloat(String(d.volume)) || 0;
+      stokMap.get(key).totalIn += vol;
+      stokMap.get(key).sisa += vol;
+    });
+    
+    outData.forEach(d => {
+      if (!d.jenisPangan) return;
+      const key = d.jenisPangan.id;
+      if (!stokMap.has(key)) {
+        stokMap.set(key, { id: key, nama: d.jenisPangan.namaBahan, satuan: d.satuan || 'Kg', totalIn: 0, totalOut: 0, sisa: 0 });
+      }
+      const vol = parseFloat(String(d.volume)) || 0;
+      stokMap.get(key).totalOut += vol;
+      stokMap.get(key).sisa -= vol;
+    });
+    
+    return Array.from(stokMap.values()).sort((a, b) => b.sisa - a.sisa);
+  } catch (error) {
+    console.error('Error getKartuStok:', error);
+    return [];
+  }
 }

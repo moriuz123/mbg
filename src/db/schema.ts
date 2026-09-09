@@ -590,6 +590,7 @@ export const sppgUjiRapidTest = pgTable("sppg_uji_rapid_test", {
   sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
   jenisPanganId: integer("jenis_pangan_id").notNull().references(() => jenisPangan.id),
   parameterUjiId: integer("parameter_uji_id").references(() => masterParameterUji.id),
+  pembelianId: integer("pembelian_id").references(() => sppgPembelianBahan.id),
   tanggalUji: date("tanggal_uji").notNull(),
   parameterUji: text("parameter_uji").notNull(), // Misal: Formalin, Boraks, E.Coli
   hasilUji: text("hasil_uji").notNull(), // Aman / Tidak Aman / Peringatan
@@ -611,6 +612,10 @@ export const sppgUjiRapidTestRelations = relations(sppgUjiRapidTest, ({ one }) =
   parameterMaster: one(masterParameterUji, {
     fields: [sppgUjiRapidTest.parameterUjiId],
     references: [masterParameterUji.id],
+  }),
+  pembelian: one(sppgPembelianBahan, {
+    fields: [sppgUjiRapidTest.pembelianId],
+    references: [sppgPembelianBahan.id],
   }),
 }));
 
