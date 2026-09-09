@@ -26,12 +26,11 @@ export async function getPublicSekolahPenerima() {
       namaKategori: kategoriPenerima.namaKategori,
     })
     .from(sekolah)
-    .innerJoin(sekolahPenerimaanMbg, eq(sekolah.id, sekolahPenerimaanMbg.sekolahId))
-    .innerJoin(sppg, eq(sppg.id, sekolahPenerimaanMbg.sppgId))
+    .leftJoin(sekolahPenerimaanMbg, eq(sekolah.id, sekolahPenerimaanMbg.sekolahId))
+    .leftJoin(sppg, eq(sppg.id, sekolahPenerimaanMbg.sppgId))
     .leftJoin(kecamatan, eq(kecamatan.id, sekolah.kecamatanId))
     .leftJoin(desa, eq(desa.id, sekolah.desaId))
-    .leftJoin(kategoriPenerima, eq(kategoriPenerima.id, sekolah.kategoriId))
-    .where(eq(sekolahPenerimaanMbg.status, 'Aktif'));
+    .leftJoin(kategoriPenerima, eq(kategoriPenerima.id, sekolah.kategoriId));
 
   const uniqueMap = new Map();
   for (const item of result) {

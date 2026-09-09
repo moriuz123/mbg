@@ -17,6 +17,8 @@ import PengumumanBadgeClient from '@/components/PengumumanBadgeClient';
 
 export const dynamic = 'force-dynamic';
 
+import { getFilterOptions } from '@/app/actions/publicSekolah';
+
 export default async function Public({
   searchParams
 }: {
@@ -33,11 +35,16 @@ export default async function Public({
   let produksis: any[] = [];
   let distribusis: any[] = [];
   let pabriks: any[] = [];
+  let filterOptions: any = { kecamatans: [], desas: [], kategoris: [] };
+  
   try {
     sumbers = await db.query.penggilinganSumberGabah.findMany();
     distribusis = await db.query.penggilinganDistribusi.findMany();
     produksis = await db.query.penggilinganProduksi.findMany();
-    pabriks = await db.query.penggilingan.findMany();
+    pabriks = await db.query.penggilingan.findMany({
+      with: { kecamatan: true, desa: true }
+    });
+    filterOptions = await getFilterOptions();
   } catch (e) {}
 
   const totalKapasitas = pabriks.reduce((acc, curr) => acc + Number(curr.kapasitasTerpasangKgMinggu || 0), 0);
@@ -195,61 +202,11 @@ export default async function Public({
         
       </section>
 
-      {/* QUICK ACCESS BADGES */}
-      <section className="py-16 bg-white relative z-20 border-b border-slate-100">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-            
-            {/* CTA Penggilingan */}
-            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-indigo-50/50 to-white border border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500">
-              <div className="w-20 h-20 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 mb-6 shrink-0">
-                <Factory size={36} strokeWidth={1.5} />
-              </div>
-              <div className="flex flex-col flex-1 justify-center mb-6">
-                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-indigo-700 transition-colors">Data Penggilingan</h3>
-                <p className="text-slate-500 text-base font-medium leading-relaxed">Transparansi serapan gabah dan produksi beras lokal.</p>
-              </div>
-              <Link href="/data-penggilingan" className="w-full py-4 rounded-xl bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-600 hover:text-white transition-colors">
-                Lihat Pre-Market
-              </Link>
-            </div>
 
-            {/* CTA Pemasok */}
-            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-emerald-50/50 to-white border border-emerald-100 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2 transition-all duration-500">
-              <div className="w-20 h-20 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500 mb-6 shrink-0">
-                <Package size={36} strokeWidth={1.5} />
-              </div>
-              <div className="flex flex-col flex-1 justify-center mb-6">
-                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-emerald-700 transition-colors">Katalog Pemasok</h3>
-                <p className="text-slate-500 text-base font-medium leading-relaxed">Direktori komoditas pangan dari petani dan peternak lokal.</p>
-              </div>
-              <Link href="/katalog-komoditas" className="w-full py-4 rounded-xl bg-emerald-50 text-emerald-600 font-bold hover:bg-emerald-600 hover:text-white transition-colors">
-                Buka Katalog
-              </Link>
-            </div>
-
-            {/* CTA Hilir MBG */}
-            <div className="group flex flex-col items-center text-center justify-between p-8 aspect-square rounded-2xl bg-gradient-to-b from-orange-50/50 to-white border border-orange-100 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-2 transition-all duration-500">
-              <div className="w-20 h-20 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 mb-6 shrink-0">
-                <Truck size={36} strokeWidth={1.5} />
-              </div>
-              <div className="flex flex-col flex-1 justify-center mb-6">
-                <h3 className="font-heading font-extrabold text-slate-800 text-2xl mb-3 group-hover:text-orange-700 transition-colors">Sistem Hilir (MBG)</h3>
-                <p className="text-slate-500 text-base font-medium leading-relaxed">Pantau distribusi dari Dapur Satelit ke sekolah dan posyandu.</p>
-              </div>
-              <Link href="#laporan-harian" className="w-full py-4 rounded-xl bg-orange-50 text-orange-600 font-bold hover:bg-orange-600 hover:text-white transition-colors">
-                Pantau Distribusi
-              </Link>
-            </div>
-            {/* Removed CTA Pengumuman */}
-
-          </div>
-        </div>
-      </section>
 
       {/* STATISTIK DISTRIBUSI */}
       <section id="statistik" className="py-24 bg-white relative overflow-hidden border-t border-slate-100">
-        <div className="container mx-auto px-4 max-w-[90rem] relative z-10">
+        <div className="container mx-auto px-4 max-w-7xl relative z-10">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <span className="text-accent-500 font-bold uppercase tracking-widest text-sm mb-3 block">Indikator Kinerja</span>
             <h2 className="font-heading text-4xl md:text-5xl font-extrabold text-[#071840] mb-6">Capaian Program Real-Time</h2>
@@ -272,6 +229,8 @@ export default async function Public({
             gabahData={formattedGabah} 
             distribusiData={formattedDistribusi} 
             macroStats={macroStats} 
+            pabrikList={pabriks}
+            filterOptions={filterOptions}
           />
         </div>
       </section>

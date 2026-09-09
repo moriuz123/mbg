@@ -26,11 +26,10 @@ export async function getPublicPosyanduPenerima() {
       namaDesa: desa.namaDesa,
     })
     .from(posyandu)
-    .innerJoin(posyanduPenerimaanMbg, eq(posyandu.id, posyanduPenerimaanMbg.posyanduId))
-    .innerJoin(sppg, eq(sppg.id, posyanduPenerimaanMbg.sppgId))
+    .leftJoin(posyanduPenerimaanMbg, eq(posyandu.id, posyanduPenerimaanMbg.posyanduId))
+    .leftJoin(sppg, eq(sppg.id, posyanduPenerimaanMbg.sppgId))
     .leftJoin(kecamatan, eq(kecamatan.id, posyandu.kecamatanId))
-    .leftJoin(desa, eq(desa.id, posyandu.desaId))
-    .where(eq(posyanduPenerimaanMbg.status, 'Aktif'));
+    .leftJoin(desa, eq(desa.id, posyandu.desaId));
 
   const uniqueMap = new Map();
   for (const item of result) {

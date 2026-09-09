@@ -1,9 +1,10 @@
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 import Link from 'next/link';
 import PenggilinganClient from './PenggilinganClient';
 import { db } from '@/db';
 import { penggilingan, penggilinganSumberGabah, penggilinganDistribusi, penggilinganProduksi } from '@/db/schema';
+import { getFilterOptions } from '@/app/actions/publicSekolah';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,7 @@ export default async function PublicPenggilingan() {
   let distribusis: any[] = [];
   let produksis: any[] = [];
   let pabriks: any[] = [];
+  let filterOptions: any = { kecamatans: [], desas: [], kategoris: [] };
 
   try {
     sumbers = await db.query.penggilinganSumberGabah.findMany();
@@ -25,6 +27,7 @@ export default async function PublicPenggilingan() {
     pabriks = await db.query.penggilingan.findMany({
       with: { kecamatan: true, desa: true }
     });
+    filterOptions = await getFilterOptions();
   } catch (e) {
     console.error('Error fetching public data:', e);
   }
@@ -115,27 +118,21 @@ export default async function PublicPenggilingan() {
   };
 
   return (
-    <div className="container py-8 animate-fade-in" style={{ marginTop: '80px', minHeight: 'calc(100vh - 80px)' }}>
-      <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: '2rem' }}>
-        <ArrowLeft size={18} /> Kembali ke Beranda
-      </Link>
-
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h2 className="text-3xl mb-2 font-black text-slate-800">Transparansi Rantai Pasok Hulu</h2>
-          <p className="text-slate-500 font-medium">Laporan agregat serapan gabah dan produksi beras lokal untuk program Makan Bergizi Gratis.</p>
-        </div>
-        <div className="badge badge-success" style={{ padding: '0.5rem 1rem', fontSize: '1rem', fontWeight: 'bold' }}>
-          Akses Publik Terbuka
-        </div>
-      </div>
-
-      <PenggilinganClient 
-        gabahData={formattedGabah} 
-        distribusiData={formattedDistribusi} 
-        macroStats={macroStats} 
-        pabrikList={pabriks}
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <PageHeader 
+        title="Transparansi Rantai Pasok Hulu" 
+        description="Laporan agregat serapan gabah, produksi beras lokal, dan direktori Mitra Penggilingan untuk program Makan Bergizi Gratis."
+        breadcrumbs={[{ label: 'Mitra Penggilingan' }]}
       />
+      <div className="container mx-auto px-4 max-w-7xl">
+        <PenggilinganClient 
+          gabahData={formattedGabah} 
+          distribusiData={formattedDistribusi} 
+          macroStats={macroStats} 
+          pabrikList={pabriks}
+          filterOptions={filterOptions}
+        />
+      </div>
     </div>
   );
 }

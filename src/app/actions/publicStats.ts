@@ -9,18 +9,17 @@ export async function getPublicStats() {
     // 1. Total Penerima Manfaat & Breakdown
     const { kategoriPenerima, sekolah } = await import("@/db/schema");
     const penerimaManfaatQuery = await db.select({
-      totalSiswa: sum(sppgPenerimaManfaat.jumlahTotal)
-    }).from(sppgPenerimaManfaat);
+      totalSiswa: sum(sekolah.jumlahSiswaTotal)
+    }).from(sekolah);
 
     const totalPenerima = Number(penerimaManfaatQuery[0]?.totalSiswa || 0);
 
     // Breakdown
     const breakdownQuery = await db.select({
       kategori: kategoriPenerima.namaKategori,
-      totalSiswa: sum(sppgPenerimaManfaat.jumlahTotal)
+      totalSiswa: sum(sekolah.jumlahSiswaTotal)
     })
-    .from(sppgPenerimaManfaat)
-    .leftJoin(sekolah, eq(sppgPenerimaManfaat.sekolahId, sekolah.id))
+    .from(sekolah)
     .leftJoin(kategoriPenerima, eq(sekolah.kategoriId, kategoriPenerima.id))
     .groupBy(kategoriPenerima.namaKategori);
 
@@ -55,8 +54,17 @@ export async function getPublicStats() {
     const posyanduQuery = await db.select({ count: count() }).from(posyandu);
     const totalPosyandu = posyanduQuery[0]?.count || 0;
 
-    const posyanduPenerimaQuery = await db.select({ total: sum(sppgPosyanduManfaat.jumlahTotal) }).from(sppgPosyanduManfaat);
+    const posyanduPenerimaQuery = await db.select({ 
+      total: sum(posyandu.jumlahTotal),
+      busui: sum(posyandu.jumlahBusui),
+      bumil: sum(posyandu.jumlahBumil),
+      balita: sum(posyandu.jumlahBalita),
+    }).from(posyandu);
+    
     const totalPosyanduPenerima = Number(posyanduPenerimaQuery[0]?.total || 0);
+    const totalBusui = Number(posyanduPenerimaQuery[0]?.busui || 0);
+    const totalBumil = Number(posyanduPenerimaQuery[0]?.bumil || 0);
+    const totalBalita = Number(posyanduPenerimaQuery[0]?.balita || 0);
 
     // Sekolah data
     const sekolahQuery = await db.select({ count: count() }).from(sekolah);
@@ -85,6 +93,9 @@ export async function getPublicStats() {
       totalSiswa,
       totalPosyandu,
       totalPosyanduPenerima,
+      totalBusui,
+      totalBumil,
+      totalBalita,
       keamananPangan,
       realisasiPengiriman
     };
@@ -98,6 +109,9 @@ export async function getPublicStats() {
       totalSiswa: 0,
       totalPosyandu: 0,
       totalPosyanduPenerima: 0,
+      totalBusui: 0,
+      totalBumil: 0,
+      totalBalita: 0,
       keamananPangan: 0,
       realisasiPengiriman: 0
     };

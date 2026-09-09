@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Wheat, Factory, TrendingUp, Percent, MapPin } from 'lucide-react';
+import { Wheat, Factory, TrendingUp, Percent, MapPin, Search, XCircle } from 'lucide-react';
 
 type MonthlyData = {
   id: number;
@@ -23,10 +23,14 @@ type MacroStats = {
   utilisasiMesin: string;
 };
 
-export default function PenggilinganClient({ gabahData, distribusiData, macroStats, pabrikList = [] }: { gabahData: MonthlyData[], distribusiData: MonthlyData[], macroStats: MacroStats, pabrikList?: any[] }) {
+export default function PenggilinganClient({ gabahData, distribusiData, macroStats, pabrikList = [], filterOptions = { kecamatans: [], desas: [], kategoris: [] } }: { gabahData: MonthlyData[], distribusiData: MonthlyData[], macroStats: MacroStats, pabrikList?: any[], filterOptions?: any }) {
   const [mainTab, setMainTab] = useState('dashboard');
   const [activeTab, setActiveTab] = useState('gabah');
   const [searchPabrik, setSearchPabrik] = useState('');
+  
+  const [filterKecamatan, setFilterKecamatan] = useState('');
+  const [filterDesa, setFilterDesa] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
 
   const getUtilisasiStatus = (utilisasi: string) => {
     const val = parseFloat(utilisasi);
@@ -37,7 +41,52 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
   
   const utilStatus = getUtilisasiStatus(macroStats.utilisasiMesin);
 
-  const filteredPabriks = pabrikList.filter(p => p.namaPenggilingan?.toLowerCase().includes(searchPabrik.toLowerCase()));
+  const filteredDesas = filterKecamatan 
+    ? filterOptions.desas.filter((d: any) => d.kecamatanId === parseInt(filterKecamatan))
+    : filterOptions.desas;
+
+  const filteredPabriks = pabrikList.filter(p => {
+    const matchSearch = p.namaPenggilingan?.toLowerCase().includes(searchPabrik.toLowerCase());
+    const matchKecamatan = filterKecamatan ? p.kecamatanId === parseInt(filterKecamatan) : true;
+    const matchDesa = filterDesa ? p.desaId === parseInt(filterDesa) : true;
+    const matchStatus = filterStatus ? p.status === filterStatus : true;
+    return matchSearch && matchKecamatan && matchDesa && matchStatus;
+  });
+
+  // Pagination Logic
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+  const totalPages = Math.ceil(filteredPabriks.length / itemsPerPage);
+  const currentPabriks = filteredPabriks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const resetFilters = () => {
+    setSearchPabrik('');
+    setFilterKecamatan('');
+    setFilterDesa('');
+    setFilterStatus('');
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchPabrik(e.target.value);
+    setCurrentPage(1); // Reset page on search
+  };
+
+  const handleKecamatanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterKecamatan(e.target.value);
+    setFilterDesa('');
+    setCurrentPage(1);
+  };
+
+  const handleDesaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterDesa(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterStatus(e.target.value);
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -237,19 +286,81 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
 
       {mainTab === 'direktori' && (
         <div className="animate-fade-in">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-slate-800">Katalog Mitra Penggilingan</h3>
-            <input 
-              type="text" 
-              placeholder="Cari nama penggilingan..." 
-              value={searchPabrik}
-              onChange={(e) => setSearchPabrik(e.target.value)}
-              className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
-            />
+          {/* Filters Section */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
+            <h3 className="text-sm font-bold text-slate-800 uppercase mb-4 flex items-center gap-2"><Search size={16} className="text-primary-600"/> Cari & Filter Penggilingan</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Cari Nama</label>
+                <input 
+                  type="text" 
+                  placeholder="Contoh: Berkah Mukti..." 
+                  value={searchPabrik}
+                  onChange={handleSearchChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Kecamatan</label>
+                <select 
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-colors"
+                  value={filterKecamatan} 
+                  onChange={handleKecamatanChange}
+                >
+                  <option value="">Semua Kecamatan</option>
+                  {filterOptions.kecamatans.map((k: any) => (
+                    <option key={k.id} value={k.id}>{k.nama}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Desa / Kelurahan</label>
+                <select 
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-colors disabled:opacity-50"
+                  value={filterDesa} 
+                  onChange={handleDesaChange}
+                  disabled={!filterKecamatan}
+                >
+                  <option value="">Semua Desa</option>
+                  {filteredDesas.map((d: any) => (
+                    <option key={d.id} value={d.id}>{d.nama}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Status Operasional</label>
+                <select 
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-colors"
+                  value={filterStatus} 
+                  onChange={handleStatusChange}
+                >
+                  <option value="">Semua Status</option>
+                  <option value="Aktif">Aktif</option>
+                  <option value="Tidak Aktif">Tidak Aktif</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mt-5 pt-4 border-t border-slate-100">
+              <span className="text-sm text-slate-500">
+                Menampilkan <strong className="text-slate-800">{filteredPabriks.length}</strong> mitra penggilingan.
+              </span>
+              {(searchPabrik || filterKecamatan || filterDesa || filterStatus) && (
+                <button 
+                  onClick={resetFilters}
+                  className="flex items-center gap-2 text-sm font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  <XCircle size={16} /> Reset Filter
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPabriks.map(pabrik => (
+            {currentPabriks.map(pabrik => (
               <div key={pabrik.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -281,6 +392,38 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
               </div>
             )}
           </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Sebelumnya
+              </button>
+              
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`w-10 h-10 rounded-lg text-sm font-bold transition-colors ${currentPage === i + 1 ? 'bg-primary-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Selanjutnya
+              </button>
+            </div>
+          )}
         </div>
       )}
     </>
