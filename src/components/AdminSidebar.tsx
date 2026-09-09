@@ -194,6 +194,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                   <NavItem href="/admin/master-data/yayasan" icon={Home} isActive={pathname?.includes('yayasan')} isSub>Yayasan</NavItem>
                   <NavItem href="/admin/master-data/sekolah" icon={GraduationCap} isActive={pathname?.includes('sekolah')} isSub>Sekolah</NavItem>
                   <NavItem href="/admin/master-data/posyandu" icon={HeartPulse} isActive={pathname?.includes('posyandu')} isSub>Posyandu</NavItem>
+                  <NavItem href="/admin/master-data/kabupaten" icon={MapPin} isActive={pathname?.includes('kabupaten')} isSub>Kabupaten</NavItem>
                   <NavItem href="/admin/master-data/kecamatan" icon={MapPin} isActive={pathname?.includes('kecamatan')} isSub>Kecamatan</NavItem>
                   <NavItem href="/admin/master-data/desa" icon={MapPin} isActive={pathname?.includes('desa')} isSub>Desa/Kelurahan</NavItem>
                   <NavItem href="/admin/master-data/komoditas" icon={ShoppingCart} isActive={pathname?.includes('komoditas') || pathname?.includes('jenis-pangan')} isSub>Komoditas</NavItem>

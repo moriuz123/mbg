@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from "@/db";
-import { kecamatan, desa } from "@/db/schema";
+import { kecamatan, desa, kabupaten } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -77,5 +77,42 @@ export async function deleteDesa(id: number) {
     return { success: true };
   } catch (err) {
     return { success: false, error: 'Gagal menghapus desa. Pastikan tidak ada data yang terikat (sekolah/sppg).' };
+  }
+}
+
+// --- KABUPATEN ---
+export async function getKabupaten() {
+  return await db.query.kabupaten.findMany({
+    orderBy: [desc(kabupaten.id)]
+  });
+}
+
+export async function createKabupaten(data: { namaKabupaten: string, isLuarBanten?: boolean }) {
+  try {
+    await db.insert(kabupaten).values(data);
+    revalidatePath('/admin/master-data/kabupaten');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: 'Gagal membuat data kabupaten. Mungkin nama sudah ada.' };
+  }
+}
+
+export async function updateKabupaten(id: number, data: { namaKabupaten: string, isLuarBanten?: boolean }) {
+  try {
+    await db.update(kabupaten).set(data).where(eq(kabupaten.id, id));
+    revalidatePath('/admin/master-data/kabupaten');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: 'Gagal mengupdate data kabupaten.' };
+  }
+}
+
+export async function deleteKabupaten(id: number) {
+  try {
+    await db.delete(kabupaten).where(eq(kabupaten.id, id));
+    revalidatePath('/admin/master-data/kabupaten');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: 'Gagal menghapus kabupaten. Pastikan tidak ada kecamatan yang terikat.' };
   }
 }

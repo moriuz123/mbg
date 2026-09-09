@@ -56,6 +56,12 @@ export const verification = pgTable("verification", {
 });
 
 // ==== WILAYAH ====
+export const kabupaten = pgTable("kabupaten", {
+  id: integer("kabupaten_id").primaryKey().generatedAlwaysAsIdentity(),
+  namaKabupaten: text("nama_kabupaten").notNull().unique(),
+  isLuarBanten: boolean("is_luar_banten").default(false).notNull(),
+});
+
 export const kecamatan = pgTable("kecamatan", {
   id: integer("kecamatan_id").primaryKey().generatedAlwaysAsIdentity(),
   namaKecamatan: text("nama_kecamatan").notNull().unique(),
