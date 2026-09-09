@@ -30,6 +30,7 @@ export default function KabupatenClientUI({ initialData }: { initialData: any[] 
     const formData = new FormData(e.currentTarget);
     const data = {
       namaKabupaten: formData.get('namaKabupaten') as string,
+      isLuarBanten: formData.get('isLuarBanten') === 'on',
     };
 
     let res;
@@ -120,9 +121,46 @@ export default function KabupatenClientUI({ initialData }: { initialData: any[] 
         onCancel={() => setConfirmOpen(false)}
       />
 
-                    <div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        {/* Search Box */}
+        <div className="relative w-full md:w-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="Cari kabupaten..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-sm"
+          />
+        </div>
+
+        <button 
+          onClick={() => {
+            setEditingId(null);
+            setEditData(null);
+            setIsOpen(true);
+          }}
+          className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 whitespace-nowrap w-full md:w-auto justify-center"
+        >
+          <Plus size={20} /> Tambah Kabupaten
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-8 relative shadow-2xl">
+            <button 
+              onClick={handleCloseModal}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+            <h2 className="mt-0 mb-6 text-2xl font-bold text-slate-800">{editingId ? 'Edit Kabupaten' : 'Tambah Kabupaten'}</h2>
+            
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div>
                 <label className="block mb-2 text-sm font-semibold text-slate-700">Nama Kabupaten *</label>
-                <input required name="namaKabupaten" type="text" defaultValue={editData?.namaKabupaten || ''} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Contoh: Kabupaten Bandung" />
+                <input required name="namaKabupaten" type="text" defaultValue={editData?.namaKabupaten || ''} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50" placeholder="Contoh: Rangkasbitung" />
               </div>
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="isLuarBanten" name="isLuarBanten" defaultChecked={editData?.isLuarBanten || false} className="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
@@ -158,9 +196,7 @@ export default function KabupatenClientUI({ initialData }: { initialData: any[] 
                   <td className="p-5">
                     <div className="font-bold text-slate-900 text-base flex items-center gap-2">
                       <Map size={16} className="text-primary-600" /> {item.namaKabupaten}
-                      {item.isLuarBanten && (
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-700 ml-2">Luar Banten</span>
-                      )}
+                      {item.isLuarBanten && <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-700 ml-2">Luar Banten</span>}
                     </div>
                   </td>
                   <td className="p-5 text-right flex justify-end gap-2">
