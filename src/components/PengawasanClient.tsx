@@ -32,6 +32,7 @@ export default function PengawasanClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sumberPasokan, setSumberPasokan] = useState('Pembelian Lokal');
   const [selectedParameterId, setSelectedParameterId] = useState<string>('');
+  const [selectedSppgFilter, setSelectedSppgFilter] = useState<string>('all');
 
   // Safe Array Checks
   const safePembelian = Array.isArray(initialPembelian) ? initialPembelian : [];
@@ -39,6 +40,11 @@ export default function PengawasanClient({
   const safeUjiRapid = Array.isArray(initialUjiRapid) ? initialUjiRapid : [];
   const safeKartuStok = Array.isArray(initialKartuStok) ? initialKartuStok : [];
   const safeMasterParameterList = Array.isArray(masterParameterList) ? masterParameterList : [];
+
+  const filteredPembelian = selectedSppgFilter === 'all' ? safePembelian : safePembelian.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
+  const filteredPemakaian = selectedSppgFilter === 'all' ? safePemakaian : safePemakaian.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
+  const filteredUjiRapid = selectedSppgFilter === 'all' ? safeUjiRapid : safeUjiRapid.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
+  const filteredKartuStok = selectedSppgFilter === 'all' ? safeKartuStok : safeKartuStok.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
   const safePemasokList = Array.isArray(pemasokList) ? pemasokList : [];
   const safeJenisPanganList = Array.isArray(jenisPanganList) ? jenisPanganList : [];
   const safeStandarMenuList = Array.isArray(standarMenuList) ? standarMenuList : [];
@@ -138,7 +144,7 @@ export default function PengawasanClient({
           }`}
         >
           <PackagePlus size={18} />
-          Pembelian Bahan ({safePembelian.length})
+          Pembelian Bahan ({filteredPembelian.length})
         </button>
         <button
           onClick={() => setActiveTab('pemakaian')}
@@ -149,7 +155,7 @@ export default function PengawasanClient({
           }`}
         >
           <PackageMinus size={18} />
-          Pemakaian Harian ({safePemakaian.length})
+          Pemakaian Harian ({filteredPemakaian.length})
         </button>
         <button
           onClick={() => setActiveTab('uji')}
@@ -160,7 +166,7 @@ export default function PengawasanClient({
           }`}
         >
           <TestTube2 size={18} />
-          Uji Rapid Test ({safeUjiRapid.length})
+          Uji Rapid Test ({filteredUjiRapid.length})
         </button>
       </div>
 
@@ -340,10 +346,10 @@ export default function PengawasanClient({
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
 
-              {activeTab === 'stok' && safeKartuStok.length === 0 && (
+              {activeTab === 'stok' && filteredKartuStok.length === 0 && (
                 <tr><td colSpan={isAdmin ? 6 : 5} className="text-center py-8 text-slate-400">Belum ada data stok</td></tr>
               )}
-              {activeTab === 'stok' && safeKartuStok.map((s: any) => (
+              {activeTab === 'stok' && filteredKartuStok.map((s: any) => (
                 <tr key={s.id} className="hover:bg-slate-50/50">
                   {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{s.sppgNama}</td>}
                   <td className="px-6 py-4 font-bold text-slate-800">{s.nama}</td>
@@ -358,7 +364,7 @@ export default function PengawasanClient({
                 </tr>
               ))}
 
-              {activeTab === 'pembelian' && safePembelian.map((d: any) => (
+              {activeTab === 'pembelian' && filteredPembelian.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
                   {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{d.sppgNama}</td>}
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPembelian}</td>
@@ -380,7 +386,7 @@ export default function PengawasanClient({
                 </tr>
               ))}
 
-              {activeTab === 'pemakaian' && safePemakaian.map((d: any) => (
+              {activeTab === 'pemakaian' && filteredPemakaian.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
                   {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{d.sppgNama}</td>}
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPemakaian}</td>
@@ -399,7 +405,7 @@ export default function PengawasanClient({
                 </tr>
               ))}
 
-              {activeTab === 'uji' && safeUjiRapid.map((d: any) => (
+              {activeTab === 'uji' && filteredUjiRapid.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
                   {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{d.sppgNama}</td>}
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalUji}</td>
@@ -428,9 +434,9 @@ export default function PengawasanClient({
                 </tr>
               ))}
 
-              {((activeTab === 'pembelian' && safePembelian.length === 0) ||
-                (activeTab === 'pemakaian' && safePemakaian.length === 0) ||
-                (activeTab === 'uji' && safeUjiRapid.length === 0)) && (
+              {((activeTab === 'pembelian' && filteredPembelian.length === 0) ||
+                (activeTab === 'pemakaian' && filteredPemakaian.length === 0) ||
+                (activeTab === 'uji' && filteredUjiRapid.length === 0)) && (
                 <tr>
                   <td colSpan={isAdmin ? 11 : 10} className="p-8 text-center text-slate-500">
                     Belum ada catatan data {activeTab}.
