@@ -170,43 +170,13 @@ export default function PengawasanClient({
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-800">
-              {activeTab === 'pembelian' && 'Riwayat Pembelian & Logistik Masuk'}
-              {activeTab === 'pemakaian' && 'Catatan Pemakaian Bahan Dapur (Keluar)'}
-              {activeTab === 'uji' && 'Hasil Pengujian Rapid Test Keamanan Pangan'}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              {activeTab === 'pembelian' && 'Transparansi sumber pangan dari mitra pemasok lokal.'}
-              {activeTab === 'pemakaian' && 'Volume bahan baku yang diolah untuk menu MBG.'}
-              {activeTab === 'uji' && 'Hasil sampel pengujian bebas bahan kimia berbahaya & mikrobiologi.'}
-            </p>
-          </div>
-          {activeTab !== 'stok' && (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-bold text-xs sm:text-sm hover:bg-primary-700 transition-all shadow-sm shrink-0"
-            >
-              <Plus size={18} />
-              Catat {activeTab === 'pembelian' ? 'Pembelian' : activeTab === 'pemakaian' ? 'Pemakaian' : 'Hasil Uji'}
-            </button>
-          )}
-        </div>
-
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[600px]">
-            <thead>
-              <tr className="bg-slate-50/80 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
-
-              
+      {/* TAB: ANALITIK - Rendered OUTSIDE of the table */}
       {activeTab === 'analitik' && isAdmin && analyticsData && (
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
               <span className="p-2 bg-primary-100 text-primary-600 rounded-xl">📊</span>
-              Analitik Kapasitas & Pemetaan Sumber Pangan
+              Analitik Kapasitas &amp; Pemetaan Sumber Pangan
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -237,7 +207,7 @@ export default function PengawasanClient({
               <div>
                 <h3 className="font-bold text-slate-700 mb-4 border-b pb-2">🚛 Pasokan Luar Lebak</h3>
                 <div className="text-4xl font-black text-slate-700 mb-2">{analyticsData.volumeLuarLebak?.toLocaleString('id-ID')} <span className="text-lg font-medium text-slate-500">Kg</span></div>
-                <div className="text-sm font-bold text-slate-500 mb-3">{100 - Number(analyticsData.persentaseLokal)}% dari total pembelian</div>
+                <div className="text-sm font-bold text-slate-500 mb-3">{(100 - Number(analyticsData.persentaseLokal)).toFixed(1)}% dari total pembelian</div>
                 <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-600">
                   <div className="font-bold mb-2">Daftar Pemasok Luar Daerah:</div>
                   <ul className="list-disc pl-4 space-y-1">
@@ -294,9 +264,60 @@ export default function PengawasanClient({
           </div>
         </div>
       )}
-      
-      {activeTab === 'stok' && (
 
+      {/* FILTER BAR - Only on data tabs for Admin */}
+      {isAdmin && activeTab !== 'analitik' && (
+        <div className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-3">
+          <div className="text-sm font-bold text-slate-700 flex items-center gap-2">
+            <span className="text-primary-600">🔎</span> Filter Data Dapur:
+          </div>
+          <select 
+            value={selectedSppgFilter}
+            onChange={(e) => setSelectedSppgFilter(e.target.value)}
+            className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:max-w-xs font-medium text-slate-700"
+          >
+            <option value="all">Tampilkan Semua Dapur SPPG</option>
+            {sppgList?.map((sppg: any) => (
+              <option key={sppg.id} value={sppg.id}>{sppg.namaSppg}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* DATA TABLES - Only on non-analitik tabs */}
+      {activeTab !== 'analitik' && (
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-slate-800">
+              {activeTab === 'stok' && 'Kartu Stok Gudang Bahan Pangan'}
+              {activeTab === 'pembelian' && 'Riwayat Pembelian & Logistik Masuk'}
+              {activeTab === 'pemakaian' && 'Catatan Pemakaian Bahan Dapur (Keluar)'}
+              {activeTab === 'uji' && 'Hasil Pengujian Rapid Test Keamanan Pangan'}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              {activeTab === 'stok' && 'Saldo real-time bahan baku di gudang dapur.'}
+              {activeTab === 'pembelian' && 'Transparansi sumber pangan dari mitra pemasok lokal.'}
+              {activeTab === 'pemakaian' && 'Volume bahan baku yang diolah untuk menu MBG.'}
+              {activeTab === 'uji' && 'Hasil sampel pengujian bebas bahan kimia berbahaya & mikrobiologi.'}
+            </p>
+          </div>
+          {activeTab !== 'stok' && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-bold text-xs sm:text-sm hover:bg-primary-700 transition-all shadow-sm shrink-0"
+            >
+              <Plus size={18} />
+              Catat {activeTab === 'pembelian' ? 'Pembelian' : activeTab === 'pemakaian' ? 'Pemakaian' : 'Hasil Uji'}
+            </button>
+          )}
+        </div>
+
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="bg-slate-50/80 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+              {activeTab === 'stok' && (
                 <>
                   {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
                   <th className="px-6 py-4">Bahan Pangan</th>
@@ -306,42 +327,37 @@ export default function PengawasanClient({
                   <th className="px-6 py-4">Status</th>
                 </>
               )}
-
-                
-
-
               {activeTab === 'pembelian' && (
-                  <>
-                    {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
-                    <th className="px-6 py-4">Tanggal</th>
-                    <th className="px-6 py-4">Bahan Pangan</th>
-                    <th className="px-6 py-4">Volume</th>
-                    <th className="px-6 py-4">Pemasok</th>
-                    
-                    <th className="px-6 py-4 text-right">Aksi</th>
-                  </>
-                )}
-                {activeTab === 'pemakaian' && (
-                  <>
-                    {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
-                    <th className="px-6 py-4">Tanggal</th>
-                    <th className="px-6 py-4">Bahan Pangan</th>
-                    <th className="px-6 py-4">Volume Digunakan</th>
-                    <th className="px-6 py-4">Menu Terkait</th>
-                    <th className="px-6 py-4 text-right">Aksi</th>
-                  </>
-                )}
-                {activeTab === 'uji' && (
-                  <>
-                    {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
-                    <th className="px-6 py-4">Tanggal Uji</th>
-                    <th className="px-6 py-4">Bahan Pangan</th>
-                    <th className="px-6 py-4">Parameter Uji</th>
-                    <th className="px-6 py-4">Hasil Uji</th>
-                    <th className="px-6 py-4">Tindakan Lanjut</th>
-                    <th className="px-6 py-4 text-right">Aksi</th>
-                  </>
-                )}
+                <>
+                  {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
+                  <th className="px-6 py-4">Tanggal</th>
+                  <th className="px-6 py-4">Bahan Pangan</th>
+                  <th className="px-6 py-4">Volume</th>
+                  <th className="px-6 py-4">Pemasok</th>
+                  <th className="px-6 py-4 text-right">Aksi</th>
+                </>
+              )}
+              {activeTab === 'pemakaian' && (
+                <>
+                  {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
+                  <th className="px-6 py-4">Tanggal</th>
+                  <th className="px-6 py-4">Bahan Pangan</th>
+                  <th className="px-6 py-4">Volume Digunakan</th>
+                  <th className="px-6 py-4">Menu Terkait</th>
+                  <th className="px-6 py-4 text-right">Aksi</th>
+                </>
+              )}
+              {activeTab === 'uji' && (
+                <>
+                  {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
+                  <th className="px-6 py-4">Tanggal Uji</th>
+                  <th className="px-6 py-4">Bahan Pangan</th>
+                  <th className="px-6 py-4">Parameter Uji</th>
+                  <th className="px-6 py-4">Hasil Uji</th>
+                  <th className="px-6 py-4">Tindakan Lanjut</th>
+                  <th className="px-6 py-4 text-right">Aksi</th>
+                </>
+              )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
@@ -447,6 +463,7 @@ export default function PengawasanClient({
           </table>
         </div>
       </div>
+      )}
 
       {/* POPUP MODAL TAMBAH DATA */}
       {isModalOpen && (
