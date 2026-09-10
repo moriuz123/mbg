@@ -117,7 +117,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                 <NavItem href="/admin/laporan-aktifitas" icon={Activity} isActive={pathname?.includes('/admin/laporan-aktifitas')}>Laporan Aktifitas</NavItem>
               )}
 
-              {(userRole === 'sppg' || userRole === 'operator_sppg') && (
+              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
                 <NavItem href="/admin/pengawasan" icon={ClipboardCheck} isActive={pathname?.includes('/admin/pengawasan')}>Pengawasan Logistik</NavItem>
               )}
 
