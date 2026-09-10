@@ -2,7 +2,7 @@ import React from 'react';
 import { db } from '@/db';
 import { pemasok, jenisPangan, standarMenuGizi, sppg } from '@/db/schema';
 import PengawasanClient from '@/components/PengawasanClient';
-import { getPembelianBahan, getPemakaianBahan, getUjiRapidTest, getActiveMasterParameterUjiList, getKartuStok } from '@/app/actions/sppgPengawasan';
+import { getPembelianBahan, getPemakaianBahan, getUjiRapidTest, getActiveMasterParameterUjiList, getKartuStok, getAdminLogisticsAnalytics } from '@/app/actions/sppgPengawasan';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -22,7 +22,7 @@ export default async function PengawasanPage() {
   const sppgId = session.user.sppgId;
   const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
 
-  if (role !== 'sppg' && role !== 'operator_sppg') {
+  if (role !== 'sppg' && role !== 'operator_sppg' && role !== 'admin_dinas' && role !== 'super_admin' && role !== 'admin') {
     redirect('/admin');
   }
 
@@ -31,6 +31,7 @@ export default async function PengawasanPage() {
   const ujiRapid = await getUjiRapidTest();
   const masterParameterList = await getActiveMasterParameterUjiList();
   const kartuStok = await getKartuStok();
+  const analyticsData = isAdmin ? await getAdminLogisticsAnalytics() : null;
 
   // Fetch lookups for forms with try-catch resilience
   let pemasokList: any[] = [];
@@ -83,6 +84,7 @@ export default async function PengawasanPage() {
         sppgList={sppgList}
         isAdmin={isAdmin}
         userSppgId={sppgId}
+        analyticsData={analyticsData}
       />
     </div>
   );
