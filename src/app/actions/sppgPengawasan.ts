@@ -72,12 +72,14 @@ export async function getPembelianBahan(sppgId?: number) {
       with: {
         pemasok: true,
         jenisPangan: true,
+        sppg: true,
       },
       orderBy: [desc(sppgPembelianBahan.tanggalPembelian), desc(sppgPembelianBahan.createdAt)]
     });
 
     return data.map(d => ({
       ...d,
+      sppgNama: d.sppg?.namaSppg,
       pemasokNama: d.pemasok?.namaPemasok,
       tipePemasok: d.pemasok?.tipePemasok,
       alamatPemasok: d.pemasok?.alamatPemasok,
@@ -164,6 +166,7 @@ export async function getPemakaianBahan(sppgId?: number) {
 
     return data.map(d => ({
       ...d,
+      sppgNama: d.sppg?.namaSppg,
       jenisPanganNama: d.jenisPangan?.namaBahan,
       menuNama: d.standarMenuGizi?.namaMenu
     }));
@@ -268,12 +271,14 @@ export async function getUjiRapidTest(sppgId?: number) {
         jenisPangan: true,
         parameterMaster: true,
         pembelian: { with: { pemasok: true } },
+        sppg: true,
       },
       orderBy: [desc(sppgUjiRapidTest.tanggalUji), desc(sppgUjiRapidTest.createdAt)]
     });
 
     return data.map(d => ({
       ...d,
+      sppgNama: d.sppg?.namaSppg,
       jenisPanganNama: d.jenisPangan?.namaBahan,
       parameterMaster: d.parameterMaster,
     }));
@@ -385,24 +390,33 @@ export async function getKartuStok(sppgId?: number) {
     // Get all IN
     const inData = await db.query.sppgPembelianBahan.findMany({
       where: whereClause,
-      with: { jenisPangan: true }
+      with: { jenisPangan: true, sppg: true }
     });
     
     // Get all OUT
     const outClause = targetSppgId ? eq(sppgPemakaianBahan.sppgId, targetSppgId) : undefined;
     const outData = await db.query.sppgPemakaianBahan.findMany({
       where: outClause,
-      with: { jenisPangan: true }
+      with: { jenisPangan: true, sppg: true }
     });
     
     // Calculate Balance
     const stokMap = new Map();
     
+    
     inData.forEach(d => {
-      if (!d.jenisPangan) return;
-      const key = d.jenisPangan.id;
+      if (!d.jenisPangan || !d.sppg) return;
+      const key = `${d.sppg.id}_${d.jenisPangan.id}`;
       if (!stokMap.has(key)) {
-        stokMap.set(key, { id: key, nama: d.jenisPangan.namaBahan, satuan: d.satuan || 'Kg', totalIn: 0, totalOut: 0, sisa: 0 });
+        stokMap.set(key, { 
+           id: key, 
+           nama: d.jenisPangan.namaBahan, 
+           satuan: d.satuan || 'Kg', 
+           totalIn: 0, 
+           totalOut: 0, 
+           sisa: 0,
+           sppgNama: d.sppg.namaSppg
+        });
       }
       const vol = parseFloat(String(d.volume)) || 0;
       stokMap.get(key).totalIn += vol;
@@ -410,15 +424,24 @@ export async function getKartuStok(sppgId?: number) {
     });
     
     outData.forEach(d => {
-      if (!d.jenisPangan) return;
-      const key = d.jenisPangan.id;
+      if (!d.jenisPangan || !d.sppg) return;
+      const key = `${d.sppg.id}_${d.jenisPangan.id}`;
       if (!stokMap.has(key)) {
-        stokMap.set(key, { id: key, nama: d.jenisPangan.namaBahan, satuan: d.satuan || 'Kg', totalIn: 0, totalOut: 0, sisa: 0 });
+        stokMap.set(key, { 
+           id: key, 
+           nama: d.jenisPangan.namaBahan, 
+           satuan: d.satuan || 'Kg', 
+           totalIn: 0, 
+           totalOut: 0, 
+           sisa: 0,
+           sppgNama: d.sppg.namaSppg
+        });
       }
       const vol = parseFloat(String(d.volume)) || 0;
       stokMap.get(key).totalOut += vol;
       stokMap.get(key).sisa -= vol;
     });
+
     
     return Array.from(stokMap.values()).sort((a, b) => b.sisa - a.sisa);
   } catch (error) {

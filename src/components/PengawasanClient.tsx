@@ -186,6 +186,7 @@ export default function PengawasanClient({
 
               {activeTab === 'stok' && (
                 <>
+                  {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
                   <th className="px-6 py-4">Bahan Pangan</th>
                   <th className="px-6 py-4 text-center">Total Masuk</th>
                   <th className="px-6 py-4 text-center">Total Keluar</th>
@@ -199,6 +200,7 @@ export default function PengawasanClient({
 
               {activeTab === 'pembelian' && (
                   <>
+                    {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
                     <th className="px-6 py-4">Tanggal</th>
                     <th className="px-6 py-4">Bahan Pangan</th>
                     <th className="px-6 py-4">Volume</th>
@@ -209,6 +211,7 @@ export default function PengawasanClient({
                 )}
                 {activeTab === 'pemakaian' && (
                   <>
+                    {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
                     <th className="px-6 py-4">Tanggal</th>
                     <th className="px-6 py-4">Bahan Pangan</th>
                     <th className="px-6 py-4">Volume Digunakan</th>
@@ -218,6 +221,7 @@ export default function PengawasanClient({
                 )}
                 {activeTab === 'uji' && (
                   <>
+                    {isAdmin && <th className="px-6 py-4">Dapur SPPG</th>}
                     <th className="px-6 py-4">Tanggal Uji</th>
                     <th className="px-6 py-4">Bahan Pangan</th>
                     <th className="px-6 py-4">Parameter Uji</th>
@@ -231,10 +235,11 @@ export default function PengawasanClient({
             <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
 
               {activeTab === 'stok' && safeKartuStok.length === 0 && (
-                <tr><td colSpan={5} className="text-center py-8 text-slate-400">Belum ada data stok</td></tr>
+                <tr><td colSpan={isAdmin ? 6 : 5} className="text-center py-8 text-slate-400">Belum ada data stok</td></tr>
               )}
               {activeTab === 'stok' && safeKartuStok.map((s: any) => (
                 <tr key={s.id} className="hover:bg-slate-50/50">
+                  {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{s.sppgNama}</td>}
                   <td className="px-6 py-4 font-bold text-slate-800">{s.nama}</td>
                   <td className="px-6 py-4 text-center font-medium text-emerald-600">+{s.totalIn} {s.satuan}</td>
                   <td className="px-6 py-4 text-center font-medium text-amber-600">-{s.totalOut} {s.satuan}</td>
@@ -249,6 +254,7 @@ export default function PengawasanClient({
 
               {activeTab === 'pembelian' && safePembelian.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                  {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{d.sppgNama}</td>}
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPembelian}</td>
                   <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
                   <td className="px-6 py-4 font-bold text-emerald-600">{d.volume} {d.satuan}</td>
@@ -270,6 +276,7 @@ export default function PengawasanClient({
 
               {activeTab === 'pemakaian' && safePemakaian.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                  {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{d.sppgNama}</td>}
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPemakaian}</td>
                   <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
                   <td className="px-6 py-4 font-bold text-amber-600">{d.volume} {d.satuan}</td>
@@ -288,6 +295,7 @@ export default function PengawasanClient({
 
               {activeTab === 'uji' && safeUjiRapid.map((d: any) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                  {isAdmin && <td className="px-6 py-4 text-xs font-semibold text-slate-600">{d.sppgNama}</td>}
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalUji}</td>
                   <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Segar'}</td>
                   <td className="px-6 py-4">
@@ -318,7 +326,7 @@ export default function PengawasanClient({
                 (activeTab === 'pemakaian' && safePemakaian.length === 0) ||
                 (activeTab === 'uji' && safeUjiRapid.length === 0)) && (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-slate-500">
+                  <td colSpan={isAdmin ? 11 : 10} className="p-8 text-center text-slate-500">
                     Belum ada catatan data {activeTab}.
                   </td>
                 </tr>

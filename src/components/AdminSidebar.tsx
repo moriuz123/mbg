@@ -121,8 +121,8 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                 <NavItem href="/admin/pengawasan" icon={ClipboardCheck} isActive={pathname?.includes('/admin/pengawasan')}>Pengawasan Logistik</NavItem>
               )}
 
-              {(userRole === 'sppg' || userRole === 'operator_sppg') && (
-                <NavItem href="/admin/supply-chain" icon={Package} isActive={pathname?.includes('/admin/supply-chain')}>Katalog Komoditas</NavItem>
+              {(isAdmin) && (
+                <NavItem href="/admin/supply-chain" icon={Package} isActive={pathname?.includes('/admin/supply-chain')}>Supply Chain & Stok</NavItem>
               )}
 
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (

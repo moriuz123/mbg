@@ -21,7 +21,10 @@ export default async function SupplyChainPage() {
   
   if (
     session?.user?.role !== 'sppg' && 
-    session?.user?.role !== 'operator_sppg'
+    session?.user?.role !== 'operator_sppg' && 
+    session?.user?.role !== 'admin' && 
+    session?.user?.role !== 'super_admin' && 
+    session?.user?.role !== 'admin_dinas'
   ) {
     const { redirect } = await import('next/navigation');
     redirect('/admin');
