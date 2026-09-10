@@ -70,10 +70,10 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
               <Users size={18} /> Kelola Target Penerima
             </Link>
             <Link 
-              href="/admin/supply-chain" 
+              href="/admin/pengawasan" 
               className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-800/40 backdrop-blur border border-indigo-400/30 text-white rounded-xl font-bold hover:bg-indigo-800/70 transition-all shadow-md hover:-translate-y-0.5"
             >
-              <Package size={18} /> Rantai Pasok Logistik
+              <Package size={18} /> Pengawasan Logistik
             </Link>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
               Manajemen bahan baku beras, lauk, dan sayur untuk dapur. Catat pesanan dan ketersediaan dari pemasok lokal agar produksi harian tidak terhambat.
             </p>
             <Link 
-              href="/admin/supply-chain" 
+              href="/admin/pengawasan" 
               className="inline-flex items-center gap-2 text-sm font-bold text-indigo-300 hover:text-white transition-colors"
             >
               Kelola Logistik Dapur <ArrowRight size={16} />

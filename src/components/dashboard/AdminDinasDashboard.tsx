@@ -278,7 +278,7 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
               Dapur SPPG sangat bergantung pada ketersediaan logistik pangan (Beras, Daging, Sayuran). Pantau alur dari mitra lokal ke dapur secara terpusat.
             </p>
             <Link 
-              href="/admin/supply-chain" 
+              href="/admin/pengawasan" 
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-primary-300 hover:text-white transition-colors"
             >
               Buka Manajemen Rantai Pasok <ArrowRight size={16} />
