@@ -41,12 +41,15 @@ export default function DailyFreshFoodWidget({ stats, showLinkToPengawasan = tru
     return '📦';
   };
 
-  const formattedDate = new Date(stats.tanggal).toLocaleDateString('id-ID', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
+  const dateObj = new Date(stats.tanggal);
+  const day = dateObj.getDay(); // 0 is Sunday, 1 is Monday
+  const diffToMonday = dateObj.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
+  
+  const monday = new Date(dateObj.setDate(diffToMonday));
+  const sunday = new Date(dateObj.setDate(monday.getDate() + 6));
+
+  const formatOpts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+  const formattedDate = `Periode: ${monday.toLocaleDateString('id-ID', formatOpts)} - ${sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-6">
@@ -57,7 +60,7 @@ export default function DailyFreshFoodWidget({ stats, showLinkToPengawasan = tru
             <Leaf size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-800 tracking-tight">Dashboard Pangan Segar Dibeli Harian</h2>
+            <h2 className="text-xl font-black text-slate-800 tracking-tight">Dashboard Pangan Segar Dibeli Mingguan</h2>
             <p className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mt-0.5" suppressHydrationWarning>
               <Calendar size={14} className="text-emerald-600" /> {formattedDate}
             </p>

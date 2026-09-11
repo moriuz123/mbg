@@ -341,15 +341,20 @@ export async function getDailyFreshFoodPurchasesStats(filterSppgId?: number, dat
       pb.satuan,
       pb.harga_total,
       pb.catatan,
+      pb.tipe_sumber,
       p.nama_pemasok,
       p.tipe_pemasok,
       p.alamat_pemasok,
+      pg.nama_penggilingan,
       s.nama_sppg
     FROM sppg_pembelian_bahan pb
     LEFT JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
     LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
+    LEFT JOIN penggilingan pg ON pb.penggilingan_id = pg.penggilingan_id
     LEFT JOIN sppg s ON pb.sppg_id = s.sppg_id
-    WHERE pb.tanggal_pembelian = ${targetDate} ${sppgFilterSql}
+    WHERE pb.tanggal_pembelian >= date_trunc('week', ${targetDate}::date)
+      AND pb.tanggal_pembelian < date_trunc('week', ${targetDate}::date) + interval '1 week'
+      ${sppgFilterSql}
     ORDER BY pb.id DESC
   `);
 
@@ -359,7 +364,13 @@ export async function getDailyFreshFoodPurchasesStats(filterSppgId?: number, dat
     const key = row.nama_bahan || 'Pangan Segar';
     const vol = parseFloat(row.volume as string) || 0;
     const price = parseFloat(row.harga_total as string) || 0;
-    const supplierInfo = row.nama_pemasok ? `${row.nama_pemasok} (${row.tipe_pemasok || 'Pemasok'})` : 'Pemasok Umum';
+    
+    let supplierInfo = 'Pemasok Umum';
+    if (row.tipe_sumber === 'Penggilingan') {
+      supplierInfo = row.nama_penggilingan ? `${row.nama_penggilingan} (Penggilingan)` : 'Penggilingan Padi';
+    } else {
+      supplierInfo = row.nama_pemasok ? `${row.nama_pemasok} (${row.tipe_pemasok || 'Pemasok'})` : 'Pemasok Umum';
+    }
 
     if (!commodityMap[key]) {
       commodityMap[key] = {
