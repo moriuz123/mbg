@@ -1,6 +1,6 @@
 import React from 'react';
 import { db } from '@/db';
-import { pemasok, jenisPangan, standarMenuGizi, sppg } from '@/db/schema';
+import { pemasok, jenisPangan, standarMenuGizi, sppg, penggilingan } from '@/db/schema';
 import PengawasanClient from '@/components/PengawasanClient';
 import { getPembelianBahan, getPemakaianBahan, getUjiRapidTest, getActiveMasterParameterUjiList, getKartuStok, getAdminLogisticsAnalytics } from '@/app/actions/sppgPengawasan';
 import { auth } from '@/lib/auth';
@@ -35,6 +35,7 @@ export default async function PengawasanPage() {
 
   // Fetch lookups for forms with try-catch resilience
   let pemasokList: any[] = [];
+  let penggilinganList: any[] = [];
   let jenisPanganList: any[] = [];
   let standarMenuList: any[] = [];
   let sppgList: any[] = [];
@@ -43,6 +44,14 @@ export default async function PengawasanPage() {
     pemasokList = await db.select().from(pemasok);
   } catch (e) {
     console.error('Error fetching pemasokList:', e);
+  }
+
+  try {
+    penggilinganList = await db.query.penggilingan.findMany({
+      where: eq(penggilingan.status, 'Aktif')
+    });
+  } catch (e) {
+    console.error('Error fetching penggilinganList:', e);
   }
 
   try {
@@ -79,6 +88,7 @@ export default async function PengawasanPage() {
         initialKartuStok={kartuStok}
         masterParameterList={masterParameterList}
         pemasokList={pemasokList}
+        penggilinganList={penggilinganList}
         jenisPanganList={jenisPanganList}
         standarMenuList={standarMenuList}
         sppgList={sppgList}

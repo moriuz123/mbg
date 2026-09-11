@@ -30,8 +30,13 @@ export async function createPembelianBahan(formData: FormData) {
       sppgId = userSppgId;
     }
 
+    const tipeSumber = (formData.get('tipeSumber') as string) || 'Pemasok';
     const pemasokIdRaw = formData.get('pemasokId') as string;
-    const pemasokId = pemasokIdRaw ? parseInt(pemasokIdRaw) : null;
+    const pemasokId = pemasokIdRaw && tipeSumber === 'Pemasok' ? parseInt(pemasokIdRaw) : null;
+    
+    const penggilinganIdRaw = formData.get('penggilinganId') as string;
+    const penggilinganId = penggilinganIdRaw && tipeSumber === 'Penggilingan' ? parseInt(penggilinganIdRaw) : null;
+    
     const sumberPasokan = formData.get('sumberPasokan') as string || 'Pembelian Lokal';
     const baseCatatan = formData.get('catatan') as string || '';
     
@@ -39,7 +44,9 @@ export async function createPembelianBahan(formData: FormData) {
 
     const data = {
       sppgId,
+      tipeSumber,
       pemasokId,
+      penggilinganId,
       jenisPanganId: parseInt(formData.get('jenisPanganId') as string),
       tanggalPembelian: formData.get('tanggalPembelian') as string,
       mingguKe: parseInt(formData.get('mingguKe') as string) || null,
@@ -71,6 +78,7 @@ export async function getPembelianBahan(sppgId?: number) {
       where: whereClause,
       with: {
         pemasok: true,
+        penggilingan: true,
         jenisPangan: true,
         sppg: true,
       },
@@ -81,8 +89,10 @@ export async function getPembelianBahan(sppgId?: number) {
       ...d,
       sppgNama: d.sppg?.namaSppg,
       pemasokNama: d.pemasok?.namaPemasok,
+      penggilinganNama: d.penggilingan?.namaPenggilingan,
+      sumberNama: d.tipeSumber === 'Penggilingan' ? d.penggilingan?.namaPenggilingan : d.pemasok?.namaPemasok,
       tipePemasok: d.pemasok?.tipePemasok,
-      alamatPemasok: d.pemasok?.alamatPemasok,
+      alamatPemasok: d.tipeSumber === 'Penggilingan' ? d.penggilingan?.alamat : d.pemasok?.alamatPemasok,
       jenisPanganNama: d.jenisPangan?.namaBahan
     }));
   } catch (error) {
@@ -456,12 +466,12 @@ export async function getAdminLogisticsAnalytics() {
     const { isAdmin } = await getSessionData();
     if (!isAdmin) return null;
 
-    // 1. Kapasitas Pembelian Mingguan & Pemetaan Sumber
     const pembelianList = await db.query.sppgPembelianBahan.findMany({
       with: {
         pemasok: {
           with: { kabupaten: true }
         },
+        penggilingan: true,
         jenisPangan: true
       }
     });
@@ -469,9 +479,13 @@ export async function getAdminLogisticsAnalytics() {
     let totalPembelianVolume = 0;
     let volumeDalamLebak = 0;
     let volumeLuarLebak = 0;
+    let volumeDariPenggilingan = 0;
+    let volumeDariPemasok = 0;
+    
     const trenPembelianMingguan: Record<string, number> = {};
     const pemasokDalamLebak = new Set<string>();
     const pemasokLuarLebak = new Set<string>();
+    const daftarPenggilingan = new Set<string>();
 
     pembelianList.forEach(p => {
       const vol = parseFloat(String(p.volume)) || 0;
@@ -481,19 +495,28 @@ export async function getAdminLogisticsAnalytics() {
       const weekKey = p.mingguKe ? `Minggu ${p.mingguKe}` : (p.tanggalPembelian ? p.tanggalPembelian.substring(0, 7) : 'Unknown');
       trenPembelianMingguan[weekKey] = (trenPembelianMingguan[weekKey] || 0) + vol;
 
-      // Peta Sumber (Dalam vs Luar Lebak)
-      const kab = p.pemasok?.kabupaten;
-      const isLuarLebak = kab?.isLuarBanten || (kab && kab.namaKabupaten !== 'Kabupaten Lebak');
-      
-      const pemasokName = p.pemasok?.namaPemasok || 'Pemasok Tanpa Nama';
-
-      if (isLuarLebak && p.pemasokId) {
-        volumeLuarLebak += vol;
-        pemasokLuarLebak.add(pemasokName);
-      } else {
-        // Includes null kabupaten (Default Lebak)
+      if (p.tipeSumber === 'Penggilingan') {
+        // Penggilingan lokal Lebak
         volumeDalamLebak += vol;
-        if (p.pemasokId) pemasokDalamLebak.add(pemasokName);
+        volumeDariPenggilingan += vol;
+        const pengName = p.penggilingan?.namaPenggilingan || 'Penggilingan Padi';
+        if (p.penggilinganId) daftarPenggilingan.add(pengName);
+      } else {
+        volumeDariPemasok += vol;
+        // Peta Sumber (Dalam vs Luar Lebak) for Pemasok
+        const kab = p.pemasok?.kabupaten;
+        const isLuarLebak = kab?.isLuarBanten || (kab && kab.namaKabupaten !== 'Kabupaten Lebak');
+        
+        const pemasokName = p.pemasok?.namaPemasok || 'Pemasok Tanpa Nama';
+
+        if (isLuarLebak && p.pemasokId) {
+          volumeLuarLebak += vol;
+          pemasokLuarLebak.add(pemasokName);
+        } else {
+          // Includes null kabupaten (Default Lebak)
+          volumeDalamLebak += vol;
+          if (p.pemasokId) pemasokDalamLebak.add(pemasokName);
+        }
       }
     });
 
@@ -541,9 +564,12 @@ export async function getAdminLogisticsAnalytics() {
       totalPemakaianVolume,
       volumeDalamLebak,
       volumeLuarLebak,
+      volumeDariPenggilingan,
+      volumeDariPemasok,
       persentaseLokal: totalPembelianVolume > 0 ? ((volumeDalamLebak / totalPembelianVolume) * 100).toFixed(1) : '0',
       pemasokDalamLebak: Array.from(pemasokDalamLebak),
       pemasokLuarLebak: Array.from(pemasokLuarLebak),
+      daftarPenggilingan: Array.from(daftarPenggilingan),
       trenPembelianMingguan,
       trenPemakaianMingguan,
       ujiBermasalah

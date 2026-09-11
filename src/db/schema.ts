@@ -509,7 +509,9 @@ export const auditLogRelations = relations(auditLog, ({ one }) => ({
 export const sppgPembelianBahan = pgTable("sppg_pembelian_bahan", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   sppgId: integer("sppg_id").notNull().references(() => sppg.id, { onDelete: 'cascade' }),
+  tipeSumber: text("tipe_sumber").default("Pemasok"), // 'Pemasok' atau 'Penggilingan'
   pemasokId: integer("pemasok_id").references(() => pemasok.id),
+  penggilinganId: integer("penggilingan_id").references(() => penggilingan.id),
   jenisPanganId: integer("jenis_pangan_id").notNull().references(() => jenisPangan.id),
   tanggalPembelian: date("tanggal_pembelian").notNull(),
   mingguKe: integer("minggu_ke"), // e.g., 1, 2, 3, 4 of the month
@@ -530,6 +532,10 @@ export const sppgPembelianBahanRelations = relations(sppgPembelianBahan, ({ one 
   pemasok: one(pemasok, {
     fields: [sppgPembelianBahan.pemasokId],
     references: [pemasok.id],
+  }),
+  penggilingan: one(penggilingan, {
+    fields: [sppgPembelianBahan.penggilinganId],
+    references: [penggilingan.id],
   }),
   jenisPangan: one(jenisPangan, {
     fields: [sppgPembelianBahan.jenisPanganId],

@@ -13,6 +13,22 @@ import {
 import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
+interface PengawasanClientProps {
+  initialPembelian?: any;
+  initialPemakaian?: any;
+  initialUjiRapid?: any;
+  initialKartuStok?: any;
+  masterParameterList?: any[];
+  pemasokList?: any[];
+  penggilinganList?: any[];
+  jenisPanganList?: any[];
+  standarMenuList?: any[];
+  sppgList?: any[];
+  isAdmin?: boolean;
+  userSppgId?: any;
+  analyticsData?: any;
+}
+
 export default function PengawasanClient({
   initialPembelian,
   initialPemakaian,
@@ -20,6 +36,7 @@ export default function PengawasanClient({
   initialKartuStok,
   masterParameterList,
   pemasokList,
+  penggilinganList,
   jenisPanganList,
   standarMenuList,
   sppgList,
@@ -33,6 +50,9 @@ export default function PengawasanClient({
   const [sumberPasokan, setSumberPasokan] = useState('Pembelian Lokal');
   const [selectedParameterId, setSelectedParameterId] = useState<string>('');
   const [selectedSppgFilter, setSelectedSppgFilter] = useState<string>('all');
+  
+  const [selectedJenisPanganId, setSelectedJenisPanganId] = useState<string>('');
+  const [tipeSumberBeras, setTipeSumberBeras] = useState<'Pemasok' | 'Penggilingan'>('Pemasok');
 
   // Safe Array Checks
   const safePembelian = Array.isArray(initialPembelian) ? initialPembelian : [];
@@ -46,9 +66,13 @@ export default function PengawasanClient({
   const filteredUjiRapid = selectedSppgFilter === 'all' ? safeUjiRapid : safeUjiRapid.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
   const filteredKartuStok = selectedSppgFilter === 'all' ? safeKartuStok : safeKartuStok.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
   const safePemasokList = Array.isArray(pemasokList) ? pemasokList : [];
+  const safePenggilinganList = Array.isArray(penggilinganList) ? penggilinganList : [];
   const safeJenisPanganList = Array.isArray(jenisPanganList) ? jenisPanganList : [];
   const safeStandarMenuList = Array.isArray(standarMenuList) ? standarMenuList : [];
   const safeSppgList = Array.isArray(sppgList) ? sppgList : [];
+
+  const selectedBahanObj = safeJenisPanganList.find((j: any) => j.id.toString() === selectedJenisPanganId);
+  const isBeras = selectedBahanObj?.namaBahan?.toLowerCase().includes('beras');
 
   // Delete State
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -333,7 +357,7 @@ export default function PengawasanClient({
                   <th className="px-6 py-4">Tanggal</th>
                   <th className="px-6 py-4">Bahan Pangan</th>
                   <th className="px-6 py-4">Volume</th>
-                  <th className="px-6 py-4">Pemasok</th>
+                  <th className="px-6 py-4">Sumber Penyedia</th>
                   <th className="px-6 py-4 text-right">Aksi</th>
                 </>
               )}
@@ -387,7 +411,17 @@ export default function PengawasanClient({
                   <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
                   <td className="px-6 py-4 font-bold text-emerald-600">{d.volume} {d.satuan}</td>
                   <td className="px-6 py-4 font-medium text-slate-600">
-                    <div>{d.pemasokNama || '-'}</div>
+                    {d.tipeSumber === 'Penggilingan' ? (
+                      <div>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 mb-1 border border-emerald-200">🌾 PENGGILINGAN</span>
+                        <div className="text-sm font-bold text-slate-800">{d.penggilinganNama || '-'}</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 mb-1 border border-slate-200">🏢 PEMASOK</span>
+                        <div className="text-sm font-bold text-slate-800">{d.pemasokNama || '-'}</div>
+                      </div>
+                    )}
                     {d.fotoNota && <a href={d.fotoNota} target="_blank" className="text-xs text-blue-600 hover:underline mt-1 inline-block">Bukti Nota</a>}
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -524,26 +558,89 @@ export default function PengawasanClient({
                     </select>
                   </div>
 
-                  {sumberPasokan === 'Pembelian Lokal' && (
-                    <div>
-                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pemasok Lokal <span className="text-red-500">*</span></label>
-                      <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                        <option value="">-- Pilih Pemasok --</option>
-                        {safePemasokList.map((p: any) => (
-                          <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan <span className="text-red-500">*</span></label>
-                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
+                    <select 
+                      name="jenisPanganId" 
+                      required 
+                      value={selectedJenisPanganId}
+                      onChange={(e) => setSelectedJenisPanganId(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm"
+                    >
                       <option value="">-- Pilih Komoditas --</option>
                       {safeJenisPanganList.map((j: any) => (
                         <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
                       ))}
                     </select>
                   </div>
+
+                  {sumberPasokan === 'Pembelian Lokal' && (
+                    <>
+                      {isBeras ? (
+                        <div>
+                          <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Sumber Pengadaan Beras <span className="text-red-500">*</span></label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                            <button
+                              type="button"
+                              onClick={() => setTipeSumberBeras('Pemasok')}
+                              className={`p-3 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                                tipeSumberBeras === 'Pemasok'
+                                  ? 'border-primary-600 bg-primary-50 text-primary-700 ring-2 ring-primary-500/20 shadow-sm'
+                                  : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              🏢 Mitra Pemasok Umum
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setTipeSumberBeras('Penggilingan')}
+                              className={`p-3 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+                                tipeSumberBeras === 'Penggilingan'
+                                  ? 'border-emerald-600 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20 shadow-sm'
+                                  : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              🌾 Penggilingan Padi Lokal (RMU)
+                            </button>
+                          </div>
+                          <input type="hidden" name="tipeSumber" value={tipeSumberBeras} />
+
+                          {tipeSumberBeras === 'Penggilingan' ? (
+                            <div>
+                              <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pilih Penggilingan Padi <span className="text-red-500">*</span></label>
+                              <select name="penggilinganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
+                                <option value="">-- Pilih Penggilingan --</option>
+                                {safePenggilinganList.map((p: any) => (
+                                  <option key={p.id} value={p.id}>{p.namaPenggilingan}</option>
+                                ))}
+                              </select>
+                            </div>
+                          ) : (
+                            <div>
+                              <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Mitra Pemasok Beras <span className="text-red-500">*</span></label>
+                              <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
+                                <option value="">-- Pilih Pemasok --</option>
+                                {safePemasokList.map((p: any) => (
+                                  <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div>
+                          <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pemasok Lokal <span className="text-red-500">*</span></label>
+                          <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
+                            <option value="">-- Pilih Pemasok --</option>
+                            {safePemasokList.map((p: any) => (
+                              <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
+                            ))}
+                          </select>
+                          <input type="hidden" name="tipeSumber" value="Pemasok" />
+                        </div>
+                      )}
+                    </>
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Volume Total <span className="text-red-500">*</span></label>
