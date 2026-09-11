@@ -41,6 +41,7 @@ export async function getDashboardStats() {
     SELECT 
       TO_CHAR(DATE_TRUNC('month', pb.tanggal_pembelian), 'YYYY-MM-DD') as bulan,
       jp.nama_bahan,
+      MAX(jp.satuan_default) as satuan,
       SUM(pb.volume) as total_volume
     FROM sppg_pembelian_bahan pb
     JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
@@ -52,6 +53,7 @@ export async function getDashboardStats() {
   const monthlyCommodityStats = monthlyChartRes.map(row => ({
     bulan: (row.bulan as string).substring(0, 7), // "YYYY-MM"
     namaBahan: row.nama_bahan as string,
+    satuan: (row.satuan as string) || 'Kg',
     volume: parseFloat(row.total_volume as string) || 0
   }));
 

@@ -29,6 +29,7 @@ interface AdminDinasDashboardProps {
     monthlyCommodityStats: Array<{
       bulan: string;
       namaBahan: string;
+      satuan: string;
       volume: number;
     }>;
     totalPosyanduSasaran: number;
@@ -44,34 +45,52 @@ interface AdminDinasDashboardProps {
 }
 
 export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps) {
-  const [selectedCommodity, setSelectedCommodity] = useState('ALL');
-
-  // Extract unique commodities for the dropdown
-  const uniqueCommodities = useMemo(() => {
-    const names = stats.monthlyCommodityStats.map(s => s.namaBahan);
-    return Array.from(new Set(names)).sort();
+  // Extract unique commodities and find the top one for default selection
+  const { uniqueCommodities, topCommodity } = useMemo(() => {
+    const sums: Record<string, number> = {};
+    stats.monthlyCommodityStats.forEach(s => {
+      sums[s.namaBahan] = (sums[s.namaBahan] || 0) + s.volume;
+    });
+    
+    const sortedNames = Object.keys(sums).sort((a, b) => sums[b] - sums[a]); // Descending volume
+    return {
+      uniqueCommodities: sortedNames.sort(),
+      topCommodity: sortedNames[0] || 'Beras'
+    };
   }, [stats.monthlyCommodityStats]);
+
+  const [selectedCommodity, setSelectedCommodity] = useState(topCommodity);
+
+  // Generate last 6 months list explicitly for continuous timeline
+  const last6Months = useMemo(() => {
+    const months = [];
+    const date = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(date.getFullYear(), date.getMonth() - i, 1);
+      months.push({
+        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+        label: d.toLocaleString('id-ID', { month: 'short', year: 'numeric' }) // e.g. "Jan 2026"
+      });
+    }
+    return months;
+  }, []);
 
   // Process data for the chart
   const chartData = useMemo(() => {
-    // Group by month
-    const grouped = stats.monthlyCommodityStats.reduce((acc, curr) => {
-      if (selectedCommodity !== 'ALL' && curr.namaBahan !== selectedCommodity) return acc;
-      
-      if (!acc[curr.bulan]) {
-        acc[curr.bulan] = 0;
-      }
-      acc[curr.bulan] += curr.volume;
-      return acc;
-    }, {} as Record<string, number>);
+    // Filter by selected commodity
+    const filtered = stats.monthlyCommodityStats.filter(c => c.namaBahan === selectedCommodity);
+    const satuan = filtered[0]?.satuan || 'Unit';
 
-    // Convert back to array and sort by month
-    const result = Object.entries(grouped)
-      .map(([bulan, volume]) => ({ bulan, volume }))
-      .sort((a, b) => a.bulan.localeCompare(b.bulan));
-
-    return result;
-  }, [stats.monthlyCommodityStats, selectedCommodity]);
+    // Map into our continuous 6-month array
+    return last6Months.map(month => {
+      const found = filtered.find(f => f.bulan === month.key);
+      return {
+        bulanLabel: month.label,
+        volume: found ? found.volume : 0,
+        satuan
+      };
+    });
+  }, [stats.monthlyCommodityStats, selectedCommodity, last6Months]);
 
   const maxVolume = useMemo(() => {
     if (chartData.length === 0) return 0;
@@ -247,11 +266,10 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
           </div>
           <div className="w-full sm:w-64">
             <select
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all cursor-pointer"
               value={selectedCommodity}
               onChange={(e) => setSelectedCommodity(e.target.value)}
             >
-              <option value="ALL">Semua Komoditas (Gabungan)</option>
               {uniqueCommodities.map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -267,19 +285,24 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
               <div key={i} className="flex-1 flex flex-col justify-end items-center group relative h-full">
                 {/* TOOLTIP */}
                 <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded pointer-events-none whitespace-nowrap z-10">
-                  {d.volume.toLocaleString('id-ID')}
+                  {d.volume.toLocaleString('id-ID')} {d.satuan}
                   <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
                 </div>
                 
                 {/* BAR */}
                 <div 
-                  className="w-full bg-primary-500 rounded-t-lg group-hover:bg-primary-600 transition-colors"
-                  style={{ height: `${Math.max(height, 1)}%` }}
-                />
+                  className="w-full bg-primary-500 rounded-t-lg group-hover:bg-primary-600 transition-all duration-300 relative"
+                  style={{ height: `${Math.max(height, 0.5)}%` }}
+                >
+                  {/* Empty state visual for 0 volume */}
+                  {d.volume === 0 && (
+                    <div className="absolute inset-0 bg-slate-100 rounded-t-lg border-t border-slate-200"></div>
+                  )}
+                </div>
                 
                 {/* LABEL */}
-                <div className="mt-3 text-xs sm:text-sm font-bold text-slate-500 text-center uppercase tracking-wider">
-                  {d.bulan}
+                <div className="mt-3 text-[10px] sm:text-xs font-bold text-slate-500 text-center uppercase tracking-wider h-6">
+                  {d.bulanLabel}
                 </div>
               </div>
             );
