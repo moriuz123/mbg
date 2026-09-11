@@ -1,19 +1,19 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   Utensils, 
   LayoutDashboard, 
   TrendingUp, 
   Activity, 
-  Package, 
   GraduationCap, 
   AlertCircle, 
   PieChart, 
   HeartPulse, 
   ShieldCheck, 
   Users, 
-  Factory, 
-  ArrowRight,
+  Factory,
   Truck,
   Building2
 } from 'lucide-react';
@@ -26,10 +26,10 @@ interface AdminDinasDashboardProps {
     sekolahTercover: number;
     sekolahBelumTercover: number;
     coveragePercent: string | number;
-    statsPerSppg: Array<{
-      namaSppg: string;
-      jumlahSekolah: number;
-      totalSiswa: number;
+    monthlyCommodityStats: Array<{
+      bulan: string;
+      namaBahan: string;
+      volume: number;
     }>;
     totalPosyanduSasaran: number;
     totalBalita: number;
@@ -44,6 +44,40 @@ interface AdminDinasDashboardProps {
 }
 
 export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps) {
+  const [selectedCommodity, setSelectedCommodity] = useState('ALL');
+
+  // Extract unique commodities for the dropdown
+  const uniqueCommodities = useMemo(() => {
+    const names = stats.monthlyCommodityStats.map(s => s.namaBahan);
+    return Array.from(new Set(names)).sort();
+  }, [stats.monthlyCommodityStats]);
+
+  // Process data for the chart
+  const chartData = useMemo(() => {
+    // Group by month
+    const grouped = stats.monthlyCommodityStats.reduce((acc, curr) => {
+      if (selectedCommodity !== 'ALL' && curr.namaBahan !== selectedCommodity) return acc;
+      
+      if (!acc[curr.bulan]) {
+        acc[curr.bulan] = 0;
+      }
+      acc[curr.bulan] += curr.volume;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Convert back to array and sort by month
+    const result = Object.entries(grouped)
+      .map(([bulan, volume]) => ({ bulan, volume }))
+      .sort((a, b) => a.bulan.localeCompare(b.bulan));
+
+    return result;
+  }, [stats.monthlyCommodityStats, selectedCommodity]);
+
+  const maxVolume = useMemo(() => {
+    if (chartData.length === 0) return 0;
+    return Math.max(...chartData.map(d => d.volume));
+  }, [chartData]);
+
   return (
     <div className="animate-fade-in space-y-6 max-w-7xl mx-auto w-full min-w-0">
       {/* HERO BANNER - EXECUTIVE DASHBOARD */}
@@ -204,76 +238,56 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
         </div>
       </div>
 
-      {/* TOP SPPG TABLE & QUICK LOGISTICS LINK */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-          <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-2 bg-slate-50/50">
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-800">Top SPPG Melayani Siswa Terbanyak</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Dapur dengan beban distribusi terbesar saat ini</p>
-            </div>
-            <Link href="/admin/sppg" className="text-xs font-bold text-primary-600 hover:text-primary-800 transition-colors inline-flex items-center gap-1">
-              Lihat Semua SPPG →
-            </Link>
+      {/* COMMODITY CHART SECTION */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8 flex flex-col mt-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Tren Pembelian Komoditas Bulanan</h2>
+            <p className="text-sm text-slate-500 mt-1">Pantau volume pengadaan bahan baku pangan dari seluruh SPPG (6 Bulan Terakhir)</p>
           </div>
-          
-          <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse min-w-[500px]">
-              <thead>
-                <tr className="bg-white text-slate-400 text-[10px] font-extrabold uppercase tracking-widest border-b border-slate-100">
-                  <th className="p-3 sm:p-4 pl-4 sm:pl-6">Nama SPPG</th>
-                  <th className="p-3 sm:p-4 text-center">Jml Sekolah</th>
-                  <th className="p-3 sm:p-4 text-right pr-4 sm:pr-6">Total Siswa Terlayani</th>
-                </tr>
-              </thead>
-              <tbody className="text-xs sm:text-sm">
-                {stats.statsPerSppg.map((item, idx) => (
-                  <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td className="p-3 sm:p-4 pl-4 sm:pl-6 font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0">
-                        {idx + 1}
-                      </div>
-                      <span className="truncate max-w-[160px] sm:max-w-xs">{item.namaSppg}</span>
-                    </td>
-                    <td className="p-3 sm:p-4 text-center font-semibold text-slate-600">
-                      {item.jumlahSekolah} Sekolah
-                    </td>
-                    <td className="p-3 sm:p-4 pr-4 sm:pr-6 text-right font-black text-primary-700">
-                      {item.totalSiswa.toLocaleString('id-ID')}
-                    </td>
-                  </tr>
-                ))}
-                {stats.statsPerSppg.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="p-8 text-center text-slate-500 text-xs sm:text-sm">
-                      Belum ada pemetaan penerima manfaat di SPPG manapun.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="w-full sm:w-64">
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+              value={selectedCommodity}
+              onChange={(e) => setSelectedCommodity(e.target.value)}
+            >
+              <option value="ALL">Semua Komoditas (Gabungan)</option>
+              {uniqueCommodities.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-slate-800 shadow-xl p-6 sm:p-8 flex flex-col justify-center text-white relative overflow-hidden">
-          <div className="absolute -right-10 -top-10 opacity-10 hidden sm:block">
-            <Package size={200} />
-          </div>
-          <div className="relative z-10">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-5 sm:mb-6 border border-white/10">
-              <Package size={24} className="text-primary-300" />
+        {/* CSS BAR CHART */}
+        <div className="h-64 sm:h-80 flex items-end justify-between gap-2 sm:gap-4 pt-10">
+          {chartData.length > 0 ? chartData.map((d, i) => {
+            const height = maxVolume > 0 ? (d.volume / maxVolume) * 100 : 0;
+            return (
+              <div key={i} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                {/* TOOLTIP */}
+                <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded pointer-events-none whitespace-nowrap z-10">
+                  {d.volume.toLocaleString('id-ID')}
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
+                </div>
+                
+                {/* BAR */}
+                <div 
+                  className="w-full bg-primary-500 rounded-t-lg group-hover:bg-primary-600 transition-colors"
+                  style={{ height: \`\${Math.max(height, 1)}%\` }}
+                />
+                
+                {/* LABEL */}
+                <div className="mt-3 text-xs sm:text-sm font-bold text-slate-500 text-center uppercase tracking-wider">
+                  {d.bulan}
+                </div>
+              </div>
+            );
+          }) : (
+            <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">
+              Tidak ada data pembelian 6 bulan terakhir.
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">Rantai Pasok Logistik</h3>
-            <p className="text-slate-400 text-xs sm:text-sm mb-6 sm:mb-8 leading-relaxed">
-              Dapur SPPG sangat bergantung pada ketersediaan logistik pangan (Beras, Daging, Sayuran). Pantau alur dari mitra lokal ke dapur secara terpusat.
-            </p>
-            <Link 
-              href="/admin/pengawasan" 
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-primary-300 hover:text-white transition-colors"
-            >
-              Buka Manajemen Rantai Pasok <ArrowRight size={16} />
-            </Link>
-          </div>
+          )}
         </div>
       </div>
     </div>

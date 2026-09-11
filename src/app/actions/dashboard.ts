@@ -36,22 +36,23 @@ export async function getDashboardStats() {
   const totalSekolah = sekolahTercover + sekolahBelumTercover;
   const coveragePercent = totalSekolah > 0 ? ((sekolahTercover / totalSekolah) * 100).toFixed(1) : 0;
 
-  // 5. Statistik per SPPG (Top 5)
-  const statsPerSppgRes = await db.execute(sql`
+  // 5. Monthly Commodity Chart Data (Last 6 Months)
+  const monthlyChartRes = await db.execute(sql`
     SELECT 
-        p.nama_sppg,
-        COUNT(DISTINCT spm.sekolah_id) AS jumlah_sekolah,
-        SUM(spm.jumlah_laki + spm.jumlah_perempuan) AS total_siswa_penerima
-    FROM sppg p
-    LEFT JOIN sppg_penerima_manfaat spm ON p.sppg_id = spm.sppg_id AND spm.status = 'Aktif'
-    GROUP BY p.sppg_id, p.nama_sppg
-    ORDER BY total_siswa_penerima DESC
-    LIMIT 5
+      TO_CHAR(DATE_TRUNC('month', pb.tanggal_pembelian), 'YYYY-MM-DD') as bulan,
+      jp.nama_bahan,
+      SUM(pb.volume) as total_volume
+    FROM sppg_pembelian_bahan pb
+    JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
+    WHERE pb.tanggal_pembelian >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '5 months')
+    GROUP BY DATE_TRUNC('month', pb.tanggal_pembelian), jp.nama_bahan
+    ORDER BY DATE_TRUNC('month', pb.tanggal_pembelian) ASC, total_volume DESC
   `);
-  const statsPerSppg = statsPerSppgRes.map(row => ({
-    namaSppg: (row.nama_sppg as string) || 'SPPG',
-    jumlahSekolah: parseInt(row.jumlah_sekolah as string) || 0,
-    totalSiswa: parseInt(row.total_siswa_penerima as string) || 0,
+  
+  const monthlyCommodityStats = monthlyChartRes.map(row => ({
+    bulan: (row.bulan as string).substring(0, 7), // "YYYY-MM"
+    namaBahan: row.nama_bahan as string,
+    volume: parseFloat(row.total_volume as string) || 0
   }));
 
   // 6. Total Posyandu (Master) breakdown
@@ -106,7 +107,7 @@ export async function getDashboardStats() {
     sekolahTercover,
     sekolahBelumTercover,
     coveragePercent,
-    statsPerSppg,
+    monthlyCommodityStats,
     totalPosyanduSasaran,
     totalBalita,
     totalBumil,
