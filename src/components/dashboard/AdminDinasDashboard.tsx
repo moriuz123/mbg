@@ -22,6 +22,7 @@ interface AdminDinasDashboardProps {
   stats: {
     sppgCount: number;
     totalSiswa: number;
+    totalSekolah: number;
     sekolahTercover: number;
     sekolahBelumTercover: number;
     coveragePercent: string | number;
@@ -115,8 +116,8 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
                 <div className="text-xs font-bold text-indigo-600 uppercase mt-1">Siswa Penerima</div>
               </div>
               <div className="border-l border-slate-200 pl-4">
-                <div className="text-3xl font-black text-slate-800">{stats.sekolahTercover || 0}</div>
-                <div className="text-xs font-bold text-indigo-500 uppercase mt-1">Sekolah Tercover</div>
+                <div className="text-3xl font-black text-slate-800">{stats.totalSekolah || 0}</div>
+                <div className="text-xs font-bold text-indigo-500 uppercase mt-1">Sekolah Terdaftar</div>
               </div>
             </div>
           </div>

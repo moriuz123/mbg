@@ -4,15 +4,14 @@ import { db } from "@/db";
 import { sql } from "drizzle-orm";
 
 export async function getDashboardStats() {
-  // 1. Total SPPG Aktif
-  const sppgCountRes = await db.execute(sql`SELECT count(*) as total FROM sppg WHERE status_operasional = 'Operasional' OR status_operasional = 'Aktif'`);
+  // 1. Total SPPG Terdaftar (Semua Status)
+  const sppgCountRes = await db.execute(sql`SELECT count(*) as total FROM sppg`);
   const sppgCount = parseInt(sppgCountRes[0]?.total as string) || 0;
 
-  // 2. Total Siswa Penerima Manfaat (Total Laki + Perempuan dari sppg_penerima_manfaat yang Aktif)
+  // 2. Total Siswa (Dari Master Sekolah)
   const siswaRes = await db.execute(sql`
-    SELECT SUM(jumlah_laki + jumlah_perempuan) as total_siswa 
-    FROM sppg_penerima_manfaat 
-    WHERE status = 'Aktif'
+    SELECT SUM(jumlah_siswa_laki + jumlah_siswa_perempuan) as total_siswa 
+    FROM sekolah
   `);
   const totalSiswa = parseInt(siswaRes[0]?.total_siswa as string) || 0;
 
@@ -55,28 +54,21 @@ export async function getDashboardStats() {
     totalSiswa: parseInt(row.total_siswa_penerima as string) || 0,
   }));
 
-  // 6. Total Posyandu Penerima Manfaat (Balita + Bumil + Busui) breakdown
+  // 6. Total Posyandu (Master) breakdown
   const posyanduPenerimaRes = await db.execute(sql`
     SELECT 
       SUM(jumlah_balita) as total_balita,
       SUM(jumlah_bumil) as total_bumil,
       SUM(jumlah_busui) as total_busui,
-      SUM(jumlah_balita + jumlah_bumil + jumlah_busui) as total_sasaran 
-    FROM sppg_posyandu_manfaat 
-    WHERE status = 'Aktif'
+      SUM(jumlah_balita + jumlah_bumil + jumlah_busui) as total_sasaran,
+      COUNT(id) as total_posyandu
+    FROM posyandu 
   `);
   const totalBalita = parseInt(posyanduPenerimaRes[0]?.total_balita as string) || 0;
   const totalBumil = parseInt(posyanduPenerimaRes[0]?.total_bumil as string) || 0;
   const totalBusui = parseInt(posyanduPenerimaRes[0]?.total_busui as string) || 0;
   const totalPosyanduSasaran = parseInt(posyanduPenerimaRes[0]?.total_sasaran as string) || 0;
-
-  // 7. Posyandu Tercover
-  const posyanduTercoverRes = await db.execute(sql`
-    SELECT COUNT(DISTINCT posyandu_id) as total_posyandu
-    FROM sppg_posyandu_manfaat
-    WHERE status = 'Aktif'
-  `);
-  const posyanduTercover = parseInt(posyanduTercoverRes[0]?.total_posyandu as string) || 0;
+  const posyanduTercover = parseInt(posyanduPenerimaRes[0]?.total_posyandu as string) || 0;
 
   // 8. Total Penggilingan
   const penggilinganRes = await db.execute(sql`SELECT count(*) as total FROM penggilingan`);
@@ -102,6 +94,7 @@ export async function getDashboardStats() {
   return {
     sppgCount,
     totalSiswa,
+    totalSekolah,
     sekolahTercover,
     sekolahBelumTercover,
     coveragePercent,
