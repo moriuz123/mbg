@@ -16,15 +16,24 @@ export default async function AnalitikRantaiPasok() {
   // 1. Dapatkan Statistik Utama
   const statsRes = await db.execute(sql`
     SELECT 
-      (SELECT COUNT(*) FROM pemasok WHERE status = 'Aktif') as total_pemasok,
-      (SELECT COUNT(DISTINCT jenis_pangan_id) FROM sppg_pembelian_bahan) as total_komoditas,
+      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)) + (SELECT COUNT(*) FROM penggilingan) as total_mitra_dalam,
+      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_mitra_luar,
+      
+      (SELECT COUNT(DISTINCT pb.jenis_pangan_id) FROM sppg_pembelian_bahan pb LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE pb.tipe_sumber = 'Penggilingan' OR (pb.tipe_sumber = 'Pemasok' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL))) as total_komoditas_dalam,
+      
+      (SELECT COUNT(DISTINCT pb.jenis_pangan_id) FROM sppg_pembelian_bahan pb LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE pb.tipe_sumber = 'Pemasok' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_komoditas_luar,
+      
+      (SELECT COUNT(DISTINCT jenis_pangan_id) FROM sppg_pembelian_bahan) as total_komoditas_unik,
       (SELECT COUNT(DISTINCT sppg_id) FROM sppg_pembelian_bahan) as total_sppg_aktif,
       (SELECT COUNT(*) FROM sppg_pembelian_bahan) as total_transaksi
   `);
   
   const stats = {
-    pemasok: parseInt(statsRes[0]?.total_pemasok as string) || 0,
-    komoditas: parseInt(statsRes[0]?.total_komoditas as string) || 0,
+    mitraDalam: parseInt(statsRes[0]?.total_mitra_dalam as string) || 0,
+    mitraLuar: parseInt(statsRes[0]?.total_mitra_luar as string) || 0,
+    komoditasUnik: parseInt(statsRes[0]?.total_komoditas_unik as string) || 0,
+    komoditasDalam: parseInt(statsRes[0]?.total_komoditas_dalam as string) || 0,
+    komoditasLuar: parseInt(statsRes[0]?.total_komoditas_luar as string) || 0,
     sppg: parseInt(statsRes[0]?.total_sppg_aktif as string) || 0,
     transaksi: parseInt(statsRes[0]?.total_transaksi as string) || 0,
   };
@@ -94,10 +103,21 @@ export default async function AnalitikRantaiPasok() {
               <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><Users size={24} /></div>
-                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mitra Lokal</span>
+                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mitra Pemasok</span>
                 </div>
-                <div className="text-3xl font-black text-slate-800 mb-1">{stats.pemasok}</div>
-                <div className="text-sm font-medium text-slate-500">Pemasok & Penggilingan Aktif</div>
+                <div className="text-3xl font-black text-slate-800 mb-1">{stats.mitraDalam + stats.mitraLuar}</div>
+                <div className="text-sm font-medium text-slate-500 mb-3">Total Pemasok & Penggilingan</div>
+                
+                <div className="mt-auto space-y-1.5 pt-3 border-t border-slate-100">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Dalam Lebak</span>
+                    <span className="font-bold text-slate-700">{stats.mitraDalam} Mitra</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Luar Lebak</span>
+                    <span className="font-bold text-slate-700">{stats.mitraLuar} Mitra</span>
+                  </div>
+                </div>
               </div>
               
               <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col shadow-sm">
@@ -105,10 +125,18 @@ export default async function AnalitikRantaiPasok() {
                   <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><Package size={24} /></div>
                   <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Bahan Baku</span>
                 </div>
-                <div className="text-3xl font-black text-slate-800 mb-1">{stats.komoditas}</div>
-                <div className="text-sm font-medium text-slate-500">Jenis Komoditas Tersuplai</div>
-                <div className="text-xs font-semibold text-slate-400 mt-2 flex items-center gap-1">
-                  <TrendingUp size={12} /> {stats.transaksi.toLocaleString('id-ID')} Total Transaksi
+                <div className="text-3xl font-black text-slate-800 mb-1">{stats.komoditasUnik}</div>
+                <div className="text-sm font-medium text-slate-500 mb-3">Jenis Komoditas Tersuplai</div>
+                
+                <div className="mt-auto space-y-1.5 pt-3 border-t border-slate-100">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Disuplai dari Dalam</span>
+                    <span className="font-bold text-slate-700">{stats.komoditasDalam} Komoditas</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Disuplai dari Luar</span>
+                    <span className="font-bold text-slate-700">{stats.komoditasLuar} Komoditas</span>
+                  </div>
                 </div>
               </div>
 
@@ -118,7 +146,13 @@ export default async function AnalitikRantaiPasok() {
                   <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-md">Penerima</span>
                 </div>
                 <div className="text-3xl font-black text-slate-800 mb-1">{stats.sppg}</div>
-                <div className="text-sm font-medium text-slate-500">Dapur SPPG Disuplai</div>
+                <div className="text-sm font-medium text-slate-500 mb-3">Dapur SPPG Disuplai</div>
+                
+                <div className="mt-auto pt-3 border-t border-slate-100">
+                  <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                    <TrendingUp size={14} className="text-amber-500" /> {stats.transaksi.toLocaleString('id-ID')} Total Transaksi
+                  </div>
+                </div>
               </div>
             </div>
 
