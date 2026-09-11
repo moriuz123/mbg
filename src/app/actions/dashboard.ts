@@ -141,6 +141,37 @@ export async function getSppgDashboardStats(sppgId: number) {
   const jumlahSekolah = parseInt(countSekolahRes[0]?.count as string) || 0;
   const jumlahPosyandu = parseInt(countPosyanduRes[0]?.count as string) || 0;
 
+  // Count active suppliers used by this SPPG (Dalam Lebak & Luar Lebak)
+  const pemasokDalamRes = await db.execute(sql`
+    SELECT COUNT(DISTINCT pb.pemasok_id) as count
+    FROM sppg_pembelian_bahan pb
+    JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
+    LEFT JOIN kabupaten k ON p.kabupaten_id = k.kabupaten_id
+    WHERE pb.sppg_id = ${sppgId} 
+      AND (k.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)
+      AND pb.tipe_sumber != 'Penggilingan'
+  `);
+  
+  const pemasokLuarRes = await db.execute(sql`
+    SELECT COUNT(DISTINCT pb.pemasok_id) as count
+    FROM sppg_pembelian_bahan pb
+    JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
+    JOIN kabupaten k ON p.kabupaten_id = k.kabupaten_id
+    WHERE pb.sppg_id = ${sppgId} 
+      AND k.nama_kabupaten != 'Kabupaten Lebak'
+      AND pb.tipe_sumber != 'Penggilingan'
+  `);
+
+  const penggilinganRes = await db.execute(sql`
+    SELECT COUNT(DISTINCT pb.penggilingan_id) as count
+    FROM sppg_pembelian_bahan pb
+    WHERE pb.sppg_id = ${sppgId} 
+      AND pb.tipe_sumber = 'Penggilingan'
+  `);
+
+  const totalPemasokDalam = (parseInt(pemasokDalamRes[0]?.count as string) || 0) + (parseInt(penggilinganRes[0]?.count as string) || 0); // Penggilingan are all local Lebak RMUs
+  const totalPemasokLuar = parseInt(pemasokLuarRes[0]?.count as string) || 0;
+
   return {
     namaSppg,
     statusOperasional,
@@ -149,6 +180,8 @@ export async function getSppgDashboardStats(sppgId: number) {
     totalPorsiTerkirim,
     jumlahSekolah,
     jumlahPosyandu,
+    totalPemasokDalam,
+    totalPemasokLuar,
     totalPenerimaManfaat: totalSiswa + totalPosyandu
   };
 }

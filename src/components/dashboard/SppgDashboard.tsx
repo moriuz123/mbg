@@ -8,7 +8,8 @@ import {
   HeartPulse, 
   ShieldCheck, 
   Package, 
-  ArrowRight
+  ArrowRight,
+  Store
 } from 'lucide-react';
 import DailyFreshFoodWidget from './DailyFreshFoodWidget';
 
@@ -23,6 +24,8 @@ interface SppgDashboardProps {
     jumlahSekolah: number;
     jumlahPosyandu: number;
     totalPenerimaManfaat: number;
+    totalPemasokDalam?: number;
+    totalPemasokLuar?: number;
   };
   dailyFreshFoodStats?: {
     tanggal: string;
@@ -126,18 +129,26 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
           </div>
         </div>
 
-        {/* CARD 4: Total Porsi Terverifikasi */}
+        {/* CARD 4: Pemasok & Penggilingan (Dalam vs Luar Lebak) */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-sky-50 opacity-50 group-hover:scale-110 transition-transform">
-            <ShieldCheck size={120} />
+          <div className="absolute -right-4 -bottom-4 text-amber-50 opacity-50 group-hover:scale-110 transition-transform">
+            <Store size={120} />
           </div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4 text-sky-600 font-bold text-sm">
-              <div className="p-2.5 bg-sky-100 rounded-xl"><ShieldCheck size={20} /></div>
-              Porsi Terverifikasi Diterima
+            <div className="flex items-center gap-3 mb-4 text-amber-600 font-bold text-sm">
+              <div className="p-2.5 bg-amber-100 rounded-xl"><Store size={20} /></div>
+              Mitra & Pemasok Bahan
             </div>
-            <div className="text-4xl font-black text-slate-800">{stats.totalPorsiTerkirim.toLocaleString('id-ID')}</div>
-            <div className="text-sm font-medium text-slate-500 mt-1">Total porsi sukses terkirim</div>
+            <div className="flex gap-4">
+              <div>
+                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokDalam}</div>
+                <div className="text-xs font-bold text-emerald-600 uppercase mt-1">Dalam Lebak</div>
+              </div>
+              <div className="border-l border-slate-200 pl-4">
+                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokLuar}</div>
+                <div className="text-xs font-bold text-rose-600 uppercase mt-1">Luar Lebak</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
