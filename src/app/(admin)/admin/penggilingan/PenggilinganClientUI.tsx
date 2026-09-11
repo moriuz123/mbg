@@ -132,13 +132,61 @@ export default function PenggilinganClientUI({
     <>
       <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />
       <ConfirmModal 
-        isOpen={confirmOpen} 
-        title="Hapus Data Penggilingan" 
-        message="Apakah Anda yakin ingin menghapus data penggilingan ini? Data yang dihapus tidak dapat dikembalikan."
+        isOpen={confirmOpen}
+        title="Hapus Penggilingan"
+        message="Apakah Anda yakin ingin menghapus data mitra penggilingan ini? Tindakan ini tidak dapat dibatalkan."
         isLoading={isDeleting}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />
+
+      {isAdmin && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+            <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Mitra Terdaftar</span>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-black text-slate-800">{initialData.length}</span>
+              <span className="text-sm font-medium text-slate-500 mb-1">Unit</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2 font-medium">Mitra penggilingan di database</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+            <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Mitra Berstatus Aktif</span>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-black text-slate-800">{initialData.filter((d: any) => d.status === 'Aktif').length}</span>
+              <span className="text-sm font-medium text-slate-500 mb-1">Unit</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2 font-medium">Siap beroperasi dan suplai SPPG</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+            <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Kapasitas Suplai</span>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-black text-slate-800">
+                {(initialData.filter((d: any) => d.status === 'Aktif').reduce((sum, curr) => sum + (parseFloat(curr.kapasitasTerpasangKgMinggu) || 0), 0) / 1000).toFixed(1)}
+              </span>
+              <span className="text-sm font-medium text-slate-500 mb-1">Ton / Minggu</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2 font-medium">Dari seluruh penggilingan aktif</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
+            <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Sebaran Wilayah</span>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-black text-slate-800">
+                {new Set(initialData.filter((d: any) => d.status === 'Aktif' && d.kecamatanId).map((d: any) => d.kecamatanId)).size}
+              </span>
+              <span className="text-sm font-medium text-slate-500 mb-1">Kecamatan</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2 font-medium">Titik distribusi penggilingan aktif</p>
+          </div>
+        </div>
+      )}
       
       {isAdmin && (
         <div className="flex justify-end mb-4">
