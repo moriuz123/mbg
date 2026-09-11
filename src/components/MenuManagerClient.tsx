@@ -115,7 +115,7 @@ export default function MenuManagerClient({ initialMenus }: { initialMenus: any[
                       else if (url === '/posyandu') suggestedName = 'Posyandu';
                       else if (url === '/sppg') suggestedName = 'SPPG';
                       else if (url === '/data-penggilingan') suggestedName = 'Data Penggilingan';
-                      else if (url === '/katalog-komoditas') suggestedName = 'Katalog Komoditas';
+                      else if (url === '/katalog-komoditas') suggestedName = 'Rantai Pasok';
                       else if (url === '/pengaduan') suggestedName = 'Pengaduan';
                       else if (url === '/tentang') suggestedName = 'Tentang';
                     }
@@ -129,7 +129,7 @@ export default function MenuManagerClient({ initialMenus }: { initialMenus: any[
                   <option value="/sekolah">Modul Sekolah</option>
                   <option value="/posyandu">Modul Posyandu</option>
                   <option value="/sppg">Modul SPPG</option>
-                  <option value="/katalog-komoditas">Modul Katalog Komoditas</option>
+                  <option value="/katalog-komoditas">Modul Rantai Pasok</option>
                   <option value="/pengaduan">Modul Lapor/Pengaduan</option>
                   <option value="/tentang">Modul Tentang</option>
                 </select>

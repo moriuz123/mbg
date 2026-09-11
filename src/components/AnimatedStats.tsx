@@ -98,7 +98,7 @@ export default function AnimatedStats({ stats, supplyChainStats }: { stats: any,
             </div>
           </div>
           <Link href="/katalog-komoditas" className="relative z-10 flex items-center justify-between bg-slate-50 hover:bg-amber-50 px-3 py-2.5 rounded-lg text-xs font-bold text-slate-600 hover:text-amber-700 transition-colors mt-2">
-            Lihat Katalog <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            Lihat Rantai Pasok <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 

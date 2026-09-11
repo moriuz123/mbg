@@ -1,254 +1,218 @@
 import React from 'react';
-import { Utensils, Truck, Package, Egg, MapPin, Calendar, Beef, Wheat, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
-import Link from 'next/link';
+import { Truck, Package, Users, MapPin, Factory } from 'lucide-react';
 import { db } from '@/db';
-import { supplyChainKebutuhan } from '@/db/schema';
-import { desc } from 'drizzle-orm';
+import { sppgPembelianBahan, pemasok } from '@/db/schema';
+import { desc, eq } from 'drizzle-orm';
 
 export const metadata = {
-  title: 'Katalog Komoditas | MBG Kab. Lebak',
-  description: 'Kebutuhan pasokan pangan segar bulanan dari distributor lokal ke setiap SPPG',
+  title: 'Analitik Rantai Pasok | MBG Kab. Lebak',
+  description: 'Transparansi rantai pasok bahan pangan dari pemasok lokal ke dapur SPPG Program Makan Bergizi Gratis.',
 };
 
 export const dynamic = 'force-dynamic';
 
-export default async function KatalogKomoditas({
-  searchParams,
-}: {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const resolvedSearchParams = await searchParams;
-  const pageStr = Array.isArray(resolvedSearchParams?.page) ? resolvedSearchParams.page[0] : resolvedSearchParams?.page;
-  const currentPage = parseInt(pageStr || '1', 10);
-  const itemsPerPage = 9;
+export default async function AnalitikRantaiPasok() {
+  let pembelianData: any[] = [];
+  let pemasokAktif: any[] = [];
 
-  const semuaPangan = await db.query.jenisPangan.findMany();
-  const dataPasokan = await db.query.supplyChainKebutuhan.findMany({
-    with: {
-      sppg: true,
-      jenisPangan: true,
-      pemasok: true,
-    },
-    orderBy: [desc(supplyChainKebutuhan.createdAt)],
-    limit: 1000 // Fetch more to get all data for grouping
-  });
-
-  // Group by jenisPangan
-  const komoditasMap = new Map<string, {
-    jenisPangan: any,
-    pemasokMap: Map<number, { pemasok: any, totalVolume: number, satuan: string }>
-  }>();
-
-  // Initialize with all master data
-  semuaPangan.forEach(pangan => {
-    komoditasMap.set(pangan.id.toString(), {
-      jenisPangan: pangan,
-      pemasokMap: new Map()
+  try {
+    pembelianData = await db.query.sppgPembelianBahan.findMany({
+      with: {
+        pemasok: { with: { kabupaten: true } },
+        jenisPangan: true,
+        sppg: true,
+      },
+      orderBy: [desc(sppgPembelianBahan.tanggalPembelian)]
     });
-  });
+  } catch (e) {
+    console.error('Error fetching pembelian data:', e);
+  }
 
-  dataPasokan.forEach(item => {
-    if (!item.jenisPangan) return;
-    
-    const bahanId = item.jenisPangan.id.toString();
-    if (!komoditasMap.has(bahanId)) {
-      komoditasMap.set(bahanId, {
-        jenisPangan: item.jenisPangan,
-        pemasokMap: new Map()
+  try {
+    pemasokAktif = await db.query.pemasok.findMany({
+      where: eq(pemasok.status, 'Aktif'),
+      with: { kabupaten: true }
+    });
+  } catch (e) {
+    console.error('Error fetching pemasok:', e);
+  }
+
+  const totalTransaksi = pembelianData.length;
+  const uniqueSppg = new Set(pembelianData.map((p: any) => p.sppgId)).size;
+  const uniqueKomoditas = new Set(pembelianData.filter((p: any) => p.jenisPangan?.namaBahan).map((p: any) => p.jenisPangan.namaBahan)).size;
+
+  const pemasokSummary = new Map<number, { nama: string; alamat: string; tipe: string; totalVolume: number; bahanSet: Set<string>; sppgSet: Set<string> }>();
+  pembelianData.forEach((p: any) => {
+    if (!p.pemasokId || !p.pemasok) return;
+    if (!pemasokSummary.has(p.pemasokId)) {
+      pemasokSummary.set(p.pemasokId, {
+        nama: p.pemasok.namaPemasok,
+        alamat: p.pemasok.alamatPemasok || '-',
+        tipe: p.pemasok.tipePemasok || 'Lokal',
+        totalVolume: 0,
+        bahanSet: new Set(),
+        sppgSet: new Set(),
       });
     }
-
-    const pMap = komoditasMap.get(bahanId)!.pemasokMap;
-    // We group by pemasok or "Belum Ditentukan"
-    const pemasokId = item.pemasok?.id || 0;
-    
-    // Only add if there is a supplier and volume
-    if (item.pemasok) {
-      if (!pMap.has(pemasokId)) {
-        pMap.set(pemasokId, {
-          pemasok: item.pemasok,
-          totalVolume: 0,
-          satuan: item.satuan || item.jenisPangan.satuanDefault || 'Kg'
-        });
-      }
-      pMap.get(pemasokId)!.totalVolume += Number(item.kebutuhanPerBulan || 0);
-    }
+    const entry = pemasokSummary.get(p.pemasokId)!;
+    entry.totalVolume += Number(p.volume || 0);
+    if (p.jenisPangan?.namaBahan) entry.bahanSet.add(p.jenisPangan.namaBahan);
+    if (p.sppg?.namaSppg) entry.sppgSet.add(p.sppg.namaSppg);
   });
 
-  const groupedData = Array.from(komoditasMap.values());
-  const totalItems = groupedData.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-  const paginatedData = groupedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  // Helper function to pick icon based on jenisPangan name
-  const getIcon = (nama: string) => {
-    const lower = nama.toLowerCase();
-    if (lower.includes('beras')) return <Wheat className="w-8 h-8" />;
-    if (lower.includes('daging') || lower.includes('ayam')) return <Beef className="w-8 h-8" />;
-    if (lower.includes('telur')) return <Egg className="w-8 h-8" />;
-    if (lower.includes('sayur')) return <Utensils className="w-8 h-8" />;
-    return <Package className="w-8 h-8" />;
-  };
-
-  const getColorTheme = (nama: string) => {
-    const lower = nama.toLowerCase();
-    if (lower.includes('beras')) return 'from-amber-100 to-amber-50 text-amber-600 border-amber-200';
-    if (lower.includes('daging') || lower.includes('ayam')) return 'from-rose-100 to-rose-50 text-rose-600 border-rose-200';
-    if (lower.includes('telur')) return 'from-orange-100 to-orange-50 text-orange-600 border-orange-200';
-    if (lower.includes('sayur')) return 'from-emerald-100 to-emerald-50 text-emerald-600 border-emerald-200';
-    return 'from-slate-100 to-slate-50 text-slate-600 border-slate-200';
-  };
-
-  const getBadgeTheme = (nama: string) => {
-    const lower = nama.toLowerCase();
-    if (lower.includes('beras')) return 'bg-amber-100 text-amber-700 ring-amber-500/20';
-    if (lower.includes('daging') || lower.includes('ayam')) return 'bg-rose-100 text-rose-700 ring-rose-500/20';
-    if (lower.includes('telur')) return 'bg-orange-100 text-orange-700 ring-orange-500/20';
-    if (lower.includes('sayur')) return 'bg-emerald-100 text-emerald-700 ring-emerald-500/20';
-    return 'bg-slate-100 text-slate-700 ring-slate-500/20';
-  };
+  const pemasokRows = Array.from(pemasokSummary.values()).sort((a, b) => b.totalVolume - a.totalVolume);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Spacer for fixed navbar */}
       <div className="h-20"></div>
       
       <main className="flex-1">
         <section className="relative z-10 bg-white py-10 sm:py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto mb-6 max-w-2xl text-center sm:mb-8">
-              <p className="font-display mb-2 text-[13px] font-medium tracking-normal text-black/50">Rantai pasok lokal</p>
-              <h1 className="font-display text-2xl font-bold tracking-normal text-black sm:text-4xl sm:leading-[1.08]">Bahan Baku Pangan</h1>
-              <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-black/45 sm:text-[15px]">Cari ketersediaan bahan baku dari Pemasok Lokal di Kabupaten Lebak untuk Program Makan Bergizi Gratis.</p>
-            </div>
             
-            <div className="grid gap-3 sm:grid-cols-3 mb-12">
-              <div className="rounded-2xl border border-black/[0.06] bg-slate-50 p-6 flex flex-col justify-center items-center text-center">
-                <div className="text-4xl font-bold text-slate-800 mb-2">{dataPasokan.length}+</div>
-                <div className="text-sm font-medium text-slate-500">Kontrak Pemasok Aktif</div>
+            <div className="mx-auto mb-8 max-w-2xl text-center">
+              <p className="font-display mb-2 text-[13px] font-medium tracking-normal text-black/50">Transparansi Rantai Pasok</p>
+              <h1 className="font-display text-2xl font-bold tracking-normal text-black sm:text-4xl sm:leading-[1.08]">Analitik Rantai Pasok Pemasok ke SPPG</h1>
+              <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-black/45 sm:text-[15px]">
+                Laporan real-time alur distribusi bahan pangan dari Mitra Pemasok Lokal Kabupaten Lebak ke Dapur SPPG Program Makan Bergizi Gratis.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3 mb-12">
+              <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 flex flex-col justify-center items-center text-center">
+                <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl mb-3"><Users size={28} /></div>
+                <div className="text-4xl font-black text-slate-800 mb-1">{pemasokAktif.length}</div>
+                <div className="text-sm font-medium text-slate-500">Pemasok Aktif Terdaftar</div>
               </div>
-              <div className="rounded-2xl border border-black/[0.06] bg-slate-50 p-6 flex flex-col justify-center items-center text-center">
-                <div className="text-4xl font-bold text-slate-800 mb-2">{new Set(dataPasokan.map(d => d.sppgId)).size}</div>
-                <div className="text-sm font-medium text-slate-500">Titik Dapur Terlayani</div>
+              <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 flex flex-col justify-center items-center text-center">
+                <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl mb-3"><Package size={28} /></div>
+                <div className="text-4xl font-black text-slate-800 mb-1">{uniqueKomoditas}</div>
+                <div className="text-sm font-medium text-slate-500">Jenis Komoditas Tersuplai</div>
+                <div className="text-xs text-slate-400 mt-1">{totalTransaksi} total transaksi tercatat</div>
               </div>
-              <div className="rounded-2xl border border-black/[0.06] bg-slate-50 p-6 flex flex-col justify-center items-center text-center">
-                <div className="text-4xl font-bold text-slate-800 mb-2">{groupedData.length}</div>
-                <div className="text-sm font-medium text-slate-500">Jenis Komoditas Tersedia</div>
+              <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-6 flex flex-col justify-center items-center text-center">
+                <div className="p-3 bg-amber-100 text-amber-600 rounded-2xl mb-3"><Factory size={28} /></div>
+                <div className="text-4xl font-black text-slate-800 mb-1">{uniqueSppg}</div>
+                <div className="text-sm font-medium text-slate-500">Dapur SPPG Terlayani</div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-slate-900">Ketersediaan Komoditas</h2>
-              <div className="flex gap-2">
-                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">Bulan Ini</span>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-12">
+              <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50">
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Truck size={20} className="text-emerald-600" />
+                  Riwayat Rantai Pasok: Pemasok → Bahan → Dapur SPPG
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">Seluruh transaksi pembelian bahan pangan segar oleh dapur SPPG dari mitra pemasok lokal.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+                      <th className="px-6 py-4">Tanggal</th>
+                      <th className="px-6 py-4">Pemasok</th>
+                      <th className="px-6 py-4">Bahan Pangan</th>
+                      <th className="px-6 py-4 text-right">Volume</th>
+                      <th className="px-6 py-4">Dapur SPPG Tujuan</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-sm">
+                    {pembelianData.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="p-10 text-center text-slate-400">
+                          <Package className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                          <div className="font-bold">Belum ada data transaksi</div>
+                          <div className="text-xs mt-1">Data akan muncul saat SPPG mulai mencatat pembelian bahan pangan.</div>
+                        </td>
+                      </tr>
+                    )}
+                    {pembelianData.map((d: any) => (
+                      <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4 font-medium text-slate-700">
+                          {new Date(d.tanggalPembelian).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-slate-800">{d.pemasok?.namaPemasok || '-'}</div>
+                          <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                            <MapPin size={10} /> {d.pemasok?.alamatPemasok || 'Lebak'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPangan?.namaBahan || '-'}</td>
+                        <td className="px-6 py-4 text-right font-black text-emerald-700">{Number(d.volume).toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-500">{d.satuan}</span></td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">
+                            <Factory size={12} /> {d.sppg?.namaSppg || '-'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
-              {paginatedData.map((group, idx) => {
-                const gradientTheme = getColorTheme(group.jenisPangan.namaBahan || '');
-                const badgeTheme = getBadgeTheme(group.jenisPangan.namaBahan || '');
-                const pemasokList = Array.from(group.pemasokMap.values());
-                
-                return (
-                  <div 
-                    key={idx} 
-                    className="group bg-white rounded-3xl p-1 relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 border border-slate-200 flex flex-col"
-                  >
-                    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl ${gradientTheme.split(' ')[0]} to-transparent opacity-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110`}></div>
-                    
-                    <div className="p-6 pb-4 border-b border-slate-100 flex-none">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className={`p-3 rounded-2xl bg-gradient-to-br ${gradientTheme} shadow-inner`}>
-                          {getIcon(group.jenisPangan.namaBahan || '')}
-                        </div>
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeTheme}`}>
-                          {group.jenisPangan.kategori || 'Bahan Pokok'}
-                        </span>
-                      </div>
-                      
-                      <h3 className="text-2xl font-bold text-slate-900 mb-2 leading-tight group-hover:text-primary-600 transition-colors">
-                        {group.jenisPangan.namaBahan}
-                      </h3>
-                      <p className="text-sm text-slate-500 font-medium">Tersedia dari {pemasokList.length} Pemasok Lokal</p>
-                    </div>
-
-                    <div className="p-4 bg-slate-50/50 flex-1 rounded-b-3xl">
-                      <div className="space-y-3">
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-2">Daftar Pemasok & Ketersediaan</div>
-                        
-                        <div className="space-y-2">
-                          {pemasokList.length === 0 ? (
-                            <div className="text-center py-4 text-sm text-slate-500 italic bg-white/50 rounded-xl border border-slate-100/50">
-                              Belum ada data pasokan
-                            </div>
-                          ) : (
-                            pemasokList.map((p, pIdx) => (
-                              <div key={pIdx} className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                <div className="flex items-center gap-2">
-                                  <Truck size={16} className="text-slate-400" />
-                                  <span className="text-sm font-bold text-slate-700">{p.pemasok.namaPemasok}</span>
-                                </div>
-                                <div className="flex items-baseline gap-1 text-right">
-                                  <span className="text-lg font-black text-slate-900">
-                                    {p.totalVolume.toLocaleString('id-ID')}
-                                  </span>
-                                  <span className="text-xs font-bold text-slate-500">{p.satuan}</span>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            {paginatedData.length === 0 && (
-              <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100 mb-10">
-                <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-slate-700 mb-2">Belum ada data komoditas</h3>
-                <p className="text-slate-500">Data pasokan bahan baku dari pemasok lokal belum tersedia.</p>
-              </div>
-            )}
-            
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                {currentPage > 1 ? (
-                  <Link 
-                    href={`/katalog-komoditas?page=${currentPage - 1}`}
-                    className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    <ChevronLeft size={20} />
-                  </Link>
-                ) : (
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-slate-300 cursor-not-allowed">
-                    <ChevronLeft size={20} />
-                  </div>
-                )}
-                
-                <div className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-medium text-slate-700 shadow-sm">
-                  Halaman {currentPage} dari {totalPages}
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Profil Mitra Pemasok Aktif</h2>
+                  <p className="text-sm text-slate-500 mt-0.5">{pemasokAktif.length} pemasok lokal terdaftar di sistem MBG Kab. Lebak</p>
                 </div>
-                
-                {currentPage < totalPages ? (
-                  <Link 
-                    href={`/katalog-komoditas?page=${currentPage + 1}`}
-                    className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    <ChevronRight size={20} />
-                  </Link>
-                ) : (
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-slate-300 cursor-not-allowed">
-                    <ChevronRight size={20} />
-                  </div>
-                )}
               </div>
-            )}
-            
+
+              {pemasokRows.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pemasokRows.map((p, idx) => (
+                    <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl"><Truck size={20} /></div>
+                        <span className="px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">{p.tipe}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800 mb-1">{p.nama}</h3>
+                      <p className="text-xs text-slate-400 flex items-center gap-1 mb-4"><MapPin size={11} /> {p.alamat}</p>
+                      
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between items-center bg-slate-50 rounded-xl px-3 py-2">
+                          <span className="text-slate-500 font-medium">Total Suplai</span>
+                          <span className="font-black text-emerald-700">{p.totalVolume.toLocaleString('id-ID')} Kg</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-slate-50 rounded-xl px-3 py-2">
+                          <span className="text-slate-500 font-medium">Komoditas</span>
+                          <span className="font-bold text-slate-700">{Array.from(p.bahanSet).join(', ') || '-'}</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-slate-50 rounded-xl px-3 py-2">
+                          <span className="text-slate-500 font-medium">SPPG Dilayani</span>
+                          <span className="font-bold text-slate-700 text-xs text-right max-w-[180px] truncate">{Array.from(p.sppgSet).join(', ') || '-'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[500px]">
+                      <thead>
+                        <tr className="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+                          <th className="px-6 py-3">Nama Pemasok</th>
+                          <th className="px-6 py-3">Tipe</th>
+                          <th className="px-6 py-3">Alamat</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-sm">
+                        {pemasokAktif.map((p: any) => (
+                          <tr key={p.id} className="hover:bg-slate-50/50">
+                            <td className="px-6 py-3 font-bold text-slate-800">{p.namaPemasok}</td>
+                            <td className="px-6 py-3 text-slate-600">{p.tipePemasok || 'Lokal'}</td>
+                            <td className="px-6 py-3 text-slate-500 text-xs">{p.alamatPemasok || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
         </section>
       </main>
