@@ -16,8 +16,9 @@ export default async function AnalitikRantaiPasok() {
   // 1. Dapatkan Statistik Utama
   const statsRes = await db.execute(sql`
     SELECT 
-      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)) + (SELECT COUNT(*) FROM penggilingan) as total_mitra_dalam,
-      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_mitra_luar,
+      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)) as total_pemasok_dalam,
+      (SELECT COUNT(*) FROM penggilingan) as total_penggilingan,
+      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_pemasok_luar,
       
       (SELECT COUNT(DISTINCT pb.jenis_pangan_id) FROM sppg_pembelian_bahan pb LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE pb.tipe_sumber = 'Penggilingan' OR (pb.tipe_sumber = 'Pemasok' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL))) as total_komoditas_dalam,
       
@@ -29,8 +30,9 @@ export default async function AnalitikRantaiPasok() {
   `);
   
   const stats = {
-    mitraDalam: parseInt(statsRes[0]?.total_mitra_dalam as string) || 0,
-    mitraLuar: parseInt(statsRes[0]?.total_mitra_luar as string) || 0,
+    pemasokDalam: parseInt(statsRes[0]?.total_pemasok_dalam as string) || 0,
+    penggilingan: parseInt(statsRes[0]?.total_penggilingan as string) || 0,
+    pemasokLuar: parseInt(statsRes[0]?.total_pemasok_luar as string) || 0,
     komoditasUnik: parseInt(statsRes[0]?.total_komoditas_unik as string) || 0,
     komoditasDalam: parseInt(statsRes[0]?.total_komoditas_dalam as string) || 0,
     komoditasLuar: parseInt(statsRes[0]?.total_komoditas_luar as string) || 0,
@@ -105,17 +107,21 @@ export default async function AnalitikRantaiPasok() {
                   <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><Users size={24} /></div>
                   <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mitra Pemasok</span>
                 </div>
-                <div className="text-3xl font-black text-slate-800 mb-1">{stats.mitraDalam + stats.mitraLuar}</div>
+                <div className="text-3xl font-black text-slate-800 mb-1">{stats.pemasokDalam + stats.pemasokLuar + stats.penggilingan}</div>
                 <div className="text-sm font-medium text-slate-500 mb-3">Total Pemasok & Penggilingan</div>
                 
                 <div className="mt-auto space-y-1.5 pt-3 border-t border-slate-100">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Dalam Lebak</span>
-                    <span className="font-bold text-slate-700">{stats.mitraDalam} Mitra</span>
+                    <span className="text-slate-500">Pemasok (Dalam Lebak)</span>
+                    <span className="font-bold text-slate-700">{stats.pemasokDalam} Mitra</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Luar Lebak</span>
-                    <span className="font-bold text-slate-700">{stats.mitraLuar} Mitra</span>
+                    <span className="text-slate-500">Pemasok (Luar Lebak)</span>
+                    <span className="font-bold text-slate-700">{stats.pemasokLuar} Mitra</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Penggilingan Padi (Lokal)</span>
+                    <span className="font-bold text-slate-700">{stats.penggilingan} Mitra</span>
                   </div>
                 </div>
               </div>

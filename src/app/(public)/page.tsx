@@ -139,7 +139,7 @@ export default async function Public({
   try {
     const rpStatsRes = await db.execute(sql`
       SELECT 
-        (SELECT COUNT(*) FROM pemasok WHERE status = 'Aktif') as total_pemasok,
+        (SELECT COUNT(*) FROM pemasok WHERE status = 'Aktif') + (SELECT COUNT(*) FROM penggilingan) as total_pemasok,
         (SELECT COUNT(DISTINCT jenis_pangan_id) FROM sppg_pembelian_bahan) as total_komoditas,
         (SELECT COUNT(*) FROM sppg_pembelian_bahan) as total_transaksi
     `);
