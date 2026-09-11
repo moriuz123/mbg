@@ -169,6 +169,43 @@ export async function getSppgDashboardStats(sppgId: number) {
       AND pb.tipe_sumber = 'Penggilingan'
   `);
 
+  // 1. Jenis Komoditas (Dalam vs Luar)
+  const komoditasDalamRes = await db.execute(sql`
+    SELECT COUNT(DISTINCT pb.jenis_pangan_id) as count
+    FROM sppg_pembelian_bahan pb
+    LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
+    LEFT JOIN kabupaten k ON p.kabupaten_id = k.kabupaten_id
+    WHERE pb.sppg_id = ${sppgId} 
+      AND (
+        pb.tipe_sumber = 'Penggilingan' 
+        OR (k.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)
+      )
+  `);
+
+  const komoditasLuarRes = await db.execute(sql`
+    SELECT COUNT(DISTINCT pb.jenis_pangan_id) as count
+    FROM sppg_pembelian_bahan pb
+    JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
+    JOIN kabupaten k ON p.kabupaten_id = k.kabupaten_id
+    WHERE pb.sppg_id = ${sppgId} 
+      AND pb.tipe_sumber != 'Penggilingan'
+      AND k.nama_kabupaten != 'Kabupaten Lebak'
+  `);
+
+  // 2. Volume Beras
+  const berasStatsRes = await db.execute(sql`
+    SELECT 
+      SUM(CASE WHEN pb.tipe_sumber = 'Penggilingan' THEN pb.volume ELSE 0 END) as beras_penggilingan,
+      SUM(CASE WHEN pb.tipe_sumber != 'Penggilingan' AND (k.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL) THEN pb.volume ELSE 0 END) as beras_pemasok_dalam,
+      SUM(CASE WHEN pb.tipe_sumber != 'Penggilingan' AND k.nama_kabupaten != 'Kabupaten Lebak' THEN pb.volume ELSE 0 END) as beras_pemasok_luar
+    FROM sppg_pembelian_bahan pb
+    JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
+    LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
+    LEFT JOIN kabupaten k ON p.kabupaten_id = k.kabupaten_id
+    WHERE pb.sppg_id = ${sppgId} 
+      AND jp.nama_bahan ILIKE '%Beras%'
+  `);
+
   const totalPemasokDalam = (parseInt(pemasokDalamRes[0]?.count as string) || 0) + (parseInt(penggilinganRes[0]?.count as string) || 0); // Penggilingan are all local Lebak RMUs
   const totalPemasokLuar = parseInt(pemasokLuarRes[0]?.count as string) || 0;
 
@@ -182,6 +219,11 @@ export async function getSppgDashboardStats(sppgId: number) {
     jumlahPosyandu,
     totalPemasokDalam,
     totalPemasokLuar,
+    jenisKomoditasDalam: parseInt(komoditasDalamRes[0]?.count as string) || 0,
+    jenisKomoditasLuar: parseInt(komoditasLuarRes[0]?.count as string) || 0,
+    berasPenggilingan: parseFloat(berasStatsRes[0]?.beras_penggilingan as string) || 0,
+    berasPemasokDalam: parseFloat(berasStatsRes[0]?.beras_pemasok_dalam as string) || 0,
+    berasPemasokLuar: parseFloat(berasStatsRes[0]?.beras_pemasok_luar as string) || 0,
     totalPenerimaManfaat: totalSiswa + totalPosyandu
   };
 }

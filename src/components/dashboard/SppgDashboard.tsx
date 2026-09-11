@@ -26,6 +26,11 @@ interface SppgDashboardProps {
     totalPenerimaManfaat: number;
     totalPemasokDalam?: number;
     totalPemasokLuar?: number;
+    jenisKomoditasDalam?: number;
+    jenisKomoditasLuar?: number;
+    berasPenggilingan?: number;
+    berasPemasokDalam?: number;
+    berasPemasokLuar?: number;
   };
   dailyFreshFoodStats?: {
     tanggal: string;
@@ -83,7 +88,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
       </div>
 
       {/* METRICS CARDS */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {/* CARD 1: Total Sasaran Penerima */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="absolute -right-4 -bottom-4 text-emerald-50 opacity-50 group-hover:scale-110 transition-transform">
@@ -94,7 +99,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
               <div className="p-2.5 bg-emerald-100 rounded-xl"><Users size={20} /></div>
               Total Penerima Manfaat
             </div>
-            <div className="text-4xl font-black text-slate-800">{stats.totalPenerimaManfaat.toLocaleString('id-ID')}</div>
+            <div className="text-4xl font-black text-slate-800">{stats.totalPenerimaManfaat?.toLocaleString('id-ID') || 0}</div>
             <div className="text-sm font-medium text-slate-500 mt-1">Siswa + Posyandu (Bumil/Balita)</div>
           </div>
         </div>
@@ -109,7 +114,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
               <div className="p-2.5 bg-indigo-100 rounded-xl"><GraduationCap size={20} /></div>
               Siswa Sekolah (Aktif)
             </div>
-            <div className="text-4xl font-black text-slate-800">{stats.totalSiswa.toLocaleString('id-ID')}</div>
+            <div className="text-4xl font-black text-slate-800">{stats.totalSiswa?.toLocaleString('id-ID') || 0}</div>
             <div className="text-sm font-medium text-slate-500 mt-1">Dari {stats.jumlahSekolah} Sekolah Terdaftar</div>
           </div>
         </div>
@@ -124,7 +129,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
               <div className="p-2.5 bg-rose-100 rounded-xl"><HeartPulse size={20} /></div>
               Sasaran Posyandu
             </div>
-            <div className="text-4xl font-black text-slate-800">{stats.totalPosyandu.toLocaleString('id-ID')}</div>
+            <div className="text-4xl font-black text-slate-800">{stats.totalPosyandu?.toLocaleString('id-ID') || 0}</div>
             <div className="text-sm font-medium text-slate-500 mt-1">Dari {stats.jumlahPosyandu} Posyandu Terdaftar</div>
           </div>
         </div>
@@ -137,16 +142,66 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-4 text-amber-600 font-bold text-sm">
               <div className="p-2.5 bg-amber-100 rounded-xl"><Store size={20} /></div>
-              Mitra & Pemasok Bahan
+              Mitra & Pemasok Digunakan
             </div>
             <div className="flex gap-4">
               <div>
-                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokDalam}</div>
+                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokDalam || 0}</div>
                 <div className="text-xs font-bold text-emerald-600 uppercase mt-1">Dalam Lebak</div>
               </div>
               <div className="border-l border-slate-200 pl-4">
-                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokLuar}</div>
+                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokLuar || 0}</div>
                 <div className="text-xs font-bold text-rose-600 uppercase mt-1">Luar Lebak</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CARD 5: Jenis Komoditas (Dalam vs Luar Lebak) */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 text-sky-50 opacity-50 group-hover:scale-110 transition-transform">
+            <Package size={120} />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4 text-sky-600 font-bold text-sm">
+              <div className="p-2.5 bg-sky-100 rounded-xl"><Package size={20} /></div>
+              Jenis Komoditas Dibeli
+            </div>
+            <div className="flex gap-4">
+              <div>
+                <div className="text-3xl font-black text-slate-800">{stats.jenisKomoditasDalam || 0}</div>
+                <div className="text-xs font-bold text-emerald-600 uppercase mt-1">Lokal Lebak</div>
+              </div>
+              <div className="border-l border-slate-200 pl-4">
+                <div className="text-3xl font-black text-slate-800">{stats.jenisKomoditasLuar || 0}</div>
+                <div className="text-xs font-bold text-rose-600 uppercase mt-1">Luar Daerah</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CARD 6: Volume Beras (Kg) */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 text-orange-50 opacity-50 group-hover:scale-110 transition-transform">
+            <Utensils size={120} />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4 text-orange-600 font-bold text-sm">
+              <div className="p-2.5 bg-orange-100 rounded-xl"><Utensils size={20} /></div>
+              Volume Beras Dibeli (Kg)
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-semibold text-slate-600 flex items-center gap-1.5">🌾 Penggilingan</span>
+                <span className="font-bold text-slate-800">{stats.berasPenggilingan?.toLocaleString('id-ID') || 0}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-semibold text-slate-600 flex items-center gap-1.5">🏢 Pemasok Dalam</span>
+                <span className="font-bold text-slate-800">{stats.berasPemasokDalam?.toLocaleString('id-ID') || 0}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-semibold text-slate-600 flex items-center gap-1.5">🚛 Pemasok Luar</span>
+                <span className="font-bold text-slate-800">{stats.berasPemasokLuar?.toLocaleString('id-ID') || 0}</span>
               </div>
             </div>
           </div>
