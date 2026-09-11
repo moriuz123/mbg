@@ -6,6 +6,7 @@ import { getPembelianBahan, getPemakaianBahan, getUjiRapidTest, getActiveMasterP
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
