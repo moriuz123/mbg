@@ -142,6 +142,53 @@ export default function PengawasanClient({
         onCancel={() => setConfirmOpen(false)}
       />
 
+      {/* KPI COUNTERS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+          <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Bahan Masuk</span>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-black text-slate-800">{filteredPembelian.length}</span>
+            <span className="text-sm font-medium text-slate-500 mb-1">Transaksi</span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-2 font-medium">Bahan pangan diakuisisi</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+          <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Bahan Terpakai</span>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-black text-slate-800">{filteredPemakaian.length}</span>
+            <span className="text-sm font-medium text-slate-500 mb-1">Transaksi</span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-2 font-medium">Bahan dikeluarkan ke Dapur</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-1 bg-rose-500"></div>
+          <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Peringatan Stok Kritis</span>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-black text-rose-600">{filteredKartuStok.filter((s: any) => s.sisa < 5).length}</span>
+            <span className="text-sm font-medium text-slate-500 mb-1">Komoditas</span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-2 font-medium">Sisa stok gudang di bawah aman</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+          <span className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Tingkat Keamanan (Rapid)</span>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-black text-slate-800">
+              {filteredUjiRapid.length > 0 
+                ? Math.round((filteredUjiRapid.filter((u: any) => u.hasilUji.toLowerCase().includes('aman') && !u.hasilUji.toLowerCase().includes('tidak')).length / filteredUjiRapid.length) * 100) 
+                : 0}%
+            </span>
+            <span className="text-sm font-medium text-slate-500 mb-1">Aman</span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-2 font-medium">Dari {filteredUjiRapid.length} sampel uji klinis</p>
+        </div>
+      </div>
+
       <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 p-1 flex-wrap sm:flex-nowrap gap-1">
         {isAdmin && (
           <button
