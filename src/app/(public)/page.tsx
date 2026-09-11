@@ -231,6 +231,7 @@ export default async function Public({
             macroStats={macroStats} 
             pabrikList={pabriks}
             filterOptions={filterOptions}
+            isHomepage={true}
           />
         </div>
       </section>

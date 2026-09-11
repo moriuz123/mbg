@@ -23,7 +23,7 @@ type MacroStats = {
   utilisasiMesin: string;
 };
 
-export default function PenggilinganClient({ gabahData, distribusiData, macroStats, pabrikList = [], filterOptions = { kecamatans: [], desas: [], kategoris: [] } }: { gabahData: MonthlyData[], distribusiData: MonthlyData[], macroStats: MacroStats, pabrikList?: any[], filterOptions?: any }) {
+export default function PenggilinganClient({ gabahData, distribusiData, macroStats, pabrikList = [], filterOptions = { kecamatans: [], desas: [], kategoris: [] }, isHomepage = false }: { gabahData: MonthlyData[], distribusiData: MonthlyData[], macroStats: MacroStats, pabrikList?: any[], filterOptions?: any, isHomepage?: boolean }) {
   const [mainTab, setMainTab] = useState('dashboard');
   const [activeTab, setActiveTab] = useState('gabah');
   const [searchPabrik, setSearchPabrik] = useState('');
@@ -91,20 +91,22 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
   return (
     <>
       {/* MAIN TABS */}
-      <div className="flex gap-4 mb-8 border-b border-slate-200">
-        <button 
-          onClick={() => setMainTab('dashboard')}
-          className={`px-6 py-3 font-bold text-sm transition-all border-b-2 ${mainTab === 'dashboard' ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Agregasi & Statistik
-        </button>
-        <button 
-          onClick={() => setMainTab('direktori')}
-          className={`px-6 py-3 font-bold text-sm transition-all border-b-2 ${mainTab === 'direktori' ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Katalog Mitra Penggilingan
-        </button>
-      </div>
+      {!isHomepage && (
+        <div className="flex gap-4 mb-8 border-b border-slate-200">
+          <button 
+            onClick={() => setMainTab('dashboard')}
+            className={`px-6 py-3 font-bold text-sm transition-all border-b-2 ${mainTab === 'dashboard' ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            Agregasi & Statistik
+          </button>
+          <button 
+            onClick={() => setMainTab('direktori')}
+            className={`px-6 py-3 font-bold text-sm transition-all border-b-2 ${mainTab === 'direktori' ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            Katalog Mitra Penggilingan
+          </button>
+        </div>
+      )}
 
       {mainTab === 'dashboard' && (
         <div className="animate-fade-in">
@@ -199,88 +201,98 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
         </div>
       </div>
 
-      <div className="card border border-slate-200 shadow-sm p-6 rounded-2xl bg-white">
-        <div className="flex gap-4 mb-6 border-b border-slate-200 pb-4">
-          <button 
-            className={`px-4 py-2 font-bold rounded-xl transition-colors ${activeTab === 'gabah' ? 'bg-amber-100 text-amber-800' : 'text-slate-500 hover:bg-slate-100'}`}
-            onClick={() => setActiveTab('gabah')}
-          >
-            Tren Suplai Gabah
-          </button>
-          <button 
-            className={`px-4 py-2 font-bold rounded-xl transition-colors ${activeTab === 'distribusi' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-500 hover:bg-slate-100'}`}
-            onClick={() => setActiveTab('distribusi')}
-          >
-            Tren Distribusi Beras
-          </button>
+      {!isHomepage ? (
+        <>
+          <div className="card border border-slate-200 shadow-sm p-6 rounded-2xl bg-white">
+            <div className="flex gap-4 mb-6 border-b border-slate-200 pb-4">
+              <button 
+                className={`px-4 py-2 font-bold rounded-xl transition-colors ${activeTab === 'gabah' ? 'bg-amber-100 text-amber-800' : 'text-slate-500 hover:bg-slate-100'}`}
+                onClick={() => setActiveTab('gabah')}
+              >
+                Tren Suplai Gabah
+              </button>
+              <button 
+                className={`px-4 py-2 font-bold rounded-xl transition-colors ${activeTab === 'distribusi' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-500 hover:bg-slate-100'}`}
+                onClick={() => setActiveTab('distribusi')}
+              >
+                Tren Distribusi Beras
+              </button>
+            </div>
+
+            {activeTab === 'gabah' && (
+              <div className="animate-fade-in">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-slate-800">Agregasi Gabah Masuk (Per Bulan)</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50">
+                        <th className="p-3 text-xs font-bold text-slate-600 uppercase">No</th>
+                        <th className="p-3 text-xs font-bold text-slate-600 uppercase">Periode (Bulan)</th>
+                        <th className="p-3 text-xs font-bold text-slate-600 uppercase text-right">Total Volume Gabah Diserap (Kg)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gabahData.map((item, index) => (
+                        <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="p-3">{index + 1}</td>
+                          <td className="p-3 font-bold text-slate-800">{item.periode}</td>
+                          <td className="p-3 text-right font-black text-amber-700">{Number(item.volume).toLocaleString('id-ID')}</td>
+                        </tr>
+                      ))}
+                      {gabahData.length === 0 && (
+                        <tr>
+                          <td colSpan={3} className="p-8 text-center text-slate-500">Belum ada data rekapan.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'distribusi' && (
+              <div className="animate-fade-in">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-slate-800">Agregasi Distribusi Beras (Per Bulan)</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50">
+                        <th className="p-3 text-xs font-bold text-slate-600 uppercase">No</th>
+                        <th className="p-3 text-xs font-bold text-slate-600 uppercase">Periode (Bulan)</th>
+                        <th className="p-3 text-xs font-bold text-slate-600 uppercase text-right">Total Volume Distribusi (Kg)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {distribusiData.map((item, index) => (
+                        <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="p-3">{index + 1}</td>
+                          <td className="p-3 font-bold text-slate-800">{item.periode}</td>
+                          <td className="p-3 text-right font-black text-emerald-700">{Number(item.volume).toLocaleString('id-ID')}</td>
+                        </tr>
+                      ))}
+                      {distribusiData.length === 0 && (
+                        <tr>
+                          <td colSpan={3} className="p-8 text-center text-slate-500">Belum ada data rekapan.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="mt-12 text-center">
+          <a href="/data-penggilingan" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-[0_8px_20px_rgba(37,99,235,0.2)] transition-all hover:-translate-y-1">
+            Selengkapnya Lihat Direktori Mitra <TrendingUp size={20} />
+          </a>
         </div>
-
-        {activeTab === 'gabah' && (
-          <div className="animate-fade-in">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-slate-800">Agregasi Gabah Masuk (Per Bulan)</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50">
-                    <th className="p-3 text-xs font-bold text-slate-600 uppercase">No</th>
-                    <th className="p-3 text-xs font-bold text-slate-600 uppercase">Periode (Bulan)</th>
-                    <th className="p-3 text-xs font-bold text-slate-600 uppercase text-right">Total Volume Gabah Diserap (Kg)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {gabahData.map((item, index) => (
-                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50">
-                      <td className="p-3">{index + 1}</td>
-                      <td className="p-3 font-bold text-slate-800">{item.periode}</td>
-                      <td className="p-3 text-right font-black text-amber-700">{Number(item.volume).toLocaleString('id-ID')}</td>
-                    </tr>
-                  ))}
-                  {gabahData.length === 0 && (
-                    <tr>
-                      <td colSpan={3} className="p-8 text-center text-slate-500">Belum ada data rekapan.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'distribusi' && (
-          <div className="animate-fade-in">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-slate-800">Agregasi Distribusi Beras (Per Bulan)</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50">
-                    <th className="p-3 text-xs font-bold text-slate-600 uppercase">No</th>
-                    <th className="p-3 text-xs font-bold text-slate-600 uppercase">Periode (Bulan)</th>
-                    <th className="p-3 text-xs font-bold text-slate-600 uppercase text-right">Total Volume Beras Didistribusikan (Kg)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {distribusiData.map((item, index) => (
-                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50">
-                      <td className="p-3">{index + 1}</td>
-                      <td className="p-3 font-bold text-slate-800">{item.periode}</td>
-                      <td className="p-3 text-right font-black text-emerald-700">{Number(item.volume).toLocaleString('id-ID')}</td>
-                    </tr>
-                  ))}
-                  {distribusiData.length === 0 && (
-                    <tr>
-                      <td colSpan={3} className="p-8 text-center text-slate-500">Belum ada data rekapan.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
       </div>
       )}
 
