@@ -43,7 +43,7 @@ export default async function AnalitikRantaiPasok() {
       pb.tipe_sumber
     FROM sppg_pembelian_bahan pb
     JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
-    JOIN sppg s ON pb.sppg_id = s.id
+    JOIN sppg s ON pb.sppg_id = s.sppg_id
     LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
     LEFT JOIN penggilingan pg ON pb.penggilingan_id = pg.penggilingan_id
     ORDER BY pb.tanggal_pembelian DESC, pb.created_at DESC
