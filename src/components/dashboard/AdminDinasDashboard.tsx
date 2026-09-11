@@ -31,6 +31,8 @@ interface AdminDinasDashboardProps {
       namaBahan: string;
       satuan: string;
       volume: number;
+      volumeDalam: number;
+      volumeLuar: number;
     }>;
     totalPosyanduSasaran: number;
     totalBalita: number;
@@ -87,6 +89,8 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
       return {
         bulanLabel: month.label,
         volume: found ? found.volume : 0,
+        volumeDalam: found ? found.volumeDalam : 0,
+        volumeLuar: found ? found.volumeLuar : 0,
         satuan
       };
     });
@@ -94,7 +98,7 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
 
   const maxVolume = useMemo(() => {
     if (chartData.length === 0) return 0;
-    return Math.max(...chartData.map(d => d.volume));
+    return Math.max(...chartData.map(d => Math.max(d.volume, d.volumeDalam, d.volumeLuar)));
   }, [chartData]);
 
   return (
@@ -277,40 +281,85 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
           </div>
         </div>
 
-        {/* CSS BAR CHART */}
-        <div className="h-64 sm:h-80 flex items-end justify-between gap-2 sm:gap-4 pt-10">
-          {chartData.length > 0 ? chartData.map((d, i) => {
-            const height = maxVolume > 0 ? (d.volume / maxVolume) * 100 : 0;
-            return (
-              <div key={i} className="flex-1 flex flex-col justify-end items-center group relative h-full">
-                {/* TOOLTIP */}
-                <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded pointer-events-none whitespace-nowrap z-10">
-                  {d.volume.toLocaleString('id-ID')} {d.satuan}
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
-                </div>
-                
-                {/* BAR */}
-                <div 
-                  className="w-full bg-primary-500 rounded-t-lg group-hover:bg-primary-600 transition-all duration-300 relative"
-                  style={{ height: `${Math.max(height, 0.5)}%` }}
-                >
-                  {/* Empty state visual for 0 volume */}
-                  {d.volume === 0 && (
-                    <div className="absolute inset-0 bg-slate-100 rounded-t-lg border-t border-slate-200"></div>
-                  )}
-                </div>
-                
-                {/* LABEL */}
-                <div className="mt-3 text-[10px] sm:text-xs font-bold text-slate-500 text-center uppercase tracking-wider h-6">
-                  {d.bulanLabel}
-                </div>
-              </div>
-            );
-          }) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">
-              Tidak ada data pembelian 6 bulan terakhir.
+        {/* CSS BAR CHARTS (3 COLUMNS) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pt-4">
+          {/* CHART 1: KESELURUHAN */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-slate-700 mb-6 text-center">Total Volume (Keseluruhan)</h3>
+            <div className="h-48 sm:h-56 flex items-end justify-between gap-1 sm:gap-2">
+              {chartData.map((d, i) => {
+                const height = maxVolume > 0 ? (d.volume / maxVolume) * 100 : 0;
+                return (
+                  <div key={`all-${i}`} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10">
+                      {d.volume.toLocaleString('id-ID')} {d.satuan}
+                    </div>
+                    <div 
+                      className="w-full bg-primary-500 rounded-t-sm group-hover:bg-primary-600 transition-all duration-300 relative"
+                      style={{ height: `${Math.max(height, 0.5)}%` }}
+                    >
+                      {d.volume === 0 && <div className="absolute inset-0 bg-slate-100 rounded-t-sm border-t border-slate-200" />}
+                    </div>
+                    <div className="mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 text-center uppercase h-4">
+                      {d.bulanLabel.split(' ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          )}
+          </div>
+
+          {/* CHART 2: DALAM LEBAK */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-emerald-700 mb-6 text-center">Dibeli Dalam Lebak (Lokal)</h3>
+            <div className="h-48 sm:h-56 flex items-end justify-between gap-1 sm:gap-2">
+              {chartData.map((d, i) => {
+                const height = maxVolume > 0 ? (d.volumeDalam / maxVolume) * 100 : 0;
+                return (
+                  <div key={`dalam-${i}`} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-800 text-white text-xs font-bold px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10">
+                      {d.volumeDalam.toLocaleString('id-ID')} {d.satuan}
+                    </div>
+                    <div 
+                      className="w-full bg-emerald-500 rounded-t-sm group-hover:bg-emerald-600 transition-all duration-300 relative"
+                      style={{ height: `${Math.max(height, 0.5)}%` }}
+                    >
+                      {d.volumeDalam === 0 && <div className="absolute inset-0 bg-slate-100 rounded-t-sm border-t border-slate-200" />}
+                    </div>
+                    <div className="mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 text-center uppercase h-4">
+                      {d.bulanLabel.split(' ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CHART 3: LUAR LEBAK */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-rose-700 mb-6 text-center">Dibeli Dari Luar Lebak</h3>
+            <div className="h-48 sm:h-56 flex items-end justify-between gap-1 sm:gap-2">
+              {chartData.map((d, i) => {
+                const height = maxVolume > 0 ? (d.volumeLuar / maxVolume) * 100 : 0;
+                return (
+                  <div key={`luar-${i}`} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-rose-800 text-white text-xs font-bold px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10">
+                      {d.volumeLuar.toLocaleString('id-ID')} {d.satuan}
+                    </div>
+                    <div 
+                      className="w-full bg-rose-500 rounded-t-sm group-hover:bg-rose-600 transition-all duration-300 relative"
+                      style={{ height: `${Math.max(height, 0.5)}%` }}
+                    >
+                      {d.volumeLuar === 0 && <div className="absolute inset-0 bg-slate-100 rounded-t-sm border-t border-slate-200" />}
+                    </div>
+                    <div className="mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 text-center uppercase h-4">
+                      {d.bulanLabel.split(' ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>

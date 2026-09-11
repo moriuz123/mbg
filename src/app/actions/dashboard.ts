@@ -42,9 +42,24 @@ export async function getDashboardStats() {
       TO_CHAR(DATE_TRUNC('month', pb.tanggal_pembelian), 'YYYY-MM-DD') as bulan,
       jp.nama_bahan,
       MAX(jp.satuan_default) as satuan,
-      SUM(pb.volume) as total_volume
+      SUM(pb.volume) as total_volume,
+      SUM(
+        CASE 
+          WHEN pb.tipe_sumber = 'Penggilingan' THEN pb.volume
+          WHEN pb.tipe_sumber = 'Pemasok' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL) THEN pb.volume
+          ELSE 0
+        END
+      ) as volume_dalam,
+      SUM(
+        CASE 
+          WHEN pb.tipe_sumber = 'Pemasok' AND kab.nama_kabupaten != 'Kabupaten Lebak' THEN pb.volume
+          ELSE 0
+        END
+      ) as volume_luar
     FROM sppg_pembelian_bahan pb
     JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
+    LEFT JOIN pemasok p ON pb.pemasok_id = p.id
+    LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id
     WHERE pb.tanggal_pembelian >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '5 months')
     GROUP BY DATE_TRUNC('month', pb.tanggal_pembelian), jp.nama_bahan
     ORDER BY DATE_TRUNC('month', pb.tanggal_pembelian) ASC, total_volume DESC
@@ -54,7 +69,9 @@ export async function getDashboardStats() {
     bulan: (row.bulan as string).substring(0, 7), // "YYYY-MM"
     namaBahan: row.nama_bahan as string,
     satuan: (row.satuan as string) || 'Kg',
-    volume: parseFloat(row.total_volume as string) || 0
+    volume: parseFloat(row.total_volume as string) || 0,
+    volumeDalam: parseFloat(row.volume_dalam as string) || 0,
+    volumeLuar: parseFloat(row.volume_luar as string) || 0
   }));
 
   // 6. Total Posyandu (Master) breakdown
