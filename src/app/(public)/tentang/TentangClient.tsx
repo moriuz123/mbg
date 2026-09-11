@@ -62,21 +62,30 @@ export default function TentangClient() {
     <div className="space-y-16 py-8">
       
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-[#071840] to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-2xl border border-slate-800">
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <section 
+        className="relative overflow-hidden rounded-3xl p-8 sm:p-12 text-white shadow-2xl border border-[#071840]"
+        style={{ background: 'linear-gradient(135deg,#071840_0%,#0a2463_45%,#1e5ca8_100%)' }}
+      >
+        {/* Abstract Geometry Lines matching Homepage */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
+          backgroundSize: '80px 80px'
+        }}></div>
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-accent-500/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen transform translate-x-1/3 -translate-y-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary-400/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen transform -translate-x-1/4 translate-y-1/4"></div>
         
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-              <Activity size={14} className="text-emerald-400" /> Project Digitalisasi Supply Chain
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white border border-white/20 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+              <Activity size={14} className="text-accent-500" /> Project Digitalisasi Supply Chain
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-              Digitalisasi Supply Chain <span className="bg-gradient-to-r from-emerald-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">Makan Bergizi Gratis</span>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-white drop-shadow-md">
+              Digitalisasi Supply Chain <br />
+              <span className="text-accent-500 block mt-1">Makan Bergizi Gratis</span>
             </h1>
 
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
+            <p className="text-white/80 text-base sm:text-lg leading-relaxed font-normal">
               Platform logistik terintegrasi untuk melacak pasokan komoditas segar dari petani lokal hingga menjadi sajian gizi seimbang di meja sekolah seluruh wilayah Kabupaten Lebak.
             </p>
 
