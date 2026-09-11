@@ -39,6 +39,7 @@ interface AdminDinasDashboardProps {
     totalPenggilingan: number;
     totalPemasokDalam: number;
     totalPemasokLuar: number;
+    totalRapidTestBermasalah: number;
   };
 }
 
@@ -184,6 +185,21 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
             </div>
             <div className="text-4xl font-black text-slate-800">{stats.totalPenggilingan}</div>
             <div className="text-sm font-medium text-slate-500 mt-1">RMU & Mitra Beras</div>
+          </div>
+        </div>
+
+        {/* CARD 6: Rapid Test Bermasalah */}
+        <div className="bg-white rounded-2xl border border-rose-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group bg-gradient-to-br from-white to-rose-50/50">
+          <div className="absolute -right-4 -bottom-4 text-rose-100 opacity-50 group-hover:scale-110 transition-transform">
+            <AlertCircle size={120} />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4 text-rose-600 font-bold text-sm">
+              <div className="p-2.5 bg-rose-100 text-rose-700 rounded-xl"><AlertCircle size={20} /></div>
+              Peringatan Rapid Test
+            </div>
+            <div className="text-4xl font-black text-rose-700">{stats.totalRapidTestBermasalah}</div>
+            <div className="text-sm font-medium text-rose-500/80 mt-1">Bahan segar tidak aman</div>
           </div>
         </div>
       </div>

@@ -91,6 +91,14 @@ export async function getDashboardStats() {
   `);
   const totalPemasokLuar = parseInt(pemasokLuarRes[0]?.total as string) || 0;
 
+  // 10. Rapid Test Bermasalah / Positif
+  const rapidTestBermasalahRes = await db.execute(sql`
+    SELECT count(*) as total 
+    FROM sppg_uji_rapid_test 
+    WHERE hasil_uji = 'Tidak Aman' OR hasil_uji = 'Peringatan'
+  `);
+  const totalRapidTestBermasalah = parseInt(rapidTestBermasalahRes[0]?.total as string) || 0;
+
   return {
     sppgCount,
     totalSiswa,
@@ -106,7 +114,8 @@ export async function getDashboardStats() {
     posyanduTercover,
     totalPenggilingan,
     totalPemasokDalam,
-    totalPemasokLuar
+    totalPemasokLuar,
+    totalRapidTestBermasalah
   };
 }
 
