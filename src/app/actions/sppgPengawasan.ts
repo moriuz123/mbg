@@ -436,6 +436,7 @@ export async function getKartuStok(sppgId?: number) {
            totalIn: 0, 
            totalOut: 0, 
            sisa: 0,
+           batasKritis: parseFloat(String((d.jenisPangan as any).batasKritis)) || 5,
            sppgNama: d.sppg.namaSppg
         });
       }
@@ -455,6 +456,7 @@ export async function getKartuStok(sppgId?: number) {
            totalIn: 0, 
            totalOut: 0, 
            sisa: 0,
+           batasKritis: parseFloat(String((d.jenisPangan as any).batasKritis)) || 5,
            sppgNama: d.sppg.namaSppg
         });
       }

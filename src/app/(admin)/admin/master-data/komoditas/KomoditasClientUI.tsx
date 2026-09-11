@@ -98,6 +98,7 @@ export default function KomoditasClientUI({ initialData }: { initialData: any[] 
       namaBahan: formData.get('namaBahan') as string,
       kategori: formData.get('kategori') as string,
       satuanDefault: formData.get('satuanDefault') as string || 'Kilogram',
+      batasKritis: formData.get('batasKritis') as string || '5.00',
     };
 
     let res;
@@ -293,6 +294,15 @@ export default function KomoditasClientUI({ initialData }: { initialData: any[] 
                 </div>
               </div>
               
+              <div>
+                <label className="block mb-2 text-sm font-semibold text-slate-700">Batas Kritis Stok (Minimum Aman)</label>
+                <div className="relative">
+                  <input required name="batasKritis" type="number" step="0.01" min="0" defaultValue={editData?.batasKritis || '5.00'} className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all" placeholder="Contoh: 5.00" />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-medium pointer-events-none">Satuan</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1.5">Sistem akan memunculkan peringatan kritis jika sisa stok gudang berada di bawah angka ini.</p>
+              </div>
+
               <button 
                 type="submit" 
                 disabled={isSubmitting}
@@ -313,6 +323,7 @@ export default function KomoditasClientUI({ initialData }: { initialData: any[] 
                 <th className="p-5">Nama Komoditas</th>
                 <th className="p-5">Kategori</th>
                 <th className="p-5">Satuan Default</th>
+                <th className="p-5 text-center">Batas Kritis Stok</th>
                 <th className="p-5 text-right">Aksi</th>
               </tr>
             </thead>
@@ -328,6 +339,11 @@ export default function KomoditasClientUI({ initialData }: { initialData: any[] 
                   <td className="p-5">
                     <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-xs font-bold">
                       {item.satuanDefault}
+                    </span>
+                  </td>
+                  <td className="p-5 text-center">
+                    <span className="px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-bold">
+                      &lt; {item.batasKritis || '5.00'} {item.satuanDefault}
                     </span>
                   </td>
                   <td className="p-5 text-right flex justify-end gap-2">
@@ -350,7 +366,7 @@ export default function KomoditasClientUI({ initialData }: { initialData: any[] 
               ))}
               {filteredData.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-12 text-center text-slate-500">
+                  <td colSpan={5} className="p-12 text-center text-slate-500">
                     <ShoppingCart size={48} className="mx-auto mb-4 text-slate-300" />
                     <p className="font-medium text-lg">
                       {isFiltered ? 'Tidak ada komoditas yang cocok dengan filter' : 'Belum ada data Komoditas'}

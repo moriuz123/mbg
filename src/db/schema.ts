@@ -307,6 +307,7 @@ export const jenisPangan = pgTable("jenis_pangan", {
   namaBahan: text("nama_bahan").notNull().unique(),
   kategori: text("kategori"),
   satuanDefault: text("satuan_default").default("Kilogram"),
+  batasKritis: numeric("batas_kritis", { precision: 10, scale: 2 }).default('5.00'),
 });
 
 export const komoditas = jenisPangan;

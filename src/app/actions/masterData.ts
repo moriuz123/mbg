@@ -46,15 +46,15 @@ export async function deletePemasok(id: number) {
 
 // ==== KOMODITAS / JENIS PANGAN ====
 export async function getKomoditas() {
-  return await db.query.jenisPangan.findMany({
-    orderBy: [desc(jenisPangan.id)],
-  });
+  const data = await db.select().from(jenisPangan).orderBy(jenisPangan.namaBahan);
+  return data;
 }
 
 export async function createKomoditas(data: {
   namaBahan: string;
   kategori?: string;
   satuanDefault?: string;
+  batasKritis?: string;
 }) {
   try {
     await db.insert(jenisPangan).values(data);
@@ -70,6 +70,7 @@ export async function updateKomoditas(id: number, data: {
   namaBahan: string;
   kategori?: string;
   satuanDefault?: string;
+  batasKritis?: string;
 }) {
   try {
     await db.update(jenisPangan).set(data).where(eq(jenisPangan.id, id));
