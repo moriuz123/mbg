@@ -11,7 +11,7 @@ export default function TentangPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <PageHeader 
-        title="Tentang Rantai Pasok MBG" 
+        title="Tentang Digitalisasi Supply Chain" 
         description="Pelajari lebih dalam mengenai ekosistem logistik terintegrasi hulu ke hilir yang menopang Program Makan Bergizi Gratis di Kabupaten Lebak."
         breadcrumbs={[{ label: 'Tentang' }]}
       />
