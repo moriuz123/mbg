@@ -274,7 +274,7 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
                 {/* BAR */}
                 <div 
                   className="w-full bg-primary-500 rounded-t-lg group-hover:bg-primary-600 transition-colors"
-                  style={{ height: \`\${Math.max(height, 1)}%\` }}
+                  style={{ height: `${Math.max(height, 1)}%` }}
                 />
                 
                 {/* LABEL */}
