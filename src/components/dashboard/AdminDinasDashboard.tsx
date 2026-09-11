@@ -31,17 +31,17 @@ interface AdminDinasDashboardProps {
       totalSiswa: number;
     }>;
     totalPosyanduSasaran: number;
+    totalBalita: number;
+    totalBumil: number;
+    totalBusui: number;
     posyanduTercover: number;
-    posyanduBelumTercover: number;
     totalPenggilingan: number;
-    totalPemasok: number;
+    totalPemasokDalam: number;
+    totalPemasokLuar: number;
   };
 }
 
 export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps) {
-  const totalPosyandu = stats.posyanduTercover + stats.posyanduBelumTercover;
-  const posyanduCoveragePercent = totalPosyandu > 0 ? ((stats.posyanduTercover / totalPosyandu) * 100).toFixed(1) : 0;
-
   return (
     <div className="animate-fade-in space-y-6 max-w-7xl mx-auto w-full min-w-0">
       {/* HERO BANNER - EXECUTIVE DASHBOARD */}
@@ -82,134 +82,107 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
         </div>
       </div>
 
-      {/* METRICS ROW 1 - UTAMA & SEKOLAH */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {/* CARD 1: Penerima Manfaat Siswa */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-emerald-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
-            <TrendingUp size={120} />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-emerald-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-emerald-100 rounded-xl"><TrendingUp size={18} /></div>
-              Siswa Penerima Manfaat
-            </div>
-            <div className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight break-words">{stats.totalSiswa.toLocaleString('id-ID')}</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Total siswa L/P terdaftar</div>
-          </div>
-        </div>
-        
-        {/* CARD 2: Dapur SPPG Aktif */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-primary-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
+      {/* METRICS CARDS */}
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {/* CARD 1: Jumlah SPPG Terdaftar */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 text-primary-50 opacity-50 group-hover:scale-110 transition-transform">
             <LayoutDashboard size={120} />
           </div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-primary-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-primary-100 rounded-xl"><Utensils size={18} /></div>
-              Dapur SPPG Operasional
+            <div className="flex items-center gap-3 mb-4 text-primary-600 font-bold text-sm">
+              <div className="p-2.5 bg-primary-100 rounded-xl"><Utensils size={20} /></div>
+              Jumlah SPPG Terdaftar
             </div>
-            <div className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">{stats.sppgCount}</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Titik dapur produksi MBG</div>
+            <div className="text-4xl font-black text-slate-800">{stats.sppgCount}</div>
+            <div className="text-sm font-medium text-slate-500 mt-1">Titik Dapur MBG</div>
           </div>
         </div>
 
-        {/* CARD 3: Sekolah Tercover */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-indigo-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
+        {/* CARD 2: Sekolah & Siswa Penerima Manfaat */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 text-indigo-50 opacity-50 group-hover:scale-110 transition-transform">
             <GraduationCap size={120} />
           </div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-indigo-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-indigo-100 rounded-xl"><GraduationCap size={18} /></div>
-              Sekolah Tercover
+            <div className="flex items-center gap-3 mb-4 text-indigo-600 font-bold text-sm">
+              <div className="p-2.5 bg-indigo-100 rounded-xl"><GraduationCap size={20} /></div>
+              Sekolah & Siswa
             </div>
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <div className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">{stats.sekolahTercover}</div>
-              <div className="text-base sm:text-lg font-bold text-indigo-500">({stats.coveragePercent}%)</div>
+            <div className="flex gap-4">
+              <div>
+                <div className="text-3xl font-black text-slate-800">{stats.totalSiswa?.toLocaleString('id-ID') || 0}</div>
+                <div className="text-xs font-bold text-indigo-600 uppercase mt-1">Siswa Penerima</div>
+              </div>
+              <div className="border-l border-slate-200 pl-4">
+                <div className="text-3xl font-black text-slate-800">{stats.sekolahTercover || 0}</div>
+                <div className="text-xs font-bold text-indigo-500 uppercase mt-1">Sekolah Tercover</div>
+              </div>
             </div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Sekolah aktif terlayani</div>
           </div>
         </div>
 
-        {/* CARD 4: Sekolah Belum Tercover */}
-        <div className="bg-white rounded-2xl border border-rose-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group bg-gradient-to-b from-white to-rose-50/30">
-          <div className="absolute -right-4 -bottom-4 text-rose-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
-            <AlertCircle size={120} />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-rose-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-rose-100 rounded-xl"><AlertCircle size={18} /></div>
-              Sekolah Belum Tercover
-            </div>
-            <div className="text-3xl sm:text-4xl font-black text-rose-700 tracking-tight">{stats.sekolahBelumTercover}</div>
-            <div className="text-xs sm:text-sm font-medium text-rose-500/80 mt-1">Dalam antrean pemetaan</div>
-          </div>
-        </div>
-      </div>
-
-      {/* METRICS ROW 2 - POSYANDU & EKOSISTEM LOGISTIK */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {/* CARD 5: Sasaran Posyandu */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-sky-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
+        {/* CARD 3: Sasaran Posyandu & Kategori */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 text-rose-50 opacity-50 group-hover:scale-110 transition-transform">
             <HeartPulse size={120} />
           </div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-sky-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-sky-100 rounded-xl"><HeartPulse size={18} /></div>
+            <div className="flex items-center gap-3 mb-4 text-rose-600 font-bold text-sm">
+              <div className="p-2.5 bg-rose-100 rounded-xl"><HeartPulse size={20} /></div>
               Sasaran Posyandu
             </div>
-            <div className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight break-words">{stats.totalPosyanduSasaran.toLocaleString('id-ID')}</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Bumil, Busui & Balita</div>
+            <div className="text-3xl font-black text-slate-800 mb-2">{stats.posyanduTercover} <span className="text-sm font-semibold text-slate-500">Posyandu</span></div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="font-semibold text-slate-600">👶 Balita:</span>
+              <span className="font-bold text-slate-800">{stats.totalBalita?.toLocaleString('id-ID') || 0}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm mt-1">
+              <span className="font-semibold text-slate-600">🤰 Ibu Hamil:</span>
+              <span className="font-bold text-slate-800">{stats.totalBumil?.toLocaleString('id-ID') || 0}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm mt-1">
+              <span className="font-semibold text-slate-600">🤱 Ibu Menyusui:</span>
+              <span className="font-bold text-slate-800">{stats.totalBusui?.toLocaleString('id-ID') || 0}</span>
+            </div>
           </div>
         </div>
 
-        {/* CARD 6: Posyandu Tercover */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-fuchsia-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
-            <Building2 size={120} />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-fuchsia-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-fuchsia-100 rounded-xl"><Building2 size={18} /></div>
-              Posyandu Tercover
-            </div>
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <div className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">{stats.posyanduTercover}</div>
-              <div className="text-base sm:text-lg font-bold text-fuchsia-500">({posyanduCoveragePercent}%)</div>
-            </div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">{stats.posyanduBelumTercover} belum tercover</div>
-          </div>
-        </div>
-
-        {/* CARD 7: Penggilingan Aktif */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-amber-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
-            <Factory size={120} />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-amber-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-amber-100 rounded-xl"><Factory size={18} /></div>
-              Penggilingan Aktif
-            </div>
-            <div className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">{stats.totalPenggilingan}</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Mitra penyedia beras</div>
-          </div>
-        </div>
-
-        {/* CARD 8: Pemasok Logistik */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 text-cyan-50 opacity-50 group-hover:scale-110 transition-transform hidden sm:block">
+        {/* CARD 4: Pemasok Dalam Lebak & Luar Lebak */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 text-cyan-50 opacity-50 group-hover:scale-110 transition-transform">
             <Truck size={120} />
           </div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3 text-cyan-600 font-bold text-xs sm:text-sm">
-              <div className="p-2 bg-cyan-100 rounded-xl"><Truck size={18} /></div>
+            <div className="flex items-center gap-3 mb-4 text-cyan-600 font-bold text-sm">
+              <div className="p-2.5 bg-cyan-100 rounded-xl"><Truck size={20} /></div>
               Pemasok Logistik
             </div>
-            <div className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">{stats.totalPemasok}</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Mitra pangan & bahan baku</div>
+            <div className="flex gap-4">
+              <div>
+                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokDalam || 0}</div>
+                <div className="text-xs font-bold text-emerald-600 uppercase mt-1">Dalam Lebak</div>
+              </div>
+              <div className="border-l border-slate-200 pl-4">
+                <div className="text-3xl font-black text-slate-800">{stats.totalPemasokLuar || 0}</div>
+                <div className="text-xs font-bold text-rose-600 uppercase mt-1">Luar Lebak</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CARD 5: Penggilingan Terdaftar */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 text-amber-50 opacity-50 group-hover:scale-110 transition-transform">
+            <Factory size={120} />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4 text-amber-600 font-bold text-sm">
+              <div className="p-2.5 bg-amber-100 rounded-xl"><Factory size={20} /></div>
+              Penggilingan Terdaftar
+            </div>
+            <div className="text-4xl font-black text-slate-800">{stats.totalPenggilingan}</div>
+            <div className="text-sm font-medium text-slate-500 mt-1">RMU & Mitra Beras</div>
           </div>
         </div>
       </div>

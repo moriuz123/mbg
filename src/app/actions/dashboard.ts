@@ -55,39 +55,49 @@ export async function getDashboardStats() {
     totalSiswa: parseInt(row.total_siswa_penerima as string) || 0,
   }));
 
-  // 6. Total Posyandu Penerima Manfaat (Balita + Bumil + Busui)
+  // 6. Total Posyandu Penerima Manfaat (Balita + Bumil + Busui) breakdown
   const posyanduPenerimaRes = await db.execute(sql`
-    SELECT SUM(jumlah_balita + jumlah_bumil + jumlah_busui) as total_sasaran 
+    SELECT 
+      SUM(jumlah_balita) as total_balita,
+      SUM(jumlah_bumil) as total_bumil,
+      SUM(jumlah_busui) as total_busui,
+      SUM(jumlah_balita + jumlah_bumil + jumlah_busui) as total_sasaran 
     FROM sppg_posyandu_manfaat 
     WHERE status = 'Aktif'
   `);
+  const totalBalita = parseInt(posyanduPenerimaRes[0]?.total_balita as string) || 0;
+  const totalBumil = parseInt(posyanduPenerimaRes[0]?.total_bumil as string) || 0;
+  const totalBusui = parseInt(posyanduPenerimaRes[0]?.total_busui as string) || 0;
   const totalPosyanduSasaran = parseInt(posyanduPenerimaRes[0]?.total_sasaran as string) || 0;
 
   // 7. Posyandu Tercover
   const posyanduTercoverRes = await db.execute(sql`
     SELECT COUNT(DISTINCT posyandu_id) as total_posyandu
-    FROM posyandu_penerimaan_mbg
+    FROM sppg_posyandu_manfaat
     WHERE status = 'Aktif'
   `);
   const posyanduTercover = parseInt(posyanduTercoverRes[0]?.total_posyandu as string) || 0;
 
-  // 8. Posyandu Belum Tercover
-  const posyanduBelumTercoverRes = await db.execute(sql`
-    SELECT COUNT(*) as total_belum
-    FROM posyandu
-    WHERE id NOT IN (
-      SELECT DISTINCT posyandu_id FROM posyandu_penerimaan_mbg WHERE status = 'Aktif'
-    )
-  `);
-  const posyanduBelumTercover = parseInt(posyanduBelumTercoverRes[0]?.total_belum as string) || 0;
-
-  // 9. Total Penggilingan
-  const penggilinganRes = await db.execute(sql`SELECT count(*) as total FROM penggilingan WHERE status = 'Aktif'`);
+  // 8. Total Penggilingan
+  const penggilinganRes = await db.execute(sql`SELECT count(*) as total FROM penggilingan`);
   const totalPenggilingan = parseInt(penggilinganRes[0]?.total as string) || 0;
 
-  // 10. Total Pemasok
-  const pemasokRes = await db.execute(sql`SELECT count(*) as total FROM pemasok WHERE status = 'Aktif'`);
-  const totalPemasok = parseInt(pemasokRes[0]?.total as string) || 0;
+  // 9. Total Pemasok Dalam Lebak & Luar Lebak
+  const pemasokDalamRes = await db.execute(sql`
+    SELECT COUNT(*) as total 
+    FROM pemasok p
+    LEFT JOIN kabupaten k ON p.kabupaten_id = k.kabupaten_id
+    WHERE (k.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)
+  `);
+  const totalPemasokDalam = parseInt(pemasokDalamRes[0]?.total as string) || 0;
+
+  const pemasokLuarRes = await db.execute(sql`
+    SELECT COUNT(*) as total 
+    FROM pemasok p
+    JOIN kabupaten k ON p.kabupaten_id = k.kabupaten_id
+    WHERE k.nama_kabupaten != 'Kabupaten Lebak'
+  `);
+  const totalPemasokLuar = parseInt(pemasokLuarRes[0]?.total as string) || 0;
 
   return {
     sppgCount,
@@ -97,10 +107,13 @@ export async function getDashboardStats() {
     coveragePercent,
     statsPerSppg,
     totalPosyanduSasaran,
+    totalBalita,
+    totalBumil,
+    totalBusui,
     posyanduTercover,
-    posyanduBelumTercover,
     totalPenggilingan,
-    totalPemasok
+    totalPemasokDalam,
+    totalPemasokLuar
   };
 }
 
