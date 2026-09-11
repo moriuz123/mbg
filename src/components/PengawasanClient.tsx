@@ -12,6 +12,7 @@ import {
 } from '@/app/actions/sppgPengawasan';
 import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import SearchableSelect from '@/components/ui/SearchableSelect';
 
 interface PengawasanClientProps {
   initialPembelian?: any;
@@ -530,12 +531,15 @@ export default function PengawasanClient({
               {isAdmin && (
                 <div>
                   <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">SPPG (Unit Layanan) <span className="text-red-500">*</span></label>
-                  <select name="sppgId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                    <option value="">-- Pilih SPPG --</option>
-                    {safeSppgList.map((s: any) => (
-                      <option key={s.id} value={s.id}>{s.namaSppg}</option>
-                    ))}
-                  </select>
+                  <SearchableSelect
+                    name="sppgId"
+                    required
+                    options={safeSppgList.map((s: any) => ({
+                      value: s.id,
+                      label: s.namaSppg
+                    }))}
+                    placeholder="-- Cari SPPG --"
+                  />
                 </div>
               )}
 
@@ -560,18 +564,17 @@ export default function PengawasanClient({
 
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan <span className="text-red-500">*</span></label>
-                    <select 
-                      name="jenisPanganId" 
-                      required 
+                    <SearchableSelect
+                      name="jenisPanganId"
+                      required
                       value={selectedJenisPanganId}
-                      onChange={(e) => setSelectedJenisPanganId(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm"
-                    >
-                      <option value="">-- Pilih Komoditas --</option>
-                      {safeJenisPanganList.map((j: any) => (
-                        <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
-                      ))}
-                    </select>
+                      onChange={setSelectedJenisPanganId}
+                      options={safeJenisPanganList.map((j: any) => ({
+                        value: j.id,
+                        label: `${j.namaBahan} (${j.kategoriPangan})`
+                      }))}
+                      placeholder="-- Cari & Pilih Komoditas --"
+                    />
                   </div>
 
                   {sumberPasokan === 'Pembelian Lokal' && (
@@ -608,34 +611,43 @@ export default function PengawasanClient({
                           {tipeSumberBeras === 'Penggilingan' ? (
                             <div>
                               <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pilih Penggilingan Padi <span className="text-red-500">*</span></label>
-                              <select name="penggilinganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                                <option value="">-- Pilih Penggilingan --</option>
-                                {safePenggilinganList.map((p: any) => (
-                                  <option key={p.id} value={p.id}>{p.namaPenggilingan}</option>
-                                ))}
-                              </select>
+                              <SearchableSelect
+                                name="penggilinganId"
+                                required
+                                options={safePenggilinganList.map((p: any) => ({
+                                  value: p.id,
+                                  label: p.namaPenggilingan
+                                }))}
+                                placeholder="-- Cari Penggilingan --"
+                              />
                             </div>
                           ) : (
                             <div>
                               <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Mitra Pemasok Beras <span className="text-red-500">*</span></label>
-                              <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                                <option value="">-- Pilih Pemasok --</option>
-                                {safePemasokList.map((p: any) => (
-                                  <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
-                                ))}
-                              </select>
+                              <SearchableSelect
+                                name="pemasokId"
+                                required
+                                options={safePemasokList.map((p: any) => ({
+                                  value: p.id,
+                                  label: `${p.namaPemasok} (${p.kategoriSupply || 'Pemasok'})`
+                                }))}
+                                placeholder="-- Cari Pemasok --"
+                              />
                             </div>
                           )}
                         </div>
                       ) : (
                         <div>
                           <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Pemasok Lokal <span className="text-red-500">*</span></label>
-                          <select name="pemasokId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                            <option value="">-- Pilih Pemasok --</option>
-                            {safePemasokList.map((p: any) => (
-                              <option key={p.id} value={p.id}>{p.namaPemasok} ({p.kategoriSupply || 'Pemasok'})</option>
-                            ))}
-                          </select>
+                          <SearchableSelect
+                            name="pemasokId"
+                            required
+                            options={safePemasokList.map((p: any) => ({
+                              value: p.id,
+                              label: `${p.namaPemasok} (${p.kategoriSupply || 'Pemasok'})`
+                            }))}
+                            placeholder="-- Cari Pemasok --"
+                          />
                           <input type="hidden" name="tipeSumber" value="Pemasok" />
                         </div>
                       )}
@@ -672,13 +684,16 @@ export default function PengawasanClient({
                     <input type="date" name="tanggalPemakaian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan Digunakan <span className="text-red-500">*</span></label>
-                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                      <option value="">-- Pilih Komoditas --</option>
-                      {safeJenisPanganList.map((j: any) => (
-                        <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
-                      ))}
-                    </select>
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan <span className="text-red-500">*</span></label>
+                    <SearchableSelect
+                      name="jenisPanganId"
+                      required
+                      options={safeJenisPanganList.map((j: any) => ({
+                        value: j.id,
+                        label: `${j.namaBahan} (${j.kategoriPangan})`
+                      }))}
+                      placeholder="-- Cari & Pilih Komoditas --"
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -701,12 +716,15 @@ export default function PengawasanClient({
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan Diuji <span className="text-red-500">*</span></label>
-                    <select name="jenisPanganId" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm">
-                      <option value="">-- Pilih Komoditas --</option>
-                      {safeJenisPanganList.map((j: any) => (
-                        <option key={j.id} value={j.id}>{j.namaBahan} ({j.kategoriPangan})</option>
-                      ))}
-                    </select>
+                    <SearchableSelect
+                      name="jenisPanganId"
+                      required
+                      options={safeJenisPanganList.map((j: any) => ({
+                        value: j.id,
+                        label: `${j.namaBahan} (${j.kategoriPangan})`
+                      }))}
+                      placeholder="-- Cari & Pilih Komoditas --"
+                    />
                   </div>
 
                   <div>
@@ -714,20 +732,17 @@ export default function PengawasanClient({
                       Master Parameter Uji <span className="text-red-500">*</span>
                     </label>
                     {safeMasterParameterList.length > 0 ? (
-                      <select 
-                        name="parameterUjiId" 
-                        required 
+                      <SearchableSelect
+                        name="parameterUjiId"
+                        required
                         value={selectedParameterId}
-                        onChange={(e) => setSelectedParameterId(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 text-sm"
-                      >
-                        <option value="">-- Pilih Item Parameter Uji --</option>
-                        {safeMasterParameterList.map((m: any) => (
-                          <option key={m.id} value={m.id}>
-                            {m.namaParameter} ({m.kategori || 'Umum'}{m.ambangBatas ? ` - Batas: ${m.ambangBatas}` : ''})
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setSelectedParameterId}
+                        options={safeMasterParameterList.map((m: any) => ({
+                          value: m.id,
+                          label: `${m.namaParameter} (${m.kategori || 'Umum'}${m.ambangBatas ? ` - Batas: ${m.ambangBatas}` : ''})`
+                        }))}
+                        placeholder="-- Cari Parameter Uji --"
+                      />
                     ) : (
                       <input type="text" name="parameterUji" required placeholder="Ketik nama parameter (Misal: Formalin, Boraks)" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     )}
