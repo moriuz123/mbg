@@ -58,7 +58,7 @@ export async function getDashboardStats() {
       ) as volume_luar
     FROM sppg_pembelian_bahan pb
     JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
-    LEFT JOIN pemasok p ON pb.pemasok_id = p.id
+    LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
     LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id
     WHERE pb.tanggal_pembelian >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '5 months')
     GROUP BY DATE_TRUNC('month', pb.tanggal_pembelian), jp.nama_bahan
