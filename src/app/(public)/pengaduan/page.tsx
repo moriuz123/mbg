@@ -15,7 +15,7 @@ export default async function PengaduanPublicPage() {
     <div className="min-h-screen bg-slate-50 pb-20">
       <PageHeader 
         title="Layanan Pengaduan & Aspirasi" 
-        description="Sistem pelaporan terpadu. Bantu kami menjaga kualitas nutrisi dan keamanan program MBG dengan melaporkan temuan atau aspirasi Anda."
+        description="Sistem pelaporan terpadu untuk ekosistem Digitalisasi Supply Chain. Bantu kami menjaga kualitas nutrisi dan keamanan distribusi MBG."
         breadcrumbs={[{ label: 'Pengaduan' }]}
       />
       <main className="container mx-auto px-4 max-w-7xl">

@@ -57,36 +57,37 @@ export default function PengaduanPublicForm({ targets }: { targets: TargetList }
     <div className="space-y-12 py-6">
       
       {/* HERO SECTION BANNER */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary-950 to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-2xl border border-slate-800">
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-[#071840] to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-2xl border border-slate-800">
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
         
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500/20 text-primary-300 border border-primary-500/30 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-              <ShieldCheck size={14} className="text-emerald-400" /> Kanal Pengaduan Terpadu MBG Lebak
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white border border-white/20 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+              <ShieldCheck size={14} className="text-emerald-400" /> Project Digitalisasi Supply Chain
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-              Layanan Aspirasi & <span className="bg-gradient-to-r from-amber-300 via-primary-300 to-emerald-300 bg-clip-text text-transparent">Pengaduan Publik</span>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-white">
+              Layanan Pengaduan & <br />
+              <span className="text-emerald-400 block mt-2">Aspirasi Logistik MBG</span>
             </h1>
 
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
-              Komitmen transparansi dan integritas. Bantu kami menjaga mutu nutrisi, kebersihan dapur SPPG, dan ketepatan waktu pengiriman makanan dengan menyampaikan laporan langsung.
+            <p className="text-slate-100 text-base sm:text-lg leading-relaxed font-normal">
+              Kanal resmi pengaduan publik untuk ekosistem Digitalisasi Supply Chain Makan Bergizi Gratis. Bantu kami menjaga mutu pasokan logistik, kebersihan Dapur SPPG, dan ketepatan waktu distribusi makanan.
             </p>
 
             <div className="grid grid-cols-3 gap-3 pt-2">
               <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 text-center">
-                <span className="block text-xl sm:text-2xl font-extrabold text-emerald-300">100%</span>
-                <span className="text-[11px] text-slate-300 font-medium uppercase tracking-wider">Rahasia & Safe</span>
+                <span className="block text-xl sm:text-2xl font-extrabold text-emerald-400">100%</span>
+                <span className="text-[11px] text-slate-100 font-medium uppercase tracking-wider">Rahasia & Safe</span>
               </div>
               <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 text-center">
-                <span className="block text-xl sm:text-2xl font-extrabold text-amber-300">&lt; 24 Jam</span>
-                <span className="text-[11px] text-slate-300 font-medium uppercase tracking-wider">Respon Cepat</span>
+                <span className="block text-xl sm:text-2xl font-extrabold text-accent-500">&lt; 24 Jam</span>
+                <span className="text-[11px] text-slate-100 font-medium uppercase tracking-wider">Respon Cepat</span>
               </div>
               <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 text-center">
-                <span className="block text-xl sm:text-2xl font-extrabold text-blue-300">Resmi</span>
-                <span className="text-[11px] text-slate-300 font-medium uppercase tracking-wider">Terintegrasi</span>
+                <span className="block text-xl sm:text-2xl font-extrabold text-blue-400">Resmi</span>
+                <span className="text-[11px] text-slate-100 font-medium uppercase tracking-wider">Terintegrasi</span>
               </div>
             </div>
           </div>
