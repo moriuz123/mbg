@@ -78,9 +78,51 @@ export async function getGeoLogistikStats() {
     }
   });
 
+  // 4. Performa per Penggilingan (Matriks Penggilingan)
+  const matriksPenggilinganRes = await db.execute(sql`
+    WITH gabah AS (
+      SELECT penggilingan_id, 
+             SUM(CASE WHEN lokasi_wilayah LIKE 'Dalam%' THEN CAST(volume_kg AS NUMERIC) ELSE 0 END) as dalam,
+             SUM(CASE WHEN lokasi_wilayah LIKE 'Luar%' THEN CAST(volume_kg AS NUMERIC) ELSE 0 END) as luar
+      FROM penggilingan_sumber_gabah
+      GROUP BY penggilingan_id
+    ),
+    distribusi AS (
+      SELECT penggilingan_id,
+             SUM(CASE WHEN wilayah_distribusi LIKE 'Dalam%' THEN CAST(volume_kg AS NUMERIC) ELSE 0 END) as dalam,
+             SUM(CASE WHEN wilayah_distribusi LIKE 'Luar%' THEN CAST(volume_kg AS NUMERIC) ELSE 0 END) as luar
+      FROM penggilingan_distribusi
+      GROUP BY penggilingan_id
+    )
+    SELECT 
+      p.penggilingan_id,
+      p.nama_penggilingan,
+      p.kapasitas_terpasang_kg_minggu as kapasitas,
+      COALESCE(g.dalam, 0) as gabah_dalam,
+      COALESCE(g.luar, 0) as gabah_luar,
+      COALESCE(d.dalam, 0) as beras_dalam,
+      COALESCE(d.luar, 0) as beras_luar
+    FROM penggilingan p
+    LEFT JOIN gabah g ON p.penggilingan_id = g.penggilingan_id
+    LEFT JOIN distribusi d ON p.penggilingan_id = d.penggilingan_id
+    WHERE p.status = 'Aktif'
+    ORDER BY COALESCE(d.dalam, 0) DESC, p.nama_penggilingan ASC
+  `);
+
+  const matriksPenggilingan = matriksPenggilinganRes.map((row: any) => ({
+    id: row.penggilingan_id,
+    nama: row.nama_penggilingan,
+    kapasitasKg: parseFloat(row.kapasitas) || 0,
+    gabahDalam: parseFloat(row.gabah_dalam) || 0,
+    gabahLuar: parseFloat(row.gabah_luar) || 0,
+    berasDalam: parseFloat(row.beras_dalam) || 0,
+    berasLuar: parseFloat(row.beras_luar) || 0,
+  }));
+
   return {
     distribusiAgregat,
     distribusiKecamatan,
-    sumberGabahAgregat
+    sumberGabahAgregat,
+    matriksPenggilingan
   };
 }

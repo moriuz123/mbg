@@ -78,34 +78,48 @@ export default function GeoLogistikDashboard({ stats }: { stats: any }) {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <h2 className="text-lg font-bold text-slate-800 mb-4">Peta Suplai Beras per Kecamatan (Dalam Lebak)</h2>
+      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <h2 className="text-lg font-bold text-slate-800 mb-4">Matriks Performa & Distribusi Mitra Penggilingan (Aktif)</h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="p-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Kecamatan Tujuan</th>
-                <th className="p-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Total Tersuplai (Kg)</th>
-                <th className="p-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Status Ketahanan</th>
+                <th className="p-4 text-xs font-bold text-slate-600 uppercase tracking-wider" rowSpan={2}>Nama Penggilingan</th>
+                <th className="p-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center border-l border-slate-200" rowSpan={2}>Kapasitas (Kg/Minggu)</th>
+                <th className="p-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center border-l border-slate-200" colSpan={2}>Sumber Gabah (Kg)</th>
+                <th className="p-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center border-l border-slate-200" colSpan={2}>Distribusi Beras (Kg)</th>
+              </tr>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="p-3 text-xs font-bold text-slate-500 text-center border-l border-slate-200">Dalam Lebak</th>
+                <th className="p-3 text-xs font-bold text-slate-500 text-center border-l border-slate-100">Luar Lebak</th>
+                <th className="p-3 text-xs font-bold text-slate-500 text-center border-l border-slate-200">Dalam Lebak</th>
+                <th className="p-3 text-xs font-bold text-slate-500 text-center border-l border-slate-100">Luar Lebak</th>
               </tr>
             </thead>
             <tbody>
-              {stats.distribusiKecamatan.map((k: any, idx: number) => (
-                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="p-4 font-semibold text-slate-800">{k.kecamatan}</td>
-                  <td className="p-4 text-right font-black text-slate-700">{k.totalBerasKg.toLocaleString('id-ID')} Kg</td>
-                  <td className="p-4">
-                    {k.totalBerasKg > 5000 ? (
-                      <span className="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">Aman Surplus</span>
-                    ) : (
-                      <span className="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">Perlu Perhatian</span>
-                    )}
+              {stats.matriksPenggilingan?.map((p: any, idx: number) => (
+                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="p-4 font-bold text-slate-800">{p.nama}</td>
+                  <td className="p-4 text-center font-semibold text-slate-600 border-l border-slate-100">
+                    {p.kapasitasKg.toLocaleString('id-ID')}
+                  </td>
+                  <td className="p-4 text-center text-emerald-700 font-semibold border-l border-slate-100 bg-emerald-50/30">
+                    {p.gabahDalam > 0 ? p.gabahDalam.toLocaleString('id-ID') : '-'}
+                  </td>
+                  <td className="p-4 text-center text-amber-700 font-semibold border-l border-slate-100 bg-amber-50/30">
+                    {p.gabahLuar > 0 ? p.gabahLuar.toLocaleString('id-ID') : '-'}
+                  </td>
+                  <td className="p-4 text-center text-blue-700 font-semibold border-l border-slate-100 bg-blue-50/30">
+                    {p.berasDalam > 0 ? p.berasDalam.toLocaleString('id-ID') : '-'}
+                  </td>
+                  <td className="p-4 text-center text-rose-700 font-semibold border-l border-slate-100 bg-rose-50/30">
+                    {p.berasLuar > 0 ? p.berasLuar.toLocaleString('id-ID') : '-'}
                   </td>
                 </tr>
               ))}
-              {stats.distribusiKecamatan.length === 0 && (
+              {(!stats.matriksPenggilingan || stats.matriksPenggilingan.length === 0) && (
                 <tr>
-                  <td colSpan={3} className="p-8 text-center text-slate-500">Belum ada data distribusi kecamatan</td>
+                  <td colSpan={6} className="p-8 text-center text-slate-500 italic">Belum ada data penggilingan aktif.</td>
                 </tr>
               )}
             </tbody>
