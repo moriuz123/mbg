@@ -193,7 +193,7 @@ export default async function Public({
               <Link href="#statistik" className="group w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl font-bold transition-all backdrop-blur-md shadow-lg flex items-center justify-center gap-3">
                 Pantau Distribusi <TrendingUp className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </Link>
-              <Link href="/katalog-komoditas" className="group w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/15 border border-white/10 text-white/90 rounded-xl font-bold transition-all backdrop-blur-md shadow-lg flex items-center justify-center gap-3">
+              <Link href="/rantai-pasok" className="group w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/15 border border-white/10 text-white/90 rounded-xl font-bold transition-all backdrop-blur-md shadow-lg flex items-center justify-center gap-3">
                 <Truck className="w-5 h-5 group-hover:translate-x-1 transition-transform" /> Analitik Rantai Pasok
               </Link>
             </div>

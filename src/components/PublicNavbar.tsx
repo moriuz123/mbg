@@ -24,7 +24,7 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
   const defaultNavLinks = [
     { name: 'Beranda', path: '/' },
     { name: 'Data Penggilingan', path: '/data-penggilingan' },
-    { name: 'Rantai Pasok', path: '/katalog-komoditas' },
+    { name: 'Rantai Pasok', path: '/rantai-pasok' },
     { name: 'SPPG (Dapur)', path: '/sppg' },
     { name: 'Sekolah', path: '/sekolah' },
     { name: 'Posyandu', path: '/posyandu' },
