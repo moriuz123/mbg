@@ -45,11 +45,13 @@ type AKG = {
 export default function StandarMenuClient({
   initialData,
   kategoriList,
-  akgList = []
+  akgList = [],
+  isAdmin = false
 }: {
   initialData: Menu[],
   kategoriList: Kategori[],
-  akgList?: AKG[]
+  akgList?: AKG[],
+  isAdmin?: boolean
 }) {
   const [data, setData] = useState<Menu[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -189,9 +191,11 @@ export default function StandarMenuClient({
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Daftar Menu Gizi</h2>
-        <button onClick={openAddModal} className="btn btn-primary">
-          <Plus size={18} /> Tambah Menu
-        </button>
+        {!isAdmin && (
+          <button onClick={openAddModal} className="btn btn-primary">
+            <Plus size={18} /> Tambah Menu
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -204,7 +208,7 @@ export default function StandarMenuClient({
                 <th className="p-4 font-semibold text-sm text-slate-600">Makronutrien</th>
                 <th className="p-4 font-semibold text-sm text-slate-600">Target</th>
                 <th className="p-4 font-semibold text-sm text-slate-600">Status</th>
-                <th className="p-4 font-semibold text-sm text-slate-600 text-right">Aksi</th>
+                {!isAdmin && <th className="p-4 font-semibold text-sm text-slate-600 text-right">Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -242,25 +246,27 @@ export default function StandarMenuClient({
                       {item.status}
                     </span>
                   </td>
-                  <td className="p-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button onClick={() => openEditModal(item)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <Edit2 size={16} />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteClick(item.id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Hapus Menu"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
+                  {!isAdmin && (
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => openEditModal(item)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                          <Edit2 size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteClick(item.id)}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Hapus Menu"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-500">
-                    Belum ada data standar menu gizi.
+                  <td colSpan={isAdmin ? 5 : 6} className="p-8 text-center text-slate-500">
+                    Belum ada data standar menu.
                   </td>
                 </tr>
               )}

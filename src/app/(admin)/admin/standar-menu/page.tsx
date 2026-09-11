@@ -32,7 +32,7 @@ export default async function StandarMenuPage() {
         </div>
       </div>
 
-      <StandarMenuClient initialData={dataMenu} kategoriList={kategoriList} akgList={akgList} />
+      <StandarMenuClient initialData={dataMenu} kategoriList={kategoriList} akgList={akgList} isAdmin={isAdmin} />
     </div>
   );
 }
