@@ -4,6 +4,8 @@ import VerifikasiPosyanduForm from '@/components/VerifikasiPosyanduForm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
+import { redirect } from 'next/navigation';
+
 export const metadata = {
   title: 'Verifikasi Penerimaan | MBG Kab. Lebak',
   description: 'Form verifikasi dua arah penerimaan makanan.',
@@ -14,6 +16,11 @@ export default async function VerifikasiPage() {
     headers: await headers(),
   });
   const userRole = session?.user?.role;
+  const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
+
+  if (isAdmin) {
+    redirect('/admin');
+  }
 
   return (
     <div>

@@ -98,9 +98,9 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                 </NavItem>
               )}
               
-              {(isAdmin || userRole === 'sekolah' || userRole === 'operator_sekolah' || userRole === 'operator_posyandu') && (
+              {(userRole === 'sekolah' || userRole === 'operator_sekolah' || userRole === 'operator_posyandu') && (
                 <NavItem href="/admin/verifikasi" icon={ShieldCheck} isActive={pathname?.includes('/admin/verifikasi')}>
-                  Verifikasi {isAdmin ? 'Makanan' : (userRole === 'operator_posyandu' ? 'Posyandu' : 'Sekolah')}
+                  Verifikasi {userRole === 'operator_posyandu' ? 'Posyandu' : 'Sekolah'}
                 </NavItem>
               )}
 
