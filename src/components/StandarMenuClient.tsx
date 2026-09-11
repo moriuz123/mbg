@@ -190,7 +190,7 @@ export default function StandarMenuClient({
       />
 
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Daftar Menu Gizi</h2>
+        <h2 className="text-xl font-bold">Daftar Katalog Menu</h2>
         {!isAdmin && (
           <button onClick={openAddModal} className="btn btn-primary">
             <Plus size={18} /> Tambah Menu

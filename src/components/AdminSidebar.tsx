@@ -128,7 +128,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
               )}
 
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
-                <NavItem href="/admin/standar-menu" icon={Utensils} isActive={pathname?.includes('/admin/standar-menu')}>Standar Menu Gizi</NavItem>
+                <NavItem href="/admin/standar-menu" icon={Utensils} isActive={pathname?.includes('/admin/standar-menu')}>Katalog Menu Harian</NavItem>
               )}
 
               {isAdmin && (
