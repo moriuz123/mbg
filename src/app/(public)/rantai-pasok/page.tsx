@@ -3,6 +3,7 @@ import { Truck, Package, Users, MapPin, Factory, Activity, TrendingUp } from 'lu
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'Analitik Rantai Pasok | MBG Kab. Lebak',
@@ -80,25 +81,16 @@ export default async function AnalitikRantaiPasok() {
   `);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <div className="h-20"></div>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <PageHeader 
+        title="Rantai Pasok Terbuka MBG" 
+        description="Transparansi alur distribusi bahan pangan segar dari Mitra Pemasok Lokal ke Dapur SPPG di Kabupaten Lebak."
+        breadcrumbs={[{ label: 'Analitik Rantai Pasok' }]}
+      />
       
-      <main className="flex-1">
-        <section className="relative z-10 bg-white py-10 sm:py-14">
+      <main className="flex-1 -mt-6">
+        <section className="relative z-10 py-10 sm:py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            
-            {/* Header */}
-            <div className="mx-auto mb-10 max-w-2xl text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-200 text-emerald-700">
-                <Activity size={14} className="animate-pulse" /> Live Tracking Logistik
-              </div>
-              <h1 className="font-display text-2xl font-bold tracking-normal text-slate-900 sm:text-4xl sm:leading-[1.1]">
-                Rantai Pasok Terbuka MBG
-              </h1>
-              <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-500 sm:text-base">
-                Transparansi alur distribusi bahan pangan segar dari Mitra Pemasok Lokal ke Dapur SPPG di Kabupaten Lebak.
-              </p>
-            </div>
 
             {/* KPI Stats */}
             <div className="grid gap-4 sm:grid-cols-3 mb-12">
