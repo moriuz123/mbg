@@ -110,18 +110,18 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
 
       {mainTab === 'dashboard' && (
         <div className="animate-fade-in">
-      <div className="grid gap-6 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-        <div className="card glass-panel flex items-center gap-4 p-4 shadow-sm">
-          <div style={{ padding: '0.75rem', background: 'var(--primary-100)', color: 'var(--primary-700)', borderRadius: '50%' }}>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="card glass-panel border-t-4 border-t-sky-500 flex items-center gap-4 p-4 shadow-sm">
+          <div style={{ padding: '0.75rem', background: '#e0f2fe', color: '#0369a1', borderRadius: '50%' }}>
             <MapPin size={24} />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-500 uppercase">Serapan Gabah Lokal</div>
+            <div className="text-xs font-bold text-slate-500 uppercase">Penyerapan Lokal</div>
             <div className="text-2xl font-black text-slate-800">{macroStats.persenLokal} <span style={{ fontSize: '1rem', fontWeight: 500 }}>%</span></div>
           </div>
         </div>
 
-        <div className="card glass-panel flex items-center gap-4 p-4 shadow-sm">
+        <div className="card glass-panel border-t-4 border-t-amber-500 flex items-center gap-4 p-4 shadow-sm">
           <div style={{ padding: '0.75rem', background: '#fef3c7', color: '#b45309', borderRadius: '50%' }}>
             <Wheat size={24} />
           </div>
@@ -131,7 +131,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
           </div>
         </div>
 
-        <div className="card glass-panel flex items-center gap-4 p-4 shadow-sm">
+        <div className="card glass-panel border-t-4 border-t-violet-500 flex items-center gap-4 p-4 shadow-sm">
           <div style={{ padding: '0.75rem', background: '#ede9fe', color: '#6d28d9', borderRadius: '50%' }}>
             <Percent size={24} />
           </div>
@@ -141,7 +141,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
           </div>
         </div>
 
-        <div className="card glass-panel flex items-center gap-4 p-4 shadow-sm">
+        <div className="card glass-panel border-t-4 border-t-emerald-500 flex items-center gap-4 p-4 shadow-sm">
           <div style={{ padding: '0.75rem', background: '#dcfce7', color: '#15803d', borderRadius: '50%' }}>
             <TrendingUp size={24} />
           </div>
@@ -151,7 +151,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
           </div>
         </div>
 
-        <div className="card glass-panel flex items-center gap-4 p-4 shadow-sm">
+        <div className="card glass-panel border-t-4 border-t-indigo-500 flex items-center gap-4 p-4 shadow-sm">
           <div style={{ padding: '0.75rem', background: '#e0e7ff', color: '#4338ca', borderRadius: '50%' }}>
             <Factory size={24} />
           </div>
@@ -168,7 +168,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 border-t-4 border-t-amber-500 rounded-2xl p-6 shadow-sm">
           <h3 className="text-sm font-bold text-slate-800 uppercase mb-4 flex items-center gap-2"><Wheat size={16} className="text-amber-600"/> Rincian Asal Gabah Masuk</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
@@ -182,7 +182,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 border-t-4 border-t-emerald-500 rounded-2xl p-6 shadow-sm">
           <h3 className="text-sm font-bold text-slate-800 uppercase mb-4 flex items-center gap-2"><TrendingUp size={16} className="text-emerald-600"/> Rincian Distribusi Beras Keluar</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
@@ -190,8 +190,8 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
               <span className="font-black text-emerald-700">{macroStats.distribusiSppg.toLocaleString('id-ID')} Kg</span>
             </div>
             <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
-              <span className="text-slate-600">Ke Pasar Bebas Dalam Lebak</span>
-              <span className="font-bold text-slate-800">{macroStats.distribusiLokalUmum.toLocaleString('id-ID')} Kg</span>
+              <span className="text-slate-600">Distribusi Umum Lokal</span>
+              <span className="font-bold text-slate-700">{macroStats.distribusiLokalUmum.toLocaleString('id-ID')} Kg</span>
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-slate-600">Dijual Keluar Lebak (Outflow)</span>

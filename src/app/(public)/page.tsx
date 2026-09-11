@@ -276,7 +276,7 @@ export default async function Public({
           </div>
 
           <div className="grid gap-6 md:grid-cols-3 mb-10">
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
                 <Users size={24} />
               </div>
@@ -285,7 +285,7 @@ export default async function Public({
                 <div className="text-2xl font-black text-slate-800">{rpStats.pemasok} <span className="text-sm font-medium text-slate-500">Mitra</span></div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 border-t-4 border-t-blue-500 shadow-sm flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
                 <Package size={24} />
               </div>
@@ -294,7 +294,7 @@ export default async function Public({
                 <div className="text-2xl font-black text-slate-800">{rpStats.komoditas} <span className="text-sm font-medium text-slate-500">Jenis</span></div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 border-t-4 border-t-amber-500 shadow-sm flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
                 <Activity size={24} />
               </div>

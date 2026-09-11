@@ -94,7 +94,7 @@ export default async function AnalitikRantaiPasok() {
 
             {/* KPI Stats */}
             <div className="grid gap-4 sm:grid-cols-3 mb-12">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col shadow-sm">
+              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-emerald-500 bg-white p-6 flex flex-col shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><Users size={24} /></div>
                   <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mitra Pemasok</span>
@@ -118,7 +118,7 @@ export default async function AnalitikRantaiPasok() {
                 </div>
               </div>
               
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col shadow-sm">
+              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-blue-500 bg-white p-6 flex flex-col shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><Package size={24} /></div>
                   <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Bahan Baku</span>
@@ -138,7 +138,7 @@ export default async function AnalitikRantaiPasok() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col shadow-sm">
+              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-amber-500 bg-white p-6 flex flex-col shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><Factory size={24} /></div>
                   <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-md">Penerima</span>
@@ -165,7 +165,7 @@ export default async function AnalitikRantaiPasok() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {topPemasokRes.map((p: any, idx: number) => (
-                  <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group">
+                  <div key={idx} className="bg-white rounded-2xl border border-slate-200 border-t-4 border-t-slate-200 hover:border-t-emerald-500 p-6 hover:shadow-xl transition-all duration-300 group">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center justify-center w-12 h-12 rounded-full bg-slate-50 group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-600 transition-colors">
                         <Truck size={24} />
