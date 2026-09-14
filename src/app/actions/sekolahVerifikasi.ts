@@ -166,7 +166,7 @@ export async function getVerifiedDeliveries(sekolahId: number) {
 
     return rawData.map(l => ({
       id: l.id,
-      sppgLaporanId: l.laporanSppgId,
+      sppgLaporanId: l.sppgLaporanId,
       tanggal: l.laporanSppg?.tanggal,
       menu: l.laporanSppg?.standarMenuGizi ? `${l.laporanSppg.standarMenuGizi.namaMenu} (${l.laporanSppg.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
       jumlahPorsiAsli: l.laporanSppg?.jumlahPorsi,

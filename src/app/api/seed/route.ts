@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 
 export async function GET() {
+  // Seed endpoint is disabled in production. The production database is restored separately.
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   try {
     const res = await auth.api.signUpEmail({
       headers: await headers(),

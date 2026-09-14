@@ -6,7 +6,7 @@ import { Edit2 } from 'lucide-react';
 
 type Sekolah = { id: number; namaSekolah: string };
 type Pengiriman = { id: number; tanggal: string; menu: string; jumlahPorsi: number | null; status: string | null };
-type VerifiedDelivery = { id: number; sppgLaporanId: number; tanggal: string; menu: string; jumlahPorsiAsli: number | null; jumlahPorsiDiterima: number | null; statusDiterima: string; kondisiMakanan: string; diverifikasiOleh: string | null; catatan: string | null };
+type VerifiedDelivery = { id: number; sppgLaporanId: number; tanggal: string; menu: string; jumlahPorsiAsli: number | null; jumlahPorsiDiterima: number | null; statusDiterima: string; kondisiMakanan: string | null; diverifikasiOleh: string | null; catatan: string | null };
 
 export default function VerifikasiSekolahForm() {
   const [sekolahList, setSekolahList] = useState<Sekolah[]>([]);

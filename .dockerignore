@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.zip
+*.log
+Dockerfile.prod.original
+docker-compose.prod.yml.original
+*.bak
+docs

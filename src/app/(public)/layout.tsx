@@ -2,6 +2,9 @@ import PublicNavbar from '@/components/PublicNavbar';
 import PublicFooter from '@/components/PublicFooter';
 import { getNavigationMenus } from '@/app/actions/frontend';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const dynamicMenus = await getNavigationMenus();
 

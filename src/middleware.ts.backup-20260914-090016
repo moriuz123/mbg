@@ -7,15 +7,11 @@ export async function middleware(request: NextRequest) {
   // Protect /admin routes
   if (path.startsWith('/admin')) {
     try {
-      // Do not call the public domain from inside the container. On servers behind
-      // NAT/reverse proxy this can fail due to hairpin routing/DNS even when auth works.
-      // Call the local Next.js server instead and forward the browser cookie.
-      const authInternalUrl = process.env.AUTH_INTERNAL_URL || 'http://127.0.0.1:3000';
-      const res = await fetch(`${authInternalUrl}/api/auth/get-session`, {
+      // better-auth uses /api/auth/get-session to return session data
+      const res = await fetch(new URL('/api/auth/get-session', request.url), {
         headers: {
           cookie: request.headers.get('cookie') || '',
         },
-        cache: 'no-store',
       });
 
       if (!res.ok) {
@@ -75,10 +71,8 @@ export async function middleware(request: NextRequest) {
   // Prevent logged-in users from seeing login page
   if (path === '/login') {
     try {
-      const authInternalUrl = process.env.AUTH_INTERNAL_URL || 'http://127.0.0.1:3000';
-      const res = await fetch(`${authInternalUrl}/api/auth/get-session`, {
+      const res = await fetch(new URL('/api/auth/get-session', request.url), {
         headers: { cookie: request.headers.get('cookie') || '' },
-        cache: 'no-store',
       });
       if (res.ok) {
         const session = await res.json();

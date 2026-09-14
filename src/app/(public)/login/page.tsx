@@ -69,7 +69,7 @@ export default function Login() {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', outline: 'none' }}
-                placeholder="admin"
+                placeholder="sppg5"
               />
             </div>
           </div>

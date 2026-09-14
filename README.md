@@ -110,11 +110,11 @@ Jika Anda lebih memilih hosting Serverless Vercel & Supabase Cloud PostgreSQL, g
 ## 🔐 Informasi Akun Dummy (Testing)
 Data berikut disertakan di dalam backup `mbg_backup_20260914_094230.sql` (Password untuk semua akun: **`password123`**):
 
-**1. Admin Dinas:** `admin`
+**1. Admin Dinas:** `admin@lebak.go.id`
 **2. Operator Sekolah:**
-- PAUD Alhidayah: `sekolah1`
-- SDN 1 MCB: `sekolah2`
-- SDN 2 MCB: `sekolah3`
-- SMPN 1 Rangkasbitung: `sekolah4`
+- PAUD Alhidayah: `sekolah1@mbg.lebak.go.id`
+- SDN 1 MCB: `sekolah2@mbg.lebak.go.id`
+- SDN 2 MCB: `sekolah3@mbg.lebak.go.id`
+- SMPN 1 Rangkasbitung: `sekolah4@mbg.lebak.go.id`
 **3. Operator Posyandu:**
-- Posyandu Tulip 4 & 5: `posyandu1`
+- Posyandu Tulip 4 & 5: `posyandu1@mbg.lebak.go.id`

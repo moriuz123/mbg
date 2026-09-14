@@ -1,5 +1,10 @@
 import './globals.css';
 
+// Seluruh aplikasi bergantung pada PostgreSQL/Auth runtime.
+// Cegah Next.js menjalankan query production saat `next build`.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata = {
   title: 'Sistem Digitalisasi Supply Chain - Pemkab Lebak',
   description: 'Sistem Digitalisasi Supply Chain dan pemantauan distribusi logistik Pemerintah Kabupaten Lebak.',

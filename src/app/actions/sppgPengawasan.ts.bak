@@ -168,7 +168,6 @@ export async function getPemakaianBahan(sppgId?: number) {
     const data = await db.query.sppgPemakaianBahan.findMany({
       where: whereClause,
       with: {
-        sppg: true,
         jenisPangan: true,
         standarMenuGizi: true,
       },
@@ -246,10 +245,6 @@ export async function createUjiRapidTest(formData: FormData) {
 
     const pembelianIdRaw = formData.get('pembelianId') as string;
     const pembelianId = pembelianIdRaw ? parseInt(pembelianIdRaw) : null;
-
-    if (!sppgId) {
-      return { success: false, message: 'SPPG wajib dipilih.' };
-    }
     
     const data = {
       sppgId,
@@ -553,7 +548,6 @@ export async function getAdminLogisticsAnalytics() {
     // 3. Tracking Hasil Uji Rapid Bermasalah
     const ujiList = await db.query.sppgUjiRapidTest.findMany({
       with: {
-        parameterMaster: true,
         sppg: true,
         jenisPangan: true,
         pembelian: {
@@ -572,7 +566,7 @@ export async function getAdminLogisticsAnalytics() {
       tanggalUji: u.tanggalUji,
       sppgNama: u.sppg?.namaSppg,
       bahan: u.jenisPangan?.namaBahan,
-      parameter: u.parameterUji || u.parameterMaster?.namaParameter || '-',
+      parameter: u.parameterUji || u.parameterMaster,
       hasil: u.hasilUji,
       tindakan: u.tindakanLanjut,
       pemasok: u.pembelian?.pemasok?.namaPemasok || 'Tidak Diketahui'
