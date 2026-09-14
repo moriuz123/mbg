@@ -1,134 +1,120 @@
-# Digitalisasi Supply Chain MBG Pemkab Lebak
+# 🚀 Digitalisasi Supply Chain MBG Pemkab Lebak
 
 Sistem Informasi Manajemen Rantai Pasok (Supply Chain) untuk program Makan Bergizi Gratis (MBG) Pemerintah Kabupaten Lebak. Sistem ini melacak pergerakan logistik secara komprehensif (End-to-End) mulai dari hulu (Sumber Gabah dan Penggilingan Mitra), SPPG (Satuan Pelayanan Pengguna Gizi), hingga ke hilir (Verifikasi penerimaan di Sekolah dan Posyandu).
 
-## 🚀 Teknologi yang Digunakan
-- **Framework:** [Next.js 15 (Turbopack)](https://nextjs.org/)
-- **Bahasa:** TypeScript
-- **Styling:** Tailwind CSS & Lucide Icons
-- **Database:** PostgreSQL (via Docker)
-- **ORM:** Drizzle ORM
-- **Autentikasi:** Better Auth
+---
+
+## 📋 Prasyarat Umum
+Sebelum memulai di perangkat baru, pastikan terpasang:
+1. **Node.js**: v20.x atau lebih baru (Termasuk `npm` v10+)
+2. **Git**: [git-scm.com](https://git-scm.com/)
+3. **Docker & Docker Compose**: Wajib untuk menjalankan database PostgreSQL lokal / server full docker.
 
 ---
 
-## 📋 Prasyarat Instalasi
-Sebelum memulai, pastikan Anda telah menginstal perangkat lunak berikut di sistem Anda:
-1. **Node.js** (versi 18.x atau lebih baru)
-2. **Git**
-3. **Docker** & **Docker Compose** (untuk menjalankan database PostgreSQL lokal)
-
----
-
-## ⚙️ Panduan Instalasi (Langkah demi Langkah)
+## 🖥️ Bagian 1: Lingkungan Development (Lokal)
 
 ### 1. Kloning Repositori
-Clone proyek ini ke mesin lokal Anda menggunakan Git:
 ```bash
 git clone https://github.com/moriuz123/mbg.git
 cd mbg
 ```
 
 ### 2. Instalasi Dependensi
-Jalankan perintah berikut untuk menginstal semua *library* dan paket NPM yang dibutuhkan:
 ```bash
 npm install
 ```
 
 ### 3. Konfigurasi Environment Variables
-Buat file baru bernama `.env.local` di *root* direktori proyek, lalu isi dengan konfigurasi database dan autentikasi berikut:
+Buat file bernama `.env` (atau `.env.local`) di *root* direktori proyek:
 ```env
-DATABASE_URL="postgres://postgres:postgres@localhost:5432/mbg"
-BETTER_AUTH_SECRET="secret_for_local_development_only"
+# Database URL mengarah ke Container Docker PostgreSQL
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mbg"
+
+# Rahasia & URL Autentikasi BetterAuth (Server & Client)
+BETTER_AUTH_SECRET="super_secret_key_mbg_lebak_local_dev_2026"
+BETTER_AUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Port aplikasi
+PORT=3000
 ```
-*(Catatan: Sesuaikan kredensial di atas jika Anda menggunakan konfigurasi database yang berbeda di *production*)*.
 
 ### 4. Menjalankan Database PostgreSQL (Docker)
-Jika Anda menggunakan Docker, jalankan kontainer *database* di latar belakang:
+Jalankan kontainer *database* di latar belakang:
 ```bash
-docker-compose up -d
+docker-compose up -d db
 ```
-*(Ini akan menjalankan kontainer dengan nama `mbg-db-1` di port `5432`)*.
 
-### 5. Migrasi Skema Database (Drizzle)
-Sinkronkan skema kode (Drizzle) ke dalam database PostgreSQL yang baru saja berjalan:
+### 5. Restore Backup Terbaru ke Database Docker
+Tersedia file backup database terbaru (dengan dummy user & menu) `mbg_backup_20260914_094230.sql`. Pulihkan struktur & data ke database Docker:
 ```bash
-npm run db:push
+docker exec -i mbg-db-1 psql -U postgres -d mbg < mbg_backup_20260914_094230.sql
 ```
+*(Atau Anda bisa menggunakan `npm run db:push` untuk migrasi skema dari nol).*
 
 ### 6. Menjalankan Server Pengembangan (Dev Server)
-Jalankan aplikasi Next.js dalam mode pengembangan menggunakan Turbopack:
 ```bash
 npm run dev
 ```
-Aplikasi sekarang dapat diakses melalui browser di: **[http://localhost:3000](http://localhost:3000)**
+Aplikasi dapat diakses di: **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
-## 🔐 Informasi Akun Dummy (Testing)
-Untuk mempermudah proses *testing* fitur verifikasi dan dashboard, beberapa akun dummy (dengan *password*: **`password123`**) telah disediakan:
+## 🏭 Bagian 2: Deployment Server Production (VPS / Full Docker)
 
-**1. Admin Dinas:**
-- Email: `admin@lebak.go.id`
+Untuk lingkungan *Production* (seperti server VPS/Cloud Pemerintah Daerah), disarankan menggunakan skema *Full Containerization*. 
 
-**2. Operator Sekolah (Contoh: SPPG Lebak Rangkasbitung):**
-- PAUD Alhidayah: `sekolah1@mbg.lebak.go.id`
-- SDN 1 MCB: `sekolah2@mbg.lebak.go.id`
-- SDN 2 MCB: `sekolah3@mbg.lebak.go.id`
-- SMPN 1 Rangkasbitung: `sekolah4@mbg.lebak.go.id`
-
-**3. Operator Posyandu:**
-- Posyandu Tulip 4 & 5: `posyandu1@mbg.lebak.go.id`
-
----
-
-## 📂 Manajemen Database Tambahan
-- **Melihat Data GUI (Drizzle Studio):** `npm run db:studio` (Berjalan di port `4983`)
-- **Build untuk Produksi:** `npm run build` dan `npm run start`
-
----
-*Dikembangkan untuk digitalisasi ketahanan pangan dan logistik wilayah Kabupaten Lebak.*
-
----
-
-## 🏭 Panduan Deployment Server Production (Full Docker)
-
-Untuk lingkungan *Production* (seperti server VPS/Cloud Pemerintah Daerah), disarankan menggunakan skema *Full Containerization*. Dengan metode ini, baik Database (PostgreSQL), Caching (Redis), maupun Aplikasi Web (Next.js) berjalan di dalam Docker agar lebih stabil, mudah diperbarui, dan kebal dari masalah *downtime* saat server *restart*.
-
-### 1. Menyiapkan Variabel Environment
-Buat file `.env.production` (atau sesuaikan variabel di dalam server):
-```bash
+### 1. Menyiapkan Variabel Environment Production
+Buat file `.env.production` (atau sesuaikan variabel di dalam server OS):
+```env
 DATABASE_URL="postgres://postgres:postgres@db:5432/mbg"
 BETTER_AUTH_SECRET="ganti_dengan_secret_key_yang_sangat_rahasia"
 BETTER_AUTH_URL="https://mbg.lebak.go.id" # Ganti dengan domain asli
+NEXT_PUBLIC_APP_URL="https://mbg.lebak.go.id"
 REDIS_URL="redis://redis:6379"
 ```
 
 ### 2. Menjalankan Seluruh Sistem (Build & Up)
-Gunakan konfigurasi produksi yang telah disiapkan (`docker-compose.prod.yml`). Perintah ini akan mem-*build* aplikasi Next.js ke mode produksi (*standalone*) dan menjalankan semuanya di latar belakang:
-
+Gunakan konfigurasi produksi (`docker-compose.prod.yml`). Perintah ini akan mem-*build* aplikasi Next.js ke mode produksi (*standalone*) dan menjalankan semuanya di latar belakang secara terisolasi:
 ```bash
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
-### 3. Migrasi Skema Database ke Server Production
-Karena aplikasi Next.js berjalan di dalam *container*, Anda dapat menggunakan `npx` atau masuk ke dalam *container* web untuk mem-push skema:
+### 3. Merestart atau Menghentikan Sistem
+- Merestart: `docker-compose -f docker-compose.prod.yml restart`
+- Menghentikan: `docker-compose -f docker-compose.prod.yml down`
 
-```bash
-docker-compose -f docker-compose.prod.yml exec web npx drizzle-kit push
-```
+---
 
-### 4. Menghentikan atau Merestart Sistem
-Jika sewaktu-waktu Anda perlu merestart seluruh layanan:
-```bash
-docker-compose -f docker-compose.prod.yml restart
-```
-Untuk menghentikan secara total:
-```bash
-docker-compose -f docker-compose.prod.yml down
-```
+## ☁️ Bagian 3: Deploy ke Vercel Menggunakan Supabase (Alternatif Cloud)
 
-### 🌟 Kenapa Setup Ini Lebih Baik?
-1. **Otomatisasi Restart:** Semua *services* memiliki label `restart: always` atau `unless-stopped`. Jika server mati tiba-tiba, aplikasi otomatis menyala saat server hidup kembali.
-2. **Ukuran Image Ringan:** Konfigurasi Next.js menggunakan `output: 'standalone'` sehingga *image* Docker sangat kecil dan cepat melakukan proses *boot*.
-3. **Isolasi Penuh:** Tidak perlu repot *install* Node.js versi tertentu di OS server Anda, semuanya sudah dipaketkan rapi di dalam Docker.
+Jika Anda lebih memilih hosting Serverless Vercel & Supabase Cloud PostgreSQL, gunakan panduan berikut:
+
+### 1. Setup Database di Supabase
+1. Masuk ke [Supabase Dashboard](https://supabase.com), klik **New Project**, pilih Region terdekat.
+2. Dapatkan Connection String URI di menu **Project Settings ➔ Database** (Pilih Transaction Pooler Port `6543`).
+3. Restore Backup Data (`mbg_backup_20260914_094230.sql`) via menu **SQL Editor** di Supabase dengan cara *copy-paste* lalu klik **Run**, atau via Terminal `psql`.
+
+### 2. Deploy ke Vercel
+1. Masuk ke [Vercel Dashboard](https://vercel.com) dan buat **Add New... Project** dari repositori GitHub.
+2. Tambahkan **Environment Variables** berikut di Vercel:
+   - `DATABASE_URL` (Server): `postgresql://postgres.[REF]:[PASS]@...supabase.com:6543/postgres?sslmode=require`
+   - `BETTER_AUTH_SECRET` (Server): `String_Random_Unik_Kuat`
+   - `BETTER_AUTH_URL` (Server): `https://domain-vercel-anda.vercel.app`
+   - `NEXT_PUBLIC_APP_URL` (Public Client): `https://domain-vercel-anda.vercel.app` (Wajib agar Auth di Client berjalan lancar).
+3. Klik **Deploy**.
+
+---
+
+## 🔐 Informasi Akun Dummy (Testing)
+Data berikut disertakan di dalam backup `mbg_backup_20260914_094230.sql` (Password untuk semua akun: **`password123`**):
+
+**1. Admin Dinas:** `admin@lebak.go.id`
+**2. Operator Sekolah:**
+- PAUD Alhidayah: `sekolah1@mbg.lebak.go.id`
+- SDN 1 MCB: `sekolah2@mbg.lebak.go.id`
+- SDN 2 MCB: `sekolah3@mbg.lebak.go.id`
+- SMPN 1 Rangkasbitung: `sekolah4@mbg.lebak.go.id`
+**3. Operator Posyandu:**
+- Posyandu Tulip 4 & 5: `posyandu1@mbg.lebak.go.id`
