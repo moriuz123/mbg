@@ -111,7 +111,7 @@ export default function VerifikasiSekolahForm() {
   const handleEdit = (v: VerifiedDelivery) => {
     setIsEditMode(true);
     setEditVerifikasiId(v.id);
-    setSelectedPengiriman(v.sppgLaporanId.toString());
+    setSelectedPengiriman(v.sppgLaporanId?.toString() || '');
     
     setJumlahDiterima(v.jumlahPorsiDiterima?.toString() || '');
     setKondisi(v.kondisiMakanan || 'Baik');
