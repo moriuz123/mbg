@@ -148,3 +148,114 @@ export async function submitVerifikasiSekolah(formData: FormData) {
     return { success: false, message: 'Terjadi kesalahan sistem' };
   }
 }
+
+// Fetch verified deliveries (History)
+export async function getVerifiedDeliveries(sekolahId: number) {
+  try {
+    const rawData = await db.query.sekolahLaporanAktifitas.findMany({
+      where: eq(sekolahLaporanAktifitas.sekolahId, sekolahId),
+      with: {
+        laporanSppg: {
+          with: {
+            standarMenuGizi: true
+          }
+        }
+      },
+      orderBy: [desc(sekolahLaporanAktifitas.tanggalDiterima)]
+    });
+
+    return rawData.map(l => ({
+      id: l.id,
+      sppgLaporanId: l.laporanSppgId,
+      tanggal: l.laporanSppg?.tanggal,
+      menu: l.laporanSppg?.standarMenuGizi ? `${l.laporanSppg.standarMenuGizi.namaMenu} (${l.laporanSppg.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+      jumlahPorsiAsli: l.laporanSppg?.jumlahPorsi,
+      jumlahPorsiDiterima: l.jumlahPorsiDiterima,
+      statusDiterima: l.statusDiterima,
+      kondisiMakanan: l.kondisiMakanan,
+      diverifikasiOleh: l.diverifikasiOleh,
+      catatan: l.catatan
+    }));
+  } catch (error) {
+    console.error('Error fetching verified deliveries:', error);
+    return [];
+  }
+}
+
+// Update verification
+export async function updateVerifikasiSekolah(formData: FormData) {
+  try {
+    const verifikasiId = parseInt(formData.get('verifikasiId') as string);
+    const sppgLaporanId = parseInt(formData.get('sppgLaporanId') as string);
+    const sekolahId = parseInt(formData.get('sekolahId') as string);
+    const statusDiterima = formData.get('statusDiterima') as string;
+    const jumlahPorsiDiterima = parseInt(formData.get('jumlahPorsiDiterima') as string);
+    const kondisiMakanan = formData.get('kondisiMakanan') as string;
+    const diverifikasiOleh = formData.get('diverifikasiOleh') as string;
+    const catatan = formData.get('catatan') as string;
+    const foto = formData.get('foto') as File | null;
+
+    if (!verifikasiId || !sppgLaporanId || !sekolahId) {
+      return { success: false, message: 'Data tidak lengkap' };
+    }
+
+    const { isAdmin, sekolahId: userSekolahId } = await getSessionData();
+    if (!isAdmin) {
+      if (sekolahId !== userSekolahId) {
+        return { success: false, message: 'Akses ditolak: Anda hanya dapat mengubah laporan untuk sekolah Anda sendiri' };
+      }
+    }
+
+    let fotoDokumentasi: string | undefined = undefined;
+
+    // Handle file upload if present
+    if (foto && foto.size > 0) {
+      const buffer = Buffer.from(await foto.arrayBuffer());
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const fileName = `verifikasi-${sekolahId}-${Date.now()}-${foto.name.replace(/\s+/g, '-')}`;
+      const filePath = path.join(uploadDir, fileName);
+      
+      await fs.promises.writeFile(filePath, buffer);
+      fotoDokumentasi = `/uploads/${fileName}`;
+    }
+
+    // 1. Update verification record
+    const updatePayload: any = {
+      statusDiterima,
+      jumlahPorsiDiterima,
+      kondisiMakanan,
+      diverifikasiOleh,
+      catatan
+    };
+    if (fotoDokumentasi) {
+      updatePayload.fotoDokumentasi = fotoDokumentasi;
+    }
+
+    await db.update(sekolahLaporanAktifitas)
+      .set(updatePayload)
+      .where(eq(sekolahLaporanAktifitas.id, verifikasiId));
+
+    // 2. Update the original SPPG report status
+    let finalStatus = 'Diterima';
+    if (statusDiterima === 'Ditolak' || kondisiMakanan === 'Rusak' || kondisiMakanan === 'Basi') {
+      finalStatus = 'Bermasalah';
+    }
+
+    await db.update(sppgLaporanAktifitas)
+      .set({ status: finalStatus })
+      .where(eq(sppgLaporanAktifitas.id, sppgLaporanId));
+
+    revalidatePath('/');
+    revalidatePath('/admin/verifikasi');
+    
+    return { success: true, message: 'Verifikasi berhasil diperbarui' };
+  } catch (error) {
+    console.error('Error updating verification:', error);
+    return { success: false, message: 'Terjadi kesalahan sistem' };
+  }
+}
