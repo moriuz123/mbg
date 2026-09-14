@@ -1,9 +1,36 @@
+# Dependencies
+node_modules/
 
+# Next.js
 .next/
+out/
+build/
+tsconfig.tsbuildinfo
+
+# Environment Variables (CRITICAL FOR PROD)
+.env
 .env.local
+.env.development
+.env.test
+.env.production
+.env.*
+
+# Drizzle / Database
 drizzle/
+*.sql
+*.sqlite
+
+# Logs
 npm-log.txt
 build-log.txt
-tsconfig.tsbuildinfo
-*.sql
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Production Uploads (Dynamic Data)
+public/uploads/
 
