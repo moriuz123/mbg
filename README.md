@@ -88,3 +88,47 @@ Untuk mempermudah proses *testing* fitur verifikasi dan dashboard, beberapa akun
 
 ---
 *Dikembangkan untuk digitalisasi ketahanan pangan dan logistik wilayah Kabupaten Lebak.*
+
+---
+
+## 🏭 Panduan Deployment Server Production (Full Docker)
+
+Untuk lingkungan *Production* (seperti server VPS/Cloud Pemerintah Daerah), disarankan menggunakan skema *Full Containerization*. Dengan metode ini, baik Database (PostgreSQL), Caching (Redis), maupun Aplikasi Web (Next.js) berjalan di dalam Docker agar lebih stabil, mudah diperbarui, dan kebal dari masalah *downtime* saat server *restart*.
+
+### 1. Menyiapkan Variabel Environment
+Buat file `.env.production` (atau sesuaikan variabel di dalam server):
+```bash
+DATABASE_URL="postgres://postgres:postgres@db:5432/mbg"
+BETTER_AUTH_SECRET="ganti_dengan_secret_key_yang_sangat_rahasia"
+BETTER_AUTH_URL="https://mbg.lebak.go.id" # Ganti dengan domain asli
+REDIS_URL="redis://redis:6379"
+```
+
+### 2. Menjalankan Seluruh Sistem (Build & Up)
+Gunakan konfigurasi produksi yang telah disiapkan (`docker-compose.prod.yml`). Perintah ini akan mem-*build* aplikasi Next.js ke mode produksi (*standalone*) dan menjalankan semuanya di latar belakang:
+
+```bash
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+### 3. Migrasi Skema Database ke Server Production
+Karena aplikasi Next.js berjalan di dalam *container*, Anda dapat menggunakan `npx` atau masuk ke dalam *container* web untuk mem-push skema:
+
+```bash
+docker-compose -f docker-compose.prod.yml exec web npx drizzle-kit push
+```
+
+### 4. Menghentikan atau Merestart Sistem
+Jika sewaktu-waktu Anda perlu merestart seluruh layanan:
+```bash
+docker-compose -f docker-compose.prod.yml restart
+```
+Untuk menghentikan secara total:
+```bash
+docker-compose -f docker-compose.prod.yml down
+```
+
+### 🌟 Kenapa Setup Ini Lebih Baik?
+1. **Otomatisasi Restart:** Semua *services* memiliki label `restart: always` atau `unless-stopped`. Jika server mati tiba-tiba, aplikasi otomatis menyala saat server hidup kembali.
+2. **Ukuran Image Ringan:** Konfigurasi Next.js menggunakan `output: 'standalone'` sehingga *image* Docker sangat kecil dan cepat melakukan proses *boot*.
+3. **Isolasi Penuh:** Tidak perlu repot *install* Node.js versi tertentu di OS server Anda, semuanya sudah dipaketkan rapi di dalam Docker.
