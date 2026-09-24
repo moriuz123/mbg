@@ -15,7 +15,7 @@ export default async function StandarMenuPage() {
   });
   const userRole = session?.user?.role;
   const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
-  const userSppgId = session?.user?.sppgId;
+  const userSppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
 
   const dataMenu = await getStandarMenu(isAdmin ? undefined : userSppgId);
   const kategoriList = await getKategoriPenerima();

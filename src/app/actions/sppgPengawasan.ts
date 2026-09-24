@@ -12,7 +12,7 @@ async function getSessionData() {
     headers: await headers(),
   });
   const role = session?.user?.role;
-  const sppgId = session?.user?.sppgId;
+  const sppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
   const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
   return { role, sppgId, isAdmin };
 }

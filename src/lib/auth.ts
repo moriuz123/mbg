@@ -21,26 +21,11 @@ export const auth = betterAuth({
         required: false,
         defaultValue: "publik",
       },
-      sppgId: {
-        type: "number",
-        required: false,
-      },
-      kecamatanId: {
-        type: "number",
-        required: false,
-      },
-      penggilinganId: {
-        type: "number",
-        required: false,
-      },
-      sekolahId: {
-        type: "number",
-        required: false,
-      },
-      posyanduId: {
-        type: "number",
-        required: false,
-      },
+      sppgId: { type: "number", required: false, fieldName: "sppg_id" },
+      kecamatanId: { type: "number", required: false, fieldName: "kecamatan_id" },
+      penggilinganId: { type: "number", required: false, fieldName: "penggilingan_id" },
+      sekolahId: { type: "number", required: false, fieldName: "sekolah_id" },
+      posyanduId: { type: "number", required: false, fieldName: "posyandu_id" },
     },
   },
   plugins: [

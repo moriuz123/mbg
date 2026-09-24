@@ -58,7 +58,7 @@ export async function saveStandarMenu(formData: FormData) {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
-    const userSppgId = session?.user?.sppgId;
+    const userSppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
     const userRole = session?.user?.role;
     const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
 

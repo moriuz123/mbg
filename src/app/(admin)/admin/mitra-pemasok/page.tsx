@@ -20,7 +20,7 @@ export default async function MitraPemasokPage() {
     redirect('/admin');
   }
 
-  const userSppgId = session?.user?.sppgId;
+  const userSppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
   const suppliers = isSppg 
     ? await getActiveSuppliersForSppg(userSppgId ?? undefined)
     : await getPemasok();
