@@ -51,12 +51,10 @@ type FilterOptions = {
 export default function SppgClient({ 
   initialData, 
   filterOptions,
-  laporanData,
   currentTab
 }: { 
   initialData: SppgData[], 
   filterOptions: FilterOptions,
-  laporanData: LaporanData[],
   currentTab: string
 }) {
   const router = useRouter();
@@ -64,7 +62,7 @@ export default function SppgClient({
   const [filterKecamatan, setFilterKecamatan] = useState<string>('');
   const [filterDesa, setFilterDesa] = useState<string>('');
   const [selectedSppg, setSelectedSppg] = useState<SppgData | null>(null);
-
+  
   const setTab = (tab: string) => {
     router.push(`/sppg?tab=${tab}`);
   };
@@ -144,6 +142,8 @@ export default function SppgClient({
         >
           <BarChart3 size={18} /> Statistik
         </button>
+        
+      </div>
 
       {/* TAB CONTENT: DIRECTORY */}
       {currentTab === 'directory' && (
@@ -328,7 +328,7 @@ export default function SppgClient({
         </div>
       )}
 
-
+      
       {/* Modal Detail SPPG (Same as before, inside directory tab logically but rendered globally) */}
       {selectedSppg && (
         <div className="modal-overlay" onClick={() => setSelectedSppg(null)}>
@@ -425,6 +425,6 @@ export default function SppgClient({
         </div>
       )}
 
-    </div>
+          </div>
   );
 }
