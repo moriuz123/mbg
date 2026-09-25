@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Wheat, Factory, TrendingUp, Percent, MapPin, Search, XCircle } from 'lucide-react';
+import { Wheat, Factory, Warehouse, Settings, Warehouse, Settings, TrendingUp, Percent, MapPin, Search, XCircle } from 'lucide-react';
 
 type MonthlyData = {
   id: number;
@@ -371,37 +371,57 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentPabriks.map(pabrik => (
-              <div key={pabrik.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center">
-                      <Factory size={20} />
+          <div className="flex flex-col gap-4">
+            {currentPabriks.map((pabrik: any) => (
+              <div 
+                key={pabrik.id} 
+                className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between"
+                style={{ borderLeft: pabrik.status === 'Aktif' ? '4px solid var(--success)' : '4px solid var(--warning)' }}
+              >
+                <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 w-full">
+                  {/* Icon & Title */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', minWidth: '250px' }}>
+                    <div style={{ backgroundColor: 'var(--primary-50)', padding: '0.75rem', borderRadius: '50%', color: 'var(--primary-600)', flexShrink: 0 }}>
+                      <Factory size={24} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-800">{pabrik.namaPenggilingan}</h4>
-                      <p className="text-xs text-slate-500">{pabrik.namaDagang || 'Penggilingan Padi'}</p>
+                      <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--text-primary)', fontWeight: 600 }}>{pabrik.namaPenggilingan}</h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                        <span className={`badge ${pabrik.status === 'Aktif' ? 'badge-success' : 'badge-warning'}`}>
+                          {pabrik.status || 'Aktif'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${pabrik.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                    {pabrik.status || 'Aktif'}
-                  </span>
-                </div>
-                
-                <div className="space-y-2 text-sm text-slate-600 mb-4">
-                  <p className="flex items-center gap-2"><MapPin size={14} className="text-slate-400"/> {pabrik.desa?.namaDesa ? `Desa ${pabrik.desa.namaDesa}, Kec. ${pabrik.kecamatan?.namaKecamatan}` : (pabrik.alamat || 'Alamat belum dilengkapi')}</p>
-                  <p className="flex items-center gap-2">👨‍💼 {pabrik.penanggungJawab || 'PIC Belum diatur'} {pabrik.noHp ? `(${pabrik.noHp})` : ''}</p>
-                  <p className="flex items-center gap-2">⚙️ Kapasitas: <span className="font-bold text-amber-700">{pabrik.kapasitasTerpasangKgMinggu ? Number(pabrik.kapasitasTerpasangKgMinggu).toLocaleString('id-ID') : 0} Kg/Mg</span></p>
+
+                  {/* Details */}
+                  <div className="flex flex-col gap-2 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-6 flex-1 w-full border-t md:border-t-0 mt-3 md:mt-0">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <MapPin size={16} className="shrink-0 text-slate-400" />
+                      <span className="truncate">{pabrik.desa?.namaDesa ? `Desa ${pabrik.desa.namaDesa}, Kec. ${pabrik.kecamatan?.namaKecamatan}` : (pabrik.alamat || 'Alamat belum dilengkapi')}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-y-2 gap-x-6 mt-1">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        <Warehouse size={16} className="shrink-0 text-emerald-500" />
+                        <span>Stok Beras: <strong>{pabrik.sisaStokBeras ? Number(pabrik.sisaStokBeras).toLocaleString('id-ID') : 0} Kg</strong></span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        <Settings size={16} className="shrink-0 text-amber-500" />
+                        <span>Kapasitas: <strong>{pabrik.kapasitasTerpasangKgMinggu ? Number(pabrik.kapasitasTerpasangKgMinggu).toLocaleString('id-ID') : 0} Kg/Mg</strong></span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
             
             {filteredPabriks.length === 0 && (
-              <div className="col-span-3 text-center py-12 bg-white rounded-2xl border border-slate-200">
+              <div className="text-center py-12 bg-white rounded-2xl border border-slate-200">
                 <Factory size={48} className="mx-auto text-slate-300 mb-4" />
                 <p className="text-slate-500 font-medium">Tidak ada mitra penggilingan yang ditemukan.</p>
               </div>
+            )}
+          </div>
             )}
           </div>
 
