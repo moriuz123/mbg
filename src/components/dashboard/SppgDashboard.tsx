@@ -65,12 +65,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
             Ringkasan operasional dan target sasaran harian dapur Anda. Pastikan semua jadwal distribusi dan penerima manfaat telah sesuai.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link 
-              href="/admin/laporan-aktifitas" 
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-800 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
-            >
-              <Activity size={18} /> Laporan Distribusi Hari Ini
-            </Link>
+            
             <Link 
               href={`/admin/sppg/${sppgId}`} 
               className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-700/50 backdrop-blur border border-indigo-500/50 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-md hover:-translate-y-0.5"
@@ -214,7 +209,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
       )}
 
       {/* QUICK WORKFLOW NAVIGATION CARDS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 gap-6 mt-6">
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-slate-800 shadow-xl p-8 flex flex-col justify-center text-white relative overflow-hidden">
           <div className="absolute -right-10 -top-10 opacity-10">
             <Package size={200} />
@@ -236,23 +231,7 @@ export default function SppgDashboard({ sppgId, stats, dailyFreshFoodStats }: Sp
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 flex flex-col justify-center relative overflow-hidden">
-          <div className="relative z-10">
-            <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6 border border-emerald-200">
-              <Activity size={24} className="text-emerald-600" />
-            </div>
-            <h3 className="text-2xl font-bold mb-3 text-slate-800">Laporan Aktifitas Harian</h3>
-            <p className="text-slate-500 text-sm mb-8 leading-relaxed">
-              Pastikan Anda selalu melaporkan keberangkatan armada distribusi makanan setiap harinya. Laporan yang dibuat akan langsung diverifikasi oleh pihak Sekolah / Posyandu secara real-time.
-            </p>
-            <Link 
-              href="/admin/laporan-aktifitas" 
-              className="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
-            >
-              Kirim Laporan Hari Ini <ArrowRight size={16} />
-            </Link>
-          </div>
-        </div>
+        
       </div>
     </div>
   );

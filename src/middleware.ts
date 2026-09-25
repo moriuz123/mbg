@@ -42,8 +42,8 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
       
-      // Laporan Aktifitas: Hanya untuk Admin & SPPG
-      if (path.startsWith('/admin/laporan-aktifitas') && !isAdmin && userRole !== 'sppg' && userRole !== 'operator_sppg') {
+      // Laporan Aktifitas: Hanya untuk Admin
+      if (path.startsWith('/admin/laporan-aktifitas') && !isAdmin) {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
 
