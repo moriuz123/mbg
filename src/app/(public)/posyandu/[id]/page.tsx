@@ -5,6 +5,7 @@ import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { MapPin, HeartPulse, Users, Calendar, Utensils, Activity, User, Building2, Baby, Heart } from 'lucide-react';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export async function generateMetadata({ params }: any) {
   const resolvedParams = await params;
@@ -56,18 +57,17 @@ export default async function PosyanduDetailPublicPage({ params }: any) {
   const totalPenerima = activeAssignment?.jumlahTotal ?? data.jumlahTotal ?? (busui + bumil + balita);
 
   return (
-    <div className="container py-12 animate-fade-in" style={{ minHeight: '80vh', paddingTop: '3rem' }}>
-      
-      {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 text-sm text-slate-500 mb-6 mt-4">
-        <Link href="/" className="hover:text-emerald-600 transition-colors">Beranda</Link>
-        <span>/</span>
-        <Link href="/posyandu" className="hover:text-emerald-600 transition-colors">Data Posyandu</Link>
-        <span>/</span>
-        <span className="font-semibold text-slate-800">{data.namaPosyandu}</span>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="min-h-screen bg-slate-50 pb-20 animate-fade-in">
+      <PageHeader 
+        title="Profil Posyandu" 
+        description="Informasi detail mengenai Posyandu penerima manfaat MBG"
+        breadcrumbs={[
+          { label: 'Posyandu', href: '/posyandu' },
+          { label: data.namaPosyandu || 'Detail Posyandu' }
+        ]}
+      />
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Col: Profile & Targets Card */}
         <div className="lg:col-span-1 space-y-6">
@@ -206,6 +206,7 @@ export default async function PosyanduDetailPublicPage({ params }: any) {
         </div>
 
       </div>
+    </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { MapPin, GraduationCap, Users, Calendar, Utensils, Star, Activity } from 'lucide-react';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export async function generateMetadata({ params }: any) {
   const resolvedParams = await params;
@@ -36,18 +37,17 @@ export default async function SekolahDetailPublicPage({ params }: any) {
   const recentActivities: any[] = [];
 
   return (
-    <div className="container py-12 animate-fade-in" style={{ minHeight: '80vh', paddingTop: '3rem' }}>
-      
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-slate-500 mb-6 mt-4">
-        <Link href="/" className="hover:text-primary-600">Beranda</Link>
-        <span>/</span>
-        <Link href="/sekolah" className="hover:text-primary-600">Data Sekolah</Link>
-        <span>/</span>
-        <span className="font-semibold text-slate-800">{data.namaSekolah}</span>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="min-h-screen bg-slate-50 pb-20 animate-fade-in">
+      <PageHeader 
+        title="Profil Sekolah Penerima" 
+        description="Informasi detail mengenai Sekolah penerima manfaat MBG"
+        breadcrumbs={[
+          { label: 'Sekolah', href: '/sekolah' },
+          { label: data.namaSekolah || 'Detail Sekolah' }
+        ]}
+      />
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Col: Profile Info */}
         <div className="lg:col-span-1 space-y-6">
@@ -134,6 +134,7 @@ export default async function SekolahDetailPublicPage({ params }: any) {
         </div>
 
       </div>
+    </div>
     </div>
   );
 }

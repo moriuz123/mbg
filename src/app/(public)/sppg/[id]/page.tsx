@@ -55,8 +55,7 @@ export default async function SppgDetailPublicPage({ params }: any) {
 
 
   return (
-    <div className="container py-12 animate-fade-in" style={{ minHeight: '80vh', paddingTop: '3rem' }}>
-      {/* Page Header */}
+    <div className="min-h-screen bg-slate-50 pb-20 animate-fade-in">
       <PageHeader 
         title="Profil Titik Layanan" 
         description="Informasi detail mengenai Satuan Pelayanan Pemenuhan Gizi (SPPG)"
@@ -65,9 +64,8 @@ export default async function SppgDetailPublicPage({ params }: any) {
           { label: data.namaSppg || 'Detail SPPG' }
         ]}
       />
-      <div className="mb-8"></div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Col: Profile Info */}
         <div className="lg:col-span-1 space-y-6">
@@ -118,6 +116,7 @@ export default async function SppgDetailPublicPage({ params }: any) {
         </div>
 
       </div>
+    </div>
     </div>
   );
 }
