@@ -19,7 +19,7 @@ export default async function SPPGPage() {
   const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
 
   if (!isAdmin && (userRole === 'sppg' || userRole === 'operator_sppg')) {
-    const sppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
+    const sppgId = session?.user?.sppgId;
     if (sppgId) {
       redirect(`/admin/sppg/${sppgId}`);
     } else {

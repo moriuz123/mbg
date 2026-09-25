@@ -21,7 +21,7 @@ export default async function LaporanAktifitasPage() {
   const userRole = session?.user?.role;
   const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
 
-  const userSppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
+  const userSppgId = session?.user?.sppgId;
 
   // Fetch Laporan
   const rawLaporanData = await db.query.sppgLaporanAktifitas.findMany({

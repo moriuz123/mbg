@@ -27,7 +27,7 @@ export default async function AdminDashboardPage() {
 
   // 1. DASHBOARD SPPG (OPERATOR DAPUR SENTRAL)
   if (userRole === 'sppg' || userRole === 'operator_sppg') {
-    const sppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
+    const sppgId = session?.user?.sppgId;
     if (!sppgId) {
       return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-slate-500 bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">

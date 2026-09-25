@@ -12,7 +12,7 @@ export async function getSppg() {
     headers: await headers(),
   });
   const role = session?.user?.role;
-  const sppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
+  const sppgId = session?.user?.sppgId;
   const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
 
   if (isAdmin) {
@@ -71,7 +71,7 @@ async function checkCanManageSppg(targetSppgId: number) {
     headers: await headers(),
   });
   const role = session?.user?.role;
-  const userSppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
+  const userSppgId = session?.user?.sppgId;
   
   if (role === 'admin_dinas' || role === 'super_admin' || role === 'admin') return true;
   if ((role === 'sppg' || role === 'operator_sppg') && userSppgId === targetSppgId) return true;

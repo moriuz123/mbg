@@ -19,7 +19,7 @@ export default async function SppgDetailPage({ params }: any) {
   
   const userRole = session?.user?.role || 'publik';
   const isAdmin = userRole === 'admin_dinas' || userRole === 'super_admin' || userRole === 'admin';
-  const userSppgId = session?.user?.sppgId ? Number(session.user.sppgId) : undefined;
+  const userSppgId = session?.user?.sppgId;
 
   // Security Check: Operator can only access their own SPPG
   if (!isAdmin && (userRole === 'sppg' || userRole === 'operator_sppg')) {
