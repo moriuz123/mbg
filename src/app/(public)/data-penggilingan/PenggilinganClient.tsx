@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Wheat, Factory, Warehouse, Settings, Warehouse, Settings, TrendingUp, Percent, MapPin, Search, XCircle } from 'lucide-react';
+import { Wheat, Factory, Warehouse, Settings, TrendingUp, Percent, MapPin, Search, XCircle } from 'lucide-react';
 
 type MonthlyData = {
   id: number;
