@@ -113,7 +113,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                 <NavItem href="/admin/matriks-logistik" icon={Map} isActive={pathname?.includes('/admin/matriks-logistik')}>Matriks Geo-Logistik</NavItem>
               )}
 
-              {isAdmin && (
+              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
                 <NavItem href="/admin/laporan-aktifitas" icon={Activity} isActive={pathname?.includes('/admin/laporan-aktifitas')}>Laporan Aktifitas</NavItem>
               )}
 
