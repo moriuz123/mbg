@@ -108,17 +108,6 @@ export default async function SppgDetailPublicPage({ params }: any) {
           </div>
         </div>
 
-        {/* Right Col: Activity Log */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 h-full">
-            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <Activity className="text-primary-600" /> Riwayat Distribusi Makanan
-            </h2>
-            
-            <SppgActivityLogClient recentActivities={recentActivities} />
-          </div>
-        </div>
-
         {/* Right Col: Data Penerima */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 h-full">
