@@ -1,6 +1,6 @@
 import React from 'react';
 import { db } from '@/db';
-import { sppg, sppgLaporanAktifitas } from '@/db/schema';
+import { sppg } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { MapPin, ChefHat, Activity, Phone, Star, TrendingUp } from 'lucide-react';
@@ -37,16 +37,7 @@ export default async function SppgDetailPublicPage({ params }: any) {
   if (!data) notFound();
 
   // Ambil riwayat pengiriman terbaru dari SPPG ini
-  const recentActivities = await db.query.sppgLaporanAktifitas.findMany({
-    where: eq(sppgLaporanAktifitas.sppgId, sppgId),
-    with: {
-      sekolah: true,
-      posyandu: true,
-      standarMenuGizi: true,
-    },
-    orderBy: [desc(sppgLaporanAktifitas.tanggal)],
-    limit: 10
-  });
+  const recentActivities: any[] = [];
 
   return (
     <div className="container py-12 animate-fade-in" style={{ minHeight: '80vh', paddingTop: '3rem' }}>
@@ -63,7 +54,7 @@ export default async function SppgDetailPublicPage({ params }: any) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Col: Profile Info */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-3 max-w-2xl mx-auto space-y-6">
           <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 text-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary-500 to-primary-700"></div>
             

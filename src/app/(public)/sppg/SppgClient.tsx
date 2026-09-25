@@ -64,7 +64,6 @@ export default function SppgClient({
   const [filterKecamatan, setFilterKecamatan] = useState<string>('');
   const [filterDesa, setFilterDesa] = useState<string>('');
   const [selectedSppg, setSelectedSppg] = useState<SppgData | null>(null);
-  const [selectedReport, setSelectedReport] = useState<LaporanData | null>(null);
 
   const setTab = (tab: string) => {
     router.push(`/sppg?tab=${tab}`);
@@ -145,25 +144,6 @@ export default function SppgClient({
         >
           <BarChart3 size={18} /> Statistik
         </button>
-        <button 
-          onClick={() => setTab('reports')}
-          style={{
-            padding: '1rem 1.5rem',
-            background: 'none',
-            border: 'none',
-            borderBottom: currentTab === 'reports' ? '3px solid var(--primary-600)' : '3px solid transparent',
-            color: currentTab === 'reports' ? 'var(--primary-600)' : 'var(--text-secondary)',
-            fontWeight: currentTab === 'reports' ? 600 : 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.2s'
-          }}
-        >
-          <Utensils size={18} /> Laporan Aktifitas
-        </button>
-      </div>
 
       {/* TAB CONTENT: DIRECTORY */}
       {currentTab === 'directory' && (
@@ -348,88 +328,6 @@ export default function SppgClient({
         </div>
       )}
 
-      {/* TAB CONTENT: REPORTS */}
-      {currentTab === 'reports' && (
-        <div className="animate-fade-in">
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Daftar Laporan Aktifitas Distribusi</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Laporan distribusi harian dari masing-masing SPPG ke Sekolah</p>
-              </div>
-            </div>
-            
-            {laporanData.length > 0 ? (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
-                      <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Tanggal</th>
-                      <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>SPPG (Dapur)</th>
-                      <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Tujuan Penerima</th>
-                      <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Menu Disajikan</th>
-                      <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Status</th>
-                      <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)', textAlign: 'right' }}>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {laporanData.map(p => (
-                      <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}>
-                        <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                          {p.tanggal ? new Date(p.tanggal).toLocaleDateString('id-ID') : '-'}
-                        </td>
-                        <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
-                          {p.namaSppg ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--primary-600)' }}><Building size={14} /> {p.namaSppg}</div>
-                          ) : '-'}
-                        </td>
-                        <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
-                          {p.namaSekolah ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: p.tujuanTipe === 'Posyandu' ? '#10b981' : '#0ea5e9' }}>
-                              {p.tujuanTipe === 'Posyandu' ? <HeartPulse size={14} /> : <GraduationCap size={14} />}
-                              {p.namaSekolah}
-                            </div>
-                          ) : '-'}
-                          {p.jumlahPorsi && (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>{p.jumlahPorsi} Porsi</div>
-                          )}
-                        </td>
-                        <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.875rem', maxWidth: '300px' }}>
-                          <p style={{ margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontWeight: 600 }}>{p.menu}</p>
-                          {p.catatan && (
-                            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>Catatan: {p.catatan}</p>
-                          )}
-                        </td>
-                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                          {p.status === 'Diterima' ? (
-                            <span className="badge badge-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={12} /> {p.status}</span>
-                          ) : (
-                            <span className="badge badge-warning" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><Clock size={12} /> {p.status || 'Terkirim'}</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
-                          <button 
-                            onClick={() => setSelectedReport(p)}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.4rem 0.85rem', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                          >
-                            <Eye size={14} /> Detail
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                <Utensils size={48} style={{ color: 'var(--text-tertiary)', margin: '0 auto 1rem auto', opacity: 0.5 }} />
-                <h4 style={{ fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Belum ada laporan aktifitas</h4>
-                <p style={{ color: 'var(--text-secondary)' }}>Belum ada laporan aktifitas pendistribusian makanan yang tercatat.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Modal Detail SPPG (Same as before, inside directory tab logically but rendered globally) */}
       {selectedSppg && (
@@ -527,132 +425,6 @@ export default function SppgClient({
         </div>
       )}
 
-      {/* Modal Detail Laporan Aktifitas */}
-      {selectedReport && (
-        <div className="modal-overlay" onClick={() => setSelectedReport(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                  <span className="badge badge-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <Activity size={12} /> Detail Laporan Distribusi
-                  </span>
-                  <span className={`badge ${selectedReport.status === 'Diterima' ? 'badge-success' : 'badge-warning'}`}>
-                    {selectedReport.status || 'Terkirim'}
-                  </span>
-                </div>
-                <h2 style={{ fontSize: '1.35rem', color: 'var(--text-primary)', margin: 0 }}>{selectedReport.menu}</h2>
-              </div>
-              <button 
-                onClick={() => setSelectedReport(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '0.25rem' }}
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              
-              {/* Target & SPPG Info */}
-              <div style={{ backgroundColor: 'var(--bg-color)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Tanggal Pengiriman</span>
-                    <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                      <Calendar size={14} />
-                      {selectedReport.tanggal ? new Date(selectedReport.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
-                    </span>
-                  </div>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Total Porsi</span>
-                    <span style={{ fontWeight: 700, fontSize: '1.125rem', color: 'var(--text-primary)' }}>{selectedReport.jumlahPorsi || 0} Porsi</span>
-                  </div>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Dapur Pelayanan (SPPG)</span>
-                    <span style={{ fontWeight: 600, color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <Building size={14} /> {selectedReport.namaSppg || '-'}
-                    </span>
-                  </div>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Target Penerima</span>
-                    <span style={{ fontWeight: 600, color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      {selectedReport.tujuanTipe === 'Posyandu' ? <HeartPulse size={14} className="text-emerald-600" /> : <GraduationCap size={14} />}
-                      {selectedReport.namaSekolah || '-'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rincian Menu Gizi */}
-              {selectedReport.standarMenuGizi && (
-                <div style={{ backgroundColor: 'var(--primary-50)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--primary-200)' }}>
-                  <h4 style={{ fontSize: '0.8125rem', color: 'var(--primary-800)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                    <Utensils size={14} /> Nilai Gizi Menu ({selectedReport.standarMenuGizi.namaMenu})
-                  </h4>
-
-                  {selectedReport.standarMenuGizi.deskripsi && (
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '1rem', backgroundColor: '#fff', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--primary-100)' }}>
-                      "{selectedReport.standarMenuGizi.deskripsi}"
-                    </p>
-                  )}
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', textAlign: 'center' }}>
-                    <div style={{ backgroundColor: '#fff', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--primary-100)' }}>
-                      <Flame size={14} style={{ margin: '0 auto 0.25rem auto', color: '#f59e0b' }} />
-                      <span style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700 }}>{selectedReport.standarMenuGizi.kaloriKkal || '-'}</span>
-                      <span style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Kkal</span>
-                    </div>
-                    <div style={{ backgroundColor: '#fff', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--primary-100)' }}>
-                      <Dumbbell size={14} style={{ margin: '0 auto 0.25rem auto', color: '#3b82f6' }} />
-                      <span style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700 }}>{selectedReport.standarMenuGizi.proteinGram || '-'} g</span>
-                      <span style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Protein</span>
-                    </div>
-                    <div style={{ backgroundColor: '#fff', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--primary-100)' }}>
-                      <Wheat size={14} style={{ margin: '0 auto 0.25rem auto', color: '#10b981' }} />
-                      <span style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700 }}>{selectedReport.standarMenuGizi.karbohidratGram || '-'} g</span>
-                      <span style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Karbo</span>
-                    </div>
-                    <div style={{ backgroundColor: '#fff', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--primary-100)' }}>
-                      <Droplets size={14} style={{ margin: '0 auto 0.25rem auto', color: '#ec4899' }} />
-                      <span style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700 }}>{selectedReport.standarMenuGizi.lemakGram || '-'} g</span>
-                      <span style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Lemak</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Foto Dokumentasi */}
-              {selectedReport.fotoDokumentasi && (
-                <div>
-                  <h4 style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: 600 }}>Foto Dokumentasi</h4>
-                  <div style={{ borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--border-color)', maxHeight: '200px' }}>
-                    <img src={selectedReport.fotoDokumentasi} alt="Dokumentasi Laporan" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                </div>
-              )}
-
-              {/* Catatan SPPG */}
-              {selectedReport.catatan && (
-                <div>
-                  <h4 style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 600 }}>Catatan Laporan</h4>
-                  <div style={{ backgroundColor: 'var(--bg-color)', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.8125rem', border: '1px solid var(--border-color)' }}>
-                    {selectedReport.catatan}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button 
-                onClick={() => setSelectedReport(null)}
-                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#0f172a', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
-              >
-                Tutup Laporan
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

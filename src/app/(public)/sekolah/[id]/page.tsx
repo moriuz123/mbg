@@ -1,6 +1,6 @@
 import React from 'react';
 import { db } from '@/db';
-import { sekolah, sppgLaporanAktifitas } from '@/db/schema';
+import { sekolah } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { MapPin, GraduationCap, Users, Calendar, Utensils, Star, Activity } from 'lucide-react';
@@ -33,15 +33,7 @@ export default async function SekolahDetailPublicPage({ params }: any) {
   if (!data) notFound();
 
   // Ambil riwayat penerimaan makanan untuk sekolah ini
-  const recentActivities = await db.query.sppgLaporanAktifitas.findMany({
-    where: eq(sppgLaporanAktifitas.sekolahId, sekolahId),
-    with: {
-      sppg: true,
-      standarMenuGizi: true,
-    },
-    orderBy: [desc(sppgLaporanAktifitas.tanggal)],
-    limit: 10
-  });
+  const recentActivities: any[] = [];
 
   return (
     <div className="container py-12 animate-fade-in" style={{ minHeight: '80vh', paddingTop: '3rem' }}>

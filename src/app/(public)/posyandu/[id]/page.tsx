@@ -1,6 +1,6 @@
 import React from 'react';
 import { db } from '@/db';
-import { posyandu, sppgLaporanAktifitas } from '@/db/schema';
+import { posyandu } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { MapPin, HeartPulse, Users, Calendar, Utensils, Activity, User, Building2, Baby, Heart } from 'lucide-react';
@@ -47,15 +47,7 @@ export default async function PosyanduDetailPublicPage({ params }: any) {
   const sppgAktif = activeAssignment?.sppg;
 
   // Ambil riwayat penerimaan makanan untuk posyandu ini
-  const recentActivities = await db.query.sppgLaporanAktifitas.findMany({
-    where: eq(sppgLaporanAktifitas.posyanduId, posyanduId),
-    with: {
-      sppg: true,
-      standarMenuGizi: true,
-    },
-    orderBy: [desc(sppgLaporanAktifitas.tanggal)],
-    limit: 15
-  });
+  const recentActivities: any[] = [];
 
   // Calculate target breakdown
   const busui = activeAssignment?.jumlahBusui ?? data.jumlahBusui ?? 0;

@@ -344,25 +344,7 @@ export default async function Public({
         </div>
       </section>
 
-      {/* LAPORAN HARIAN */}
-      <section id="laporan-harian" className="py-32 bg-[#f8fafc] border-t border-slate-200">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div className="max-w-2xl">
-              <span className="text-accent-500 font-bold uppercase tracking-widest text-sm mb-3 block">Transparansi Logistik</span>
-              <h2 className="font-heading text-4xl font-extrabold text-[#071840] mb-4 tracking-tight">Data Distribusi Harian</h2>
-              <p className="text-lg text-slate-500 font-medium">
-                Sistem pencatatan elektronik memvalidasi setiap titik pengiriman antara Dapur Satelit (SPPG) dan unit sekolah / posyandu.
-              </p>
-            </div>
-
-          </div>
-
-          <div className="bg-white p-6 md:p-10 rounded-2xl border border-slate-200 shadow-[0_16px_40px_rgba(0,0,0,0.04)]">
-            <LaporanHarianClient data={laporanHarian} />
-          </div>
-        </div>
-      </section>
+      
 
     </div>
   );

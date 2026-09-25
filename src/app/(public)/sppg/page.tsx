@@ -1,7 +1,7 @@
 import React from 'react';
 import SppgClient from './SppgClient';
 import PageHeader from '@/components/PageHeader';
-import { getPublicSppg, getPublicLaporanAktifitas } from '@/app/actions/publicSppg';
+import { getPublicSppg } from '@/app/actions/publicSppg';
 import { getFilterOptions } from '@/app/actions/publicSekolah';
 
 export const dynamic = 'force-dynamic';
@@ -17,10 +17,9 @@ type PageProps = {
 
 export default async function SppgPage(props: PageProps) {
   const searchParams = await props.searchParams;
-  const [sppgData, filterOptions, laporanData] = await Promise.all([
+  const [sppgData, filterOptions] = await Promise.all([
     getPublicSppg(),
-    getFilterOptions(),
-    getPublicLaporanAktifitas()
+    getFilterOptions()
   ]);
 
   const currentTab = searchParams.tab || 'directory';
@@ -29,15 +28,14 @@ export default async function SppgPage(props: PageProps) {
     <div className="min-h-screen bg-slate-50 pb-20">
       <PageHeader 
         title="Titik Layanan (SPPG)" 
-        description="Direktori Satuan Pelayanan Program Gizi (SPPG), Data Statistik, dan Laporan Aktifitas Pendistribusian di wilayah Kabupaten Lebak."
+        description="Direktori Satuan Pelayanan Program Gizi (SPPG), Data Statistik di wilayah Kabupaten Lebak."
         breadcrumbs={[{ label: 'SPPG' }]}
       />
       <div className="container mx-auto px-4 max-w-7xl">
       <SppgClient 
         initialData={sppgData} 
         filterOptions={{ kecamatans: filterOptions.kecamatans, desas: filterOptions.desas }} 
-        laporanData={laporanData}
-        currentTab={currentTab}
+                currentTab={currentTab}
       />
       </div>
     </div>
