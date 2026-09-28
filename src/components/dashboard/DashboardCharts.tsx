@@ -114,7 +114,7 @@ export default function DashboardCharts({ stats }: { stats: any }) {
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
         <div className="mb-2">
           <h3 className="text-sm font-bold text-slate-800 leading-tight">Pemasok Bahan (SPPG)</h3>
-          <p className="text-[10px] text-slate-500 mt-1">Proporsi serapan Pemasok SPPG.</p>
+          <p className="text-[10px] text-slate-500 mt-1">Proporsi serapan Pemasok SPPG <span className="font-semibold text-emerald-600">(6 Bln Terakhir)</span>.</p>
         </div>
         
         <div className="flex-1 min-h-[180px] relative w-full flex items-center justify-center">
@@ -172,7 +172,7 @@ export default function DashboardCharts({ stats }: { stats: any }) {
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
         <div className="mb-2">
           <h3 className="text-sm font-bold text-slate-800 leading-tight">Sumber Gabah (RMU)</h3>
-          <p className="text-[10px] text-slate-500 mt-1">Proporsi asal gabah Penggilingan.</p>
+          <p className="text-[10px] text-slate-500 mt-1">Proporsi asal gabah RMU <span className="font-semibold text-emerald-600">(Keseluruhan Waktu)</span>.</p>
         </div>
         
         <div className="flex-1 min-h-[180px] relative w-full flex items-center justify-center">
