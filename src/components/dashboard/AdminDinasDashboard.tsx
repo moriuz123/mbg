@@ -304,8 +304,110 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
         </div>
       </div>
 
-      {/* VISUALISASI CHARTS */}
+      {/* VISUALISASI CHARTS BARU (Recharts) */}
       <DashboardCharts stats={stats} />
+
+      {/* COMMODITY CHART SECTION */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8 flex flex-col mt-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Tren Pembelian Komoditas Bulanan</h2>
+            <p className="text-sm text-slate-500 mt-1">Pantau volume pengadaan bahan baku pangan dari seluruh SPPG (6 Bulan Terakhir)</p>
+          </div>
+          <div className="w-full sm:w-64">
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all cursor-pointer"
+              value={selectedCommodity}
+              onChange={(e) => setSelectedCommodity(e.target.value)}
+            >
+              {uniqueCommodities.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* CSS BAR CHARTS (3 COLUMNS) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pt-4">
+          {/* CHART 1: KESELURUHAN */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-slate-700 mb-6 text-center">Total Volume (Keseluruhan)</h3>
+            <div className="h-48 sm:h-56 flex items-end justify-between gap-1 sm:gap-2">
+              {chartData.map((d, i) => {
+                const height = maxVolume > 0 ? (d.volume / maxVolume) * 100 : 0;
+                return (
+                  <div key={`all-${i}`} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10">
+                      {d.volume.toLocaleString('id-ID')} {d.satuan}
+                    </div>
+                    <div 
+                      className="w-full bg-primary-500 rounded-t-sm group-hover:bg-primary-600 transition-all duration-300 relative"
+                      style={{ height: `${Math.max(height, 0.5)}%` }}
+                    >
+                      {d.volume === 0 && <div className="absolute inset-0 bg-slate-100 rounded-t-sm border-t border-slate-200" />}
+                    </div>
+                    <div className="mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 text-center uppercase h-4">
+                      {d.bulanLabel.split(' ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CHART 2: DALAM LEBAK */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-emerald-700 mb-6 text-center">Dibeli Dalam Lebak (Lokal)</h3>
+            <div className="h-48 sm:h-56 flex items-end justify-between gap-1 sm:gap-2">
+              {chartData.map((d, i) => {
+                const height = maxVolume > 0 ? (d.volumeDalam / maxVolume) * 100 : 0;
+                return (
+                  <div key={`dalam-${i}`} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-800 text-white text-xs font-bold px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10">
+                      {d.volumeDalam.toLocaleString('id-ID')} {d.satuan}
+                    </div>
+                    <div 
+                      className="w-full bg-emerald-500 rounded-t-sm group-hover:bg-emerald-600 transition-all duration-300 relative"
+                      style={{ height: `${Math.max(height, 0.5)}%` }}
+                    >
+                      {d.volumeDalam === 0 && <div className="absolute inset-0 bg-slate-100 rounded-t-sm border-t border-slate-200" />}
+                    </div>
+                    <div className="mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 text-center uppercase h-4">
+                      {d.bulanLabel.split(' ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CHART 3: LUAR LEBAK */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-rose-700 mb-6 text-center">Dibeli Dari Luar Lebak</h3>
+            <div className="h-48 sm:h-56 flex items-end justify-between gap-1 sm:gap-2">
+              {chartData.map((d, i) => {
+                const height = maxVolume > 0 ? (d.volumeLuar / maxVolume) * 100 : 0;
+                return (
+                  <div key={`luar-${i}`} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-rose-800 text-white text-xs font-bold px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10">
+                      {d.volumeLuar.toLocaleString('id-ID')} {d.satuan}
+                    </div>
+                    <div 
+                      className="w-full bg-rose-500 rounded-t-sm group-hover:bg-rose-600 transition-all duration-300 relative"
+                      style={{ height: `${Math.max(height, 0.5)}%` }}
+                    >
+                      {d.volumeLuar === 0 && <div className="absolute inset-0 bg-slate-100 rounded-t-sm border-t border-slate-200" />}
+                    </div>
+                    <div className="mt-2 text-[9px] sm:text-[10px] font-bold text-slate-500 text-center uppercase h-4">
+                      {d.bulanLabel.split(' ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
