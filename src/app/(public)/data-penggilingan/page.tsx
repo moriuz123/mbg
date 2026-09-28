@@ -134,7 +134,8 @@ export default async function PublicPenggilingan() {
     totalKapasitas,
     persenLokal,
     rataRendemen,
-    utilisasiMesin
+    utilisasiMesin,
+    sisaStokBerasPenggilingan: Math.max(0, totalBerasUtama - totalDistribusi)
   };
 
   return (
