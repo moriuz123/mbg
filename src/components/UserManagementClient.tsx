@@ -268,7 +268,7 @@ export default function UserManagementClient({
                 <th className="p-4 text-right pr-6">Aksi</th>
               </tr>
             </thead>
-            <tbody className="text-sm">
+            <tbody className="text-sm text-slate-900">
               {filteredUsers.map((user) => (
                 <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                   <td className="p-4 pl-6">
@@ -340,7 +340,7 @@ export default function UserManagementClient({
       
       {/* CREATE USER MODAL */}
       {isCreatingUser && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center p-6 border-b border-slate-100">
               <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
@@ -355,15 +355,15 @@ export default function UserManagementClient({
               <form id="createUserForm" onSubmit={handleCreateSubmit} className="space-y-5">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-700">Nama Lengkap</label>
-                  <input type="text" name="name" required placeholder="Contoh: Budi Santoso" className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-sm" />
+                  <input type="text" name="name" required placeholder="Contoh: Budi Santoso" className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-sm text-slate-900" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-700">Email Login</label>
-                  <input type="email" name="email" required placeholder="budi@lebak.go.id" className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-sm" />
+                  <input type="email" name="email" required placeholder="budi@lebak.go.id" className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-sm text-slate-900" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-700">Password Sementara</label>
-                  <input type="password" name="password" required placeholder="Minimal 8 karakter" className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-sm" minLength={8} />
+                  <input type="password" name="password" required placeholder="Minimal 8 karakter" className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-sm text-slate-900" minLength={8} />
                 </div>
                 
                 <div className="space-y-2">
@@ -372,7 +372,7 @@ export default function UserManagementClient({
                     name="role" 
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white font-semibold text-sm"
+                    className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white font-semibold text-sm text-slate-900 text-slate-900"
                   >
                     <option value="admin_dinas">Admin Dinas (Super Admin)</option>
                     <option value="operator_sppg">Operator SPPG (Dapur Sentral)</option>
@@ -386,7 +386,7 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_sekolah' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-emerald-700">Penugasan Sekolah</label>
-                    <select name="sekolahId" required className="w-full p-3.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 outline-none bg-emerald-50/30 text-sm font-medium">
+                    <select name="sekolahId" required className="w-full p-3.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 outline-none bg-emerald-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih Sekolah --</option>
                       {referenceData.sekolahList.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
                     </select>
@@ -396,7 +396,7 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_posyandu' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-rose-700">Penugasan Posyandu</label>
-                    <select name="posyanduId" required className="w-full p-3.5 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 outline-none bg-rose-50/30 text-sm font-medium">
+                    <select name="posyanduId" required className="w-full p-3.5 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 outline-none bg-rose-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih Posyandu --</option>
                       {referenceData.posyanduList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                     </select>
@@ -406,7 +406,7 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_penggilingan' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-amber-700">Penugasan Penggilingan</label>
-                    <select name="penggilinganId" required className="w-full p-3.5 rounded-xl border border-amber-200 focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50/30 text-sm font-medium">
+                    <select name="penggilinganId" required className="w-full p-3.5 rounded-xl border border-amber-200 focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih Penggilingan --</option>
                       {referenceData.penggilinganList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                     </select>
@@ -416,22 +416,21 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_sppg' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-sky-700">Penugasan SPPG</label>
-                    <select name="sppgId" required className="w-full p-3.5 rounded-xl border border-sky-200 focus:ring-2 focus:ring-sky-500 outline-none bg-sky-50/30 text-sm font-medium">
+                    <select name="sppgId" required className="w-full p-3.5 rounded-xl border border-sky-200 focus:ring-2 focus:ring-sky-500 outline-none bg-sky-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih SPPG --</option>
                       {referenceData.sppgList.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
                     </select>
                   </div>
                 )}
+                <div className="pt-4 mt-6 border-t border-slate-100 flex justify-end gap-3">
+                  <button type="button" onClick={() => setIsCreatingUser(false)} className="px-5 py-2.5 text-slate-600 font-semibold text-xs hover:bg-slate-200 rounded-xl transition-colors">
+                    Batal
+                  </button>
+                  <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-indigo-600/30">
+                    <Save size={16} /> {isSubmitting ? 'Memproses...' : 'Buat Pengguna'}
+                  </button>
+                </div>
               </form>
-            </div>
-            
-            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
-              <button type="button" onClick={() => setIsCreatingUser(false)} className="px-5 py-2.5 text-slate-600 font-semibold text-xs hover:bg-slate-200 rounded-xl transition-colors">
-                Batal
-              </button>
-              <button type="submit" form="createUserForm" disabled={isSubmitting} className="px-5 py-2.5 bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-indigo-600/30">
-                <Save size={16} /> {isSubmitting ? 'Memproses...' : 'Buat Pengguna'}
-              </button>
             </div>
           </div>
         </div>
@@ -439,7 +438,7 @@ export default function UserManagementClient({
 
       {/* EDIT MODAL */}
       {activeUser && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center p-6 border-b border-slate-100">
               <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
@@ -468,7 +467,7 @@ export default function UserManagementClient({
                     name="role" 
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white font-semibold text-sm"
+                    className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white font-semibold text-sm text-slate-900 text-slate-900"
                   >
                     <option value="admin_dinas">Admin Dinas (Super Admin)</option>
                     <option value="operator_sppg">Operator SPPG (Dapur Sentral)</option>
@@ -482,7 +481,7 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_sekolah' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-emerald-700">Penugasan Sekolah</label>
-                    <select name="sekolahId" required defaultValue={activeUser.sekolahId || ''} className="w-full p-3.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 outline-none bg-emerald-50/30 text-sm font-medium">
+                    <select name="sekolahId" required defaultValue={activeUser.sekolahId || ''} className="w-full p-3.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 outline-none bg-emerald-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih Sekolah --</option>
                       {referenceData.sekolahList.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
                     </select>
@@ -495,7 +494,7 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_posyandu' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-rose-700">Penugasan Posyandu</label>
-                    <select name="posyanduId" required defaultValue={activeUser.posyanduId || ''} className="w-full p-3.5 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 outline-none bg-rose-50/30 text-sm font-medium">
+                    <select name="posyanduId" required defaultValue={activeUser.posyanduId || ''} className="w-full p-3.5 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 outline-none bg-rose-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih Posyandu --</option>
                       {referenceData.posyanduList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                     </select>
@@ -508,7 +507,7 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_penggilingan' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-amber-700">Penugasan Penggilingan</label>
-                    <select name="penggilinganId" required defaultValue={activeUser.penggilinganId || ''} className="w-full p-3.5 rounded-xl border border-amber-200 focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50/30 text-sm font-medium">
+                    <select name="penggilinganId" required defaultValue={activeUser.penggilinganId || ''} className="w-full p-3.5 rounded-xl border border-amber-200 focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih Penggilingan --</option>
                       {referenceData.penggilinganList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                     </select>
@@ -518,23 +517,22 @@ export default function UserManagementClient({
                 {selectedRole === 'operator_sppg' && (
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-xs font-bold text-sky-700">Penugasan SPPG</label>
-                    <select name="sppgId" required defaultValue={activeUser.sppgId || ''} className="w-full p-3.5 rounded-xl border border-sky-200 focus:ring-2 focus:ring-sky-500 outline-none bg-sky-50/30 text-sm font-medium">
+                    <select name="sppgId" required defaultValue={activeUser.sppgId || ''} className="w-full p-3.5 rounded-xl border border-sky-200 focus:ring-2 focus:ring-sky-500 outline-none bg-sky-50/30 text-sm font-medium text-slate-900">
                       <option value="">-- Pilih SPPG --</option>
                       {referenceData.sppgList.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
                     </select>
                   </div>
                 )}
 
+                <div className="pt-4 mt-6 border-t border-slate-100 flex justify-end gap-3">
+                  <button type="button" onClick={() => setActiveUser(null)} className="px-5 py-2.5 text-slate-600 font-semibold text-xs hover:bg-slate-200 rounded-xl transition-colors">
+                    Batal
+                  </button>
+                  <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-indigo-600/30">
+                    <Save size={16} /> {isSubmitting ? 'Menyimpan...' : 'Simpan Hak Akses'}
+                  </button>
+                </div>
               </form>
-            </div>
-            
-            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
-              <button type="button" onClick={() => setActiveUser(null)} className="px-5 py-2.5 text-slate-600 font-semibold text-xs hover:bg-slate-200 rounded-xl transition-colors">
-                Batal
-              </button>
-              <button type="submit" form="roleForm" disabled={isSubmitting} className="px-5 py-2.5 bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-indigo-600/30">
-                <Save size={16} /> {isSubmitting ? 'Menyimpan...' : 'Simpan Hak Akses'}
-              </button>
             </div>
           </div>
         </div>
