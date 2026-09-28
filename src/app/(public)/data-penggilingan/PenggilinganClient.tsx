@@ -24,6 +24,41 @@ type MacroStats = {
   sisaStokBerasPenggilingan?: number;
 };
 
+// Helper untuk menyamarkan (masking) nama penanggung jawab (misal: "Budi Santoso" -> "Bu** San****")
+const maskName = (name: string | null | undefined): string => {
+  if (!name || name === '-') return '-';
+  return name
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      if (word.length <= 2) return word.slice(0, 1) + '*';
+      const visible = Math.min(2, Math.floor(word.length / 2));
+      return word.slice(0, visible) + '*'.repeat(Math.max(2, word.length - visible));
+    })
+    .join(' ');
+};
+
+// Helper untuk menyamarkan nomor kontak telepon (misal: "081234567890" -> "0812-****-7890")
+const maskPhone = (phone: string | null | undefined): string => {
+  if (!phone || phone === '-') return '-';
+  const clean = phone.trim();
+  if (clean.length < 8) return clean.slice(0, 2) + '****';
+  const prefix = clean.slice(0, 4);
+  const suffix = clean.slice(-4);
+  return `${prefix}-****-${suffix}`;
+};
+
+// Helper untuk menyamarkan nomor perizinan (NIB, PDUK, OSS, UMKU) secara proporsional (~50% bintang di tengah)
+const maskLicenseNumber = (num: string | null | undefined): string => {
+  if (!num || num === '-') return '-';
+  const str = String(num).trim();
+  if (str.length <= 4) return str.slice(0, 1) + '***';
+  const frontLen = Math.max(3, Math.floor(str.length * 0.25));
+  const backLen = Math.max(2, Math.floor(str.length * 0.25));
+  const maskLen = Math.max(4, str.length - frontLen - backLen);
+  return str.slice(0, frontLen) + '*'.repeat(maskLen) + str.slice(-backLen);
+};
+
 export default function PenggilinganClient({ gabahData, distribusiData, macroStats, pabrikList = [], filterOptions = { kecamatans: [], desas: [], kategoris: [] }, isHomepage = false }: { gabahData: MonthlyData[], distribusiData: MonthlyData[], macroStats: MacroStats, pabrikList?: any[], filterOptions?: any, isHomepage?: boolean }) {
   const [mainTab, setMainTab] = useState('dashboard');
   const [activeTab, setActiveTab] = useState('gabah');
@@ -552,11 +587,11 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Penanggung Jawab</span>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9375rem' }}>{selectedPabrik.penanggungJawab || '-'}</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9375rem', fontFamily: 'inherit' }}>{maskName(selectedPabrik.penanggungJawab)}</span>
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Kontak (No. HP)</span>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9375rem' }}>{selectedPabrik.noHp || '-'}</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9375rem', fontFamily: 'monospace' }}>{maskPhone(selectedPabrik.noHp)}</span>
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Alamat Pabrik</span>
@@ -601,7 +636,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
                 )}
               </div>
 
-              {/* Section 3: Legalitas & Perizinan */}
+              {/* Section 3: Legalitas & Perizinan (Disamarkan / Masked) */}
               <div style={{ backgroundColor: '#f8fafc', padding: '1.25rem', borderRadius: '0.875rem', border: '1px solid #e2e8f0' }}>
                 <h4 style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                   <ShieldCheck size={15} className="text-amber-600" /> Perizinan & Legalitas (PDUK / OSS)
@@ -609,11 +644,11 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.875rem' }}>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Nomor Induk Berusaha (NIB)</span>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.nib || '-'}</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem', fontFamily: 'monospace' }}>{maskLicenseNumber(selectedPabrik.nib)}</span>
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Nomor Izin PDUK</span>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.nomorRegistrasiPduk || '-'}</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem', fontFamily: 'monospace' }}>{maskLicenseNumber(selectedPabrik.nomorRegistrasiPduk)}</span>
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Status Izin PDUK</span>
@@ -625,11 +660,11 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>No. Permohonan OSS</span>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.noPermohonanOss || '-'}</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem', fontFamily: 'monospace' }}>{maskLicenseNumber(selectedPabrik.noPermohonanOss)}</span>
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Nomor UMKU</span>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.nomorUmku || '-'}</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem', fontFamily: 'monospace' }}>{maskLicenseNumber(selectedPabrik.nomorUmku)}</span>
                   </div>
                 </div>
               </div>
