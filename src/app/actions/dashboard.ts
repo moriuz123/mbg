@@ -10,7 +10,12 @@ export async function getDashboardStats() {
 
   // 2. Total Siswa (Dari Master Sekolah)
   const siswaRes = await db.execute(sql`
-    SELECT SUM(jumlah_siswa_laki + jumlah_siswa_perempuan) as total_siswa 
+    SELECT SUM(
+      CASE 
+        WHEN jumlah_siswa_total IS NOT NULL AND jumlah_siswa_total > 0 THEN jumlah_siswa_total
+        ELSE COALESCE(jumlah_siswa_laki, 0) + COALESCE(jumlah_siswa_perempuan, 0)
+      END
+    ) as total_siswa 
     FROM sekolah
   `);
   const totalSiswa = parseInt(siswaRes[0]?.total_siswa as string) || 0;
