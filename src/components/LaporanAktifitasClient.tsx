@@ -302,6 +302,9 @@ export default function LaporanAktifitasClient({
                         <option key={s.id} value={s.id}>{s.nama}</option>
                       ))}
                     </select>
+                    {dropdownData.sekolahList.length === 0 && (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">Belum ada sekolah yang ditugaskan ke SPPG ini.</p>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-1">
@@ -312,6 +315,9 @@ export default function LaporanAktifitasClient({
                         <option key={s.id} value={s.id}>{s.nama}</option>
                       ))}
                     </select>
+                    {dropdownData.posyanduList.length === 0 && (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">Belum ada posyandu yang ditugaskan ke SPPG ini.</p>
+                    )}
                   </div>
                 )}
 

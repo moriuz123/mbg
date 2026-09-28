@@ -360,6 +360,9 @@ export default function UserManagementClient({
                       <option value="">-- Pilih Sekolah --</option>
                       {referenceData.sekolahList.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
                     </select>
+                    {referenceData.sekolahList.length === 0 && (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">Belum ada sekolah terdaftar di master data.</p>
+                    )}
                   </div>
                 )}
 
@@ -370,6 +373,9 @@ export default function UserManagementClient({
                       <option value="">-- Pilih Posyandu --</option>
                       {referenceData.posyanduList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                     </select>
+                    {referenceData.posyanduList.length === 0 && (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">Belum ada posyandu terdaftar di master data.</p>
+                    )}
                   </div>
                 )}
 
