@@ -299,42 +299,21 @@ export default async function Public({
             <p className="text-lg text-slate-500 font-medium">Pemantauan distribusi bahan pangan segar secara real-time dari mitra pemasok lokal ke seluruh Dapur SPPG.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3 mb-10">
-            {/* Single Card Stok Beras */}
-            <div className="md:col-span-3 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-l-[#071840]">
-              <div className="flex items-center gap-5 w-full md:w-auto">
-                <div className="w-16 h-16 rounded-2xl bg-[#071840] text-white flex items-center justify-center flex-shrink-0 shadow-inner">
-                  <Package size={28} className="text-accent-500" />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
+            {/* 1. Sisa Stok Beras Card */}
+            <div className="bg-gradient-to-br from-[#071840] to-[#0a2463] rounded-2xl p-5 border-t-4 border-t-accent-500 shadow-sm flex flex-col justify-center">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 rounded-full bg-white/10 text-accent-500 flex items-center justify-center flex-shrink-0">
+                  <Package size={22} />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Sisa Stok Beras</div>
-                  <div className="text-3xl font-black text-[#071840]">{totalSisaStokBeras.toLocaleString('id-ID')} <span className="text-base font-semibold text-slate-400">Kg</span></div>
+                  <div className="text-[10px] font-bold text-white/70 uppercase tracking-wider mb-1">Sisa Stok Beras</div>
+                  <div className="text-xl font-black text-white leading-none">{totalSisaStokBeras.toLocaleString('id-ID')} <span className="text-xs font-medium text-white/50">Kg</span></div>
                 </div>
               </div>
-
-              <div className="hidden md:block w-px h-16 bg-slate-200"></div>
-              <div className="md:hidden w-full h-px bg-slate-100 my-2"></div>
-
-              <div className="flex flex-col sm:flex-row gap-8 w-full md:w-auto justify-around">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                    <Factory size={20} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sisa di Penggilingan</div>
-                    <div className="text-xl font-bold text-slate-800">{sisaStokBerasPenggilingan.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-                    <Utensils size={20} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sisa di Dapur SPPG</div>
-                    <div className="text-xl font-bold text-slate-800">{sisaStokBerasSppg.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></div>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center text-[9px] text-white/70 font-semibold pt-2 border-t border-white/10">
+                <span>Hulu: {sisaStokBerasPenggilingan.toLocaleString('id-ID')}</span>
+                <span>Hilir: {sisaStokBerasSppg.toLocaleString('id-ID')}</span>
               </div>
             </div>
             
