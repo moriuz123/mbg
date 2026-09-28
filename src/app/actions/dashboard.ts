@@ -133,9 +133,9 @@ export async function getDashboardStats() {
     sisaStokBerasPenggilingan = prod - dist;
 
     // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
+    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
     if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.id).join(',');
+      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
       const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       
@@ -291,9 +291,9 @@ export async function getSppgDashboardStats(sppgId: number) {
     sisaStokBerasPenggilingan = prod - dist;
 
     // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
+    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
     if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.id).join(',');
+      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
       const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       
@@ -380,9 +380,9 @@ export async function getSekolahDashboardStats(sekolahId: number) {
     sisaStokBerasPenggilingan = prod - dist;
 
     // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
+    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
     if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.id).join(',');
+      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
       const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       
@@ -473,9 +473,9 @@ export async function getPosyanduDashboardStats(posyanduId: number) {
     sisaStokBerasPenggilingan = prod - dist;
 
     // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
+    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
     if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.id).join(',');
+      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
       const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       
@@ -611,9 +611,9 @@ export async function getPenggilinganDashboardStats(penggilinganId: number) {
     sisaStokBerasPenggilingan = prod - dist;
 
     // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
+    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
     if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.id).join(',');
+      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
       const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       
@@ -653,9 +653,9 @@ export async function getPenggilinganDashboardStats(penggilinganId: number) {
     sisaStokBerasPenggilingan = prod - dist;
 
     // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
+    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
     if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.id).join(',');
+      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
       const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
       
