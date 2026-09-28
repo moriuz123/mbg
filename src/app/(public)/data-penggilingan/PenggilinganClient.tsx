@@ -52,6 +52,11 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
     const matchDesa = filterDesa ? p.desaId === parseInt(filterDesa) : true;
     const matchStatus = filterStatus ? p.status === filterStatus : true;
     return matchSearch && matchKecamatan && matchDesa && matchStatus;
+  }).sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    if (dateB !== dateA) return dateB - dateA;
+    return (b.id || 0) - (a.id || 0);
   });
 
   // Pagination Logic

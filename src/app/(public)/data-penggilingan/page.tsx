@@ -25,7 +25,8 @@ export default async function PublicPenggilingan() {
     distribusis = await db.query.penggilinganDistribusi.findMany();
     produksis = await db.query.penggilinganProduksi.findMany();
     pabriks = await db.query.penggilingan.findMany({
-      with: { kecamatan: true, desa: true }
+      with: { kecamatan: true, desa: true },
+      orderBy: (penggilingan, { desc }) => [desc(penggilingan.createdAt), desc(penggilingan.id)]
     });
     filterOptions = await getFilterOptions();
 
