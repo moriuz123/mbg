@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { sppgLaporanAktifitas, standarMenuGizi, sekolah, posyandu, sppg, sppgPenerimaManfaat, sppgPosyanduManfaat } from '@/db/schema';
+import { user, sppgLaporanAktifitas, standarMenuGizi, sekolah, posyandu, sppg, sppgPenerimaManfaat, sppgPosyanduManfaat } from '@/db/schema';
 import { revalidatePath } from 'next/cache';
 import { eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
