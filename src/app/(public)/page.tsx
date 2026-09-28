@@ -301,17 +301,17 @@ export default async function Public({
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
             {/* 1. Sisa Stok Beras Card */}
-            <div className="bg-gradient-to-br from-[#071840] to-[#0a2463] rounded-2xl p-5 border-t-4 border-t-accent-500 shadow-sm flex flex-col justify-center">
+            <div className="bg-white rounded-2xl p-5 border border-slate-200 border-t-4 border-t-indigo-500 shadow-sm flex flex-col justify-center">
               <div className="flex items-center gap-4 mb-3">
-                <div className="w-12 h-12 rounded-full bg-white/10 text-accent-500 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
                   <Package size={22} />
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-white/70 uppercase tracking-wider mb-1">Sisa Stok Beras</div>
-                  <div className="text-xl font-black text-white leading-none">{totalSisaStokBeras.toLocaleString('id-ID')} <span className="text-xs font-medium text-white/50">Kg</span></div>
+                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sisa Stok Beras</div>
+                  <div className="text-xl font-black text-slate-800 leading-none">{totalSisaStokBeras.toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-500">Kg</span></div>
                 </div>
               </div>
-              <div className="flex justify-between items-center text-[9px] text-white/70 font-semibold pt-2 border-t border-white/10">
+              <div className="flex justify-between items-center text-[9px] text-slate-500 font-bold pt-2 border-t border-slate-100">
                 <span>Hulu: {sisaStokBerasPenggilingan.toLocaleString('id-ID')}</span>
                 <span>Hilir: {sisaStokBerasSppg.toLocaleString('id-ID')}</span>
               </div>
