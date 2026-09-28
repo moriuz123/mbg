@@ -21,6 +21,7 @@ type MacroStats = {
   persenLokal: string;
   rataRendemen: string;
   utilisasiMesin: string;
+  sisaStokBerasPenggilingan?: number;
 };
 
 export default function PenggilinganClient({ gabahData, distribusiData, macroStats, pabrikList = [], filterOptions = { kecamatans: [], desas: [], kategoris: [] }, isHomepage = false }: { gabahData: MonthlyData[], distribusiData: MonthlyData[], macroStats: MacroStats, pabrikList?: any[], filterOptions?: any, isHomepage?: boolean }) {
