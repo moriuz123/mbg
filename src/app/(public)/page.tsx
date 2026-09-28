@@ -14,6 +14,7 @@ import { getSiteSettings, getPengumumanAktif } from '@/app/actions/frontend';
 import LaporanHarianClient from '@/components/LaporanHarianClient';
 import AnimatedStats from '@/components/AnimatedStats';
 import PengumumanBadgeClient from '@/components/PengumumanBadgeClient';
+import StokBerasCard from '@/components/StokBerasCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -115,6 +116,29 @@ export default async function Public({
     periode: bulan,
     volume: volume
   }));
+
+  
+  // Data Beras SPPG
+  let totalBerasMasukSppg = 0;
+  let totalBerasKeluarSppg = 0;
+  try {
+    const { jenisPangan, sppgPembelianBahan, sppgPemakaianBahan } = await import("@/db/schema");
+    const { ilike, inArray, sum } = await import("drizzle-orm");
+    const berasRows = await db.select({ id: jenisPangan.id }).from(jenisPangan).where(ilike(jenisPangan.nama, '%beras%'));
+    const berasIds = berasRows.map(r => r.id);
+    
+    if (berasIds.length > 0) {
+      const beli = await db.select({ total: sum(sppgPembelianBahan.volume) }).from(sppgPembelianBahan).where(inArray(sppgPembelianBahan.jenisPanganId, berasIds));
+      totalBerasMasukSppg = Number(beli[0]?.total || 0);
+      
+      const pakai = await db.select({ total: sum(sppgPemakaianBahan.volume) }).from(sppgPemakaianBahan).where(inArray(sppgPemakaianBahan.jenisPanganId, berasIds));
+      totalBerasKeluarSppg = Number(pakai[0]?.total || 0);
+    }
+  } catch (e) {}
+
+  const sisaStokBerasSppg = totalBerasMasukSppg - totalBerasKeluarSppg;
+  const sisaStokBerasPenggilingan = totalBerasUtama - totalDistribusi;
+  const totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
 
   const macroStats = {
     totalGabah,
@@ -243,6 +267,13 @@ export default async function Public({
             <div className="w-20 h-1.5 bg-primary-500 mx-auto rounded-full"></div>
           </div>
           <AnimatedStats stats={stats} supplyChainStats={supplyChainStats} />
+          
+          {/* KARTU STOK BERAS */}
+          <StokBerasCard 
+            totalStok={totalSisaStokBeras}
+            stokPenggilingan={sisaStokBerasPenggilingan}
+            stokSppg={sisaStokBerasSppg}
+          />
         </div>
       </section>
 
