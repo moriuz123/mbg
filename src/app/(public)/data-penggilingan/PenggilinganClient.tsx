@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Wheat, Factory, Warehouse, Settings, TrendingUp, Percent, MapPin, Search, XCircle, Package } from 'lucide-react';
+import { Wheat, Factory, Warehouse, Settings, TrendingUp, Percent, MapPin, Search, XCircle, Package, Users, Phone, ShieldCheck, X, ChevronRight, Award } from 'lucide-react';
 
 type MonthlyData = {
   id: number;
@@ -28,6 +28,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
   const [mainTab, setMainTab] = useState('dashboard');
   const [activeTab, setActiveTab] = useState('gabah');
   const [searchPabrik, setSearchPabrik] = useState('');
+  const [selectedPabrik, setSelectedPabrik] = useState<any | null>(null);
   
   const [filterKecamatan, setFilterKecamatan] = useState('');
   const [filterDesa, setFilterDesa] = useState('');
@@ -428,6 +429,16 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
                     </div>
                   </div>
                 </div>
+
+                {/* Button Lihat Profil Lengkap */}
+                <div className="mt-4 md:mt-0 md:ml-6 flex items-center shrink-0 border-t md:border-t-0 pt-3 md:pt-0">
+                  <button
+                    onClick={() => setSelectedPabrik(pabrik)}
+                    className="w-full md:w-auto px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    Lihat Profil Lengkap <ChevronRight size={14} />
+                  </button>
+                </div>
               </div>
             ))}
             
@@ -470,6 +481,170 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* MODAL PROFIL LENGKAP PENGGILINGAN */}
+      {selectedPabrik && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setSelectedPabrik(null)} 
+          style={{ 
+            position: 'fixed', 
+            inset: 0, 
+            backgroundColor: 'rgba(15, 23, 42, 0.6)', 
+            backdropFilter: 'blur(4px)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            zIndex: 1000, 
+            padding: '1rem' 
+          }}
+        >
+          <div 
+            className="modal-content bg-white" 
+            onClick={e => e.stopPropagation()} 
+            style={{ 
+              backgroundColor: '#ffffff',
+              maxWidth: '680px', 
+              width: '100%',
+              maxHeight: '90vh', 
+              overflowY: 'auto', 
+              padding: '1.75rem', 
+              borderRadius: '1.25rem',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <span className={`badge ${selectedPabrik.status === 'Aktif' ? 'badge-success' : 'badge-warning'}`}>
+                    {selectedPabrik.status || 'Aktif'}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+                    ID: RMU-{String(selectedPabrik.id).padStart(3, '0')}
+                  </span>
+                </div>
+                <h2 style={{ fontSize: '1.375rem', fontWeight: 800, color: '#1e293b', margin: 0, lineHeight: 1.25 }}>
+                  {selectedPabrik.namaPenggilingan}
+                </h2>
+                {selectedPabrik.namaDagang && (
+                  <p style={{ fontSize: '0.875rem', color: '#4f46e5', fontWeight: 600, margin: '0.25rem 0 0' }}>
+                    Merek Dagang: {selectedPabrik.namaDagang}
+                  </p>
+                )}
+              </div>
+              <button 
+                onClick={() => setSelectedPabrik(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '0.25rem', borderRadius: '0.5rem' }}
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {/* Section 1: Informasi Kontak & Lokasi */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '1.25rem', borderRadius: '0.875rem', border: '1px solid #e2e8f0' }}>
+                <h4 style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <Users size={15} className="text-indigo-600" /> Informasi Dasar & Lokasi
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Penanggung Jawab</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9375rem' }}>{selectedPabrik.penanggungJawab || '-'}</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Kontak (No. HP)</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9375rem' }}>{selectedPabrik.noHp || '-'}</span>
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Alamat Pabrik</span>
+                    <span style={{ fontWeight: 600, color: '#334155', fontSize: '0.875rem', display: 'flex', alignItems: 'flex-start', gap: '0.25rem', marginTop: '0.25rem' }}>
+                      <MapPin size={16} className="text-indigo-500 shrink-0 mt-0.5" />
+                      <span>
+                        {selectedPabrik.alamat ? `${selectedPabrik.alamat}, ` : ''}
+                        {selectedPabrik.desa?.namaDesa ? `Desa ${selectedPabrik.desa.namaDesa}, ` : ''}
+                        {selectedPabrik.kecamatan?.namaKecamatan ? `Kec. ${selectedPabrik.kecamatan.namaKecamatan}` : ''}
+                        {!selectedPabrik.alamat && !selectedPabrik.desa && !selectedPabrik.kecamatan ? 'Alamat belum dilengkapi' : ''}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Kapasitas & Stok */}
+              <div style={{ backgroundColor: '#ecfdf5', padding: '1.25rem', borderRadius: '0.875rem', border: '1px solid #a7f3d0' }}>
+                <h4 style={{ fontSize: '0.8125rem', color: '#065f46', marginBottom: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <Warehouse size={15} className="text-emerald-600" /> Kapasitas & Stok Beras
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                  <div style={{ backgroundColor: '#ffffff', padding: '0.875rem', borderRadius: '0.625rem', border: '1px solid #d1fae5' }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#047857', fontWeight: 600 }}>Sisa Stok Beras Saat Ini</span>
+                    <span style={{ fontWeight: 900, color: '#065f46', fontSize: '1.25rem', display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.25rem' }}>
+                      {Number(selectedPabrik.sisaStokBeras || 0).toLocaleString('id-ID')}
+                      <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#059669' }}>Kg</span>
+                    </span>
+                  </div>
+                  <div style={{ backgroundColor: '#ffffff', padding: '0.875rem', borderRadius: '0.625rem', border: '1px solid #d1fae5' }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#047857', fontWeight: 600 }}>Kapasitas Produksi</span>
+                    <span style={{ fontWeight: 900, color: '#065f46', fontSize: '1.25rem', display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.25rem' }}>
+                      {Number(selectedPabrik.kapasitasTerpasangKgMinggu || 0).toLocaleString('id-ID')}
+                      <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#059669' }}>Kg/Mg</span>
+                    </span>
+                  </div>
+                </div>
+                {selectedPabrik.namaUnitProduksi && (
+                  <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #d1fae5', fontSize: '0.8125rem', color: '#065f46' }}>
+                    Unit Produksi: <strong>{selectedPabrik.namaUnitProduksi}</strong>
+                  </div>
+                )}
+              </div>
+
+              {/* Section 3: Legalitas & Perizinan */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '1.25rem', borderRadius: '0.875rem', border: '1px solid #e2e8f0' }}>
+                <h4 style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <ShieldCheck size={15} className="text-amber-600" /> Perizinan & Legalitas (PDUK / OSS)
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.875rem' }}>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Nomor Induk Berusaha (NIB)</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.nib || '-'}</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Nomor Izin PDUK</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.nomorRegistrasiPduk || '-'}</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Status Izin PDUK</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.statusPduk || '-'}</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Masa Berlaku PDUK</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.berlakuSampaiPduk || '-'}</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>No. Permohonan OSS</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.noPermohonanOss || '-'}</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Nomor UMKU</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.875rem' }}>{selectedPabrik.nomorUmku || '-'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+              <button 
+                onClick={() => setSelectedPabrik(null)}
+                style={{ padding: '0.625rem 1.5rem', backgroundColor: '#f1f5f9', color: '#475569', borderRadius: '0.75rem', fontWeight: 700, fontSize: '0.875rem', border: '1px solid #cbd5e1', cursor: 'pointer' }}
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>
