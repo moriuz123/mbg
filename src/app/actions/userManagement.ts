@@ -1,7 +1,9 @@
 'use server';
 
 import { db } from '@/db';
-import { user, sekolah, posyandu, penggilingan, sppg } from '@/db/schema';
+import { user, account, sekolah, posyandu, penggilingan, sppg } from '@/db/schema';
+import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 import { eq, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
@@ -45,6 +47,65 @@ export async function getReferenceData() {
   const sppgList = await db.select({ id: sppg.id, nama: sppg.namaSppg }).from(sppg);
 
   return { sekolahList, posyanduList, penggilinganList, sppgList };
+}
+
+
+
+
+export async function createUserByAdmin(formData: FormData) {
+  try {
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const role = formData.get('role') as string;
+    const sekolahId = formData.get('sekolahId') ? parseInt(formData.get('sekolahId') as string) : null;
+    const posyanduId = formData.get('posyanduId') ? parseInt(formData.get('posyanduId') as string) : null;
+    const penggilinganId = formData.get('penggilinganId') ? parseInt(formData.get('penggilinganId') as string) : null;
+    const sppgId = formData.get('sppgId') ? parseInt(formData.get('sppgId') as string) : null;
+
+    if (!name || !email || !password || !role) {
+      return { success: false, message: 'Data tidak lengkap' };
+    }
+
+    // Check if email exists
+    const existing = await db.select({ id: user.id }).from(user).where(eq(user.email, email));
+    if (existing.length > 0) {
+      return { success: false, message: 'Email sudah terdaftar' };
+    }
+
+    const newUserId = uuidv4();
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert user
+    await db.insert(user).values({
+      id: newUserId,
+      name,
+      email,
+      role,
+      emailVerified: true,
+      sekolahId: role === 'operator_sekolah' ? sekolahId : null,
+      posyanduId: role === 'operator_posyandu' ? posyanduId : null,
+      penggilinganId: role === 'operator_penggilingan' ? penggilinganId : null,
+      sppgId: role === 'operator_sppg' ? sppgId : null,
+    });
+
+    // Insert account for better-auth
+    await db.insert(account).values({
+      id: uuidv4(),
+      userId: newUserId,
+      providerId: 'credential',
+      accountId: email,
+      password: hashedPassword,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    revalidatePath('/admin/manajemen-user');
+    return { success: true, message: 'Pengguna berhasil dibuat' };
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return { success: false, message: 'Gagal membuat pengguna baru' };
+  }
 }
 
 export async function updateUserRole(formData: FormData) {

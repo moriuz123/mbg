@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Map, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X } from 'lucide-react';
+import { Home, Map, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { LogoutButtonSidebar } from './LogoutButton';
 
@@ -203,6 +203,18 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
             </div>
           )}
         </div>
+
+
+          {/* Menu Pengaturan Akun (For all logged in users) */}
+          <div className="pt-4 mt-4 border-t border-slate-100">
+            <NavItem 
+              href="/admin/pengaturan-akun" 
+              icon={Settings} 
+              isActive={pathname?.startsWith('/admin/pengaturan-akun')}
+            >
+              Pengaturan Akun
+            </NavItem>
+          </div>
 
         {/* Footer / Logout */}
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
