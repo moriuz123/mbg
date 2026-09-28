@@ -123,7 +123,7 @@ export default async function Public({
   try {
     const { jenisPangan, sppgPembelianBahan, sppgPemakaianBahan } = await import("@/db/schema");
     const { ilike, inArray, sum } = await import("drizzle-orm");
-    const berasRows = await db.select({ id: jenisPangan.id }).from(jenisPangan).where(ilike(jenisPangan.nama, '%beras%'));
+    const berasRows = await db.select({ id: jenisPangan.id }).from(jenisPangan).where(ilike(jenisPangan.namaBahan, '%beras%'));
     const berasIds = berasRows.map(r => r.id);
     
     if (berasIds.length > 0) {
