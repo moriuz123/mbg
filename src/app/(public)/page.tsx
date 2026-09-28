@@ -150,7 +150,8 @@ export default async function Public({
     totalKapasitas,
     persenLokal,
     rataRendemen,
-    utilisasiMesin
+    utilisasiMesin,
+    sisaStokBerasPenggilingan
   };
   const laporanHarian = await getPublicLaporanHarian(dateStr);
   const settings = await getSiteSettings();

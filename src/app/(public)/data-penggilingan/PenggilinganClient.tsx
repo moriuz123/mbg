@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Wheat, Factory, Warehouse, Settings, TrendingUp, Percent, MapPin, Search, XCircle } from 'lucide-react';
+import { Wheat, Factory, Warehouse, Settings, TrendingUp, Percent, MapPin, Search, XCircle, Package } from 'lucide-react';
 
 type MonthlyData = {
   id: number;
@@ -110,7 +110,7 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
 
       {mainTab === 'dashboard' && (
         <div className="animate-fade-in">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         <div className="card glass-panel border-t-4 border-t-sky-500 flex items-center gap-4 p-4 shadow-sm">
           <div style={{ padding: '0.75rem', background: '#e0f2fe', color: '#0369a1', borderRadius: '50%' }}>
             <MapPin size={24} />
@@ -163,6 +163,16 @@ export default function PenggilinganClient({ gabahData, distribusiData, macroSta
             <div className={`text-[10px] font-bold mt-1 inline-block px-1.5 py-0.5 rounded border ${utilStatus.bg} ${utilStatus.color} ${utilStatus.border}`}>
               Status: {utilStatus.text}
             </div>
+          </div>
+        </div>
+
+        <div className="card glass-panel border-t-4 border-t-pink-500 flex items-center gap-4 p-4 shadow-sm">
+          <div style={{ padding: '0.75rem', background: '#fce7f3', color: '#be185d', borderRadius: '50%' }}>
+            <Package size={24} />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-slate-500 uppercase">Sisa Stok Beras (All)</div>
+            <div className="text-2xl font-black text-slate-800">{macroStats.sisaStokBerasPenggilingan?.toLocaleString('id-ID') || 0} <span style={{ fontSize: '1rem', fontWeight: 500 }}>Kg</span></div>
           </div>
         </div>
       </div>
