@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import {
   Users, Edit2, Shield, X, Save, Search, Filter,
-  CheckCircle2, ShieldAlert, UserPlus, Mail, Lock, User,
+  CheckCircle2, ShieldAlert, UserPlus, AtSign, Lock, User,
   Building2, GraduationCap, HeartPulse, Factory, Utensils,
   ShieldCheck, ChevronDown, Eye, EyeOff
 } from 'lucide-react';
@@ -291,7 +291,7 @@ export default function UserManagementClient({
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-800">{u.name}</p>
-                        <p className="text-xs text-slate-500">{u.email}</p>
+                        <p className="text-xs text-slate-500">{u.username ? `@${u.username}` : u.email}</p>
                       </div>
                     </div>
                   </td>
@@ -342,11 +342,12 @@ export default function UserManagementClient({
             </div>
 
             <div style={S.row}>
-              <label style={S.label}>Email Login</label>
+              <label style={S.label}>Username Login</label>
               <div style={{ position:'relative' }}>
-                <Mail size={14} style={S.icon} />
-                <input name="email" type="email" required placeholder="budi@lebak.go.id" style={S.inputPL} />
+                <AtSign size={14} style={S.icon} />
+                <input name="username" type="text" required placeholder="budi_sppg1" pattern="[a-z0-9_]+" title="Hanya huruf kecil, angka, dan underscore" style={S.inputPL} />
               </div>
+              <p style={{ fontSize:'11px', color:'#94a3b8', marginTop:'4px' }}>Hanya huruf kecil, angka, dan underscore (contoh: budi_sppg1)</p>
             </div>
 
             <div style={S.row}>

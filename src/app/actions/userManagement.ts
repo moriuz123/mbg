@@ -55,7 +55,7 @@ export async function getReferenceData() {
 export async function createUserByAdmin(formData: FormData) {
   try {
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
+    const username = (formData.get('username') as string)?.trim().toLowerCase();
     const password = formData.get('password') as string;
     const role = formData.get('role') as string;
     const sekolahId = formData.get('sekolahId') ? parseInt(formData.get('sekolahId') as string) : null;
@@ -63,24 +63,30 @@ export async function createUserByAdmin(formData: FormData) {
     const penggilinganId = formData.get('penggilinganId') ? parseInt(formData.get('penggilinganId') as string) : null;
     const sppgId = formData.get('sppgId') ? parseInt(formData.get('sppgId') as string) : null;
 
-    if (!name || !email || !password || !role) {
+    if (!name || !username || !password || !role) {
       return { success: false, message: 'Data tidak lengkap' };
     }
 
-    // Check if email exists
-    const existing = await db.select({ id: user.id }).from(user).where(eq(user.email, email));
+    if (!/^[a-z0-9_]+$/.test(username)) {
+      return { success: false, message: 'Username hanya boleh huruf kecil, angka, dan underscore' };
+    }
+
+    // Check if username exists
+    const existing = await db.select({ id: user.id }).from(user).where(eq(user.username, username));
     if (existing.length > 0) {
-      return { success: false, message: 'Email sudah terdaftar' };
+      return { success: false, message: 'Username sudah digunakan' };
     }
 
     const newUserId = uuidv4();
     const hashedPassword = await bcrypt.hash(password, 10);
+    const dummyEmail = `${username}@internal.mbg.local`;
 
-    // Insert user
     await db.insert(user).values({
       id: newUserId,
       name,
-      email,
+      email: dummyEmail,
+      username,
+      displayUsername: username,
       role,
       emailVerified: true,
       sekolahId: role === 'operator_sekolah' ? sekolahId : null,
@@ -89,19 +95,19 @@ export async function createUserByAdmin(formData: FormData) {
       sppgId: role === 'operator_sppg' ? sppgId : null,
     });
 
-    // Insert account for better-auth
+    // accountId harus username agar better-auth signIn.username() bisa match
     await db.insert(account).values({
       id: uuidv4(),
       userId: newUserId,
       providerId: 'credential',
-      accountId: email,
+      accountId: username,
       password: hashedPassword,
       createdAt: new Date(),
       updatedAt: new Date()
     });
 
     revalidatePath('/admin/manajemen-user');
-    return { success: true, message: 'Pengguna berhasil dibuat' };
+    return { success: true, message: `Pengguna @${username} berhasil dibuat` };
   } catch (error) {
     console.error('Error creating user:', error);
     return { success: false, message: 'Gagal membuat pengguna baru' };
