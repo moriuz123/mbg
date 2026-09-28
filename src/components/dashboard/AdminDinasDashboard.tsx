@@ -48,6 +48,8 @@ interface AdminDinasDashboardProps {
     sisaStokBerasPenggilingan?: number;
     sisaStokBerasSppg?: number;
     totalSisaStokBeras?: number;
+    gabahDalam?: number;
+    gabahLuar?: number;
   };
 }
 

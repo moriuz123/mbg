@@ -153,6 +153,8 @@ export async function getDashboardStats() {
     sisaStokBerasPenggilingan,
     sisaStokBerasSppg,
     totalSisaStokBeras,
+    gabahDalam,
+    gabahLuar,
     sppgCount,
     totalSiswa,
     totalSekolah,
@@ -238,6 +240,23 @@ export async function getSppgDashboardStats(sppgId: number) {
   `);
 
   // 1. Jenis Komoditas (Dalam vs Luar)
+  const gabahRes = await db.execute(sql`
+    SELECT lokasi_wilayah, SUM(volume_kg) as total_volume
+    FROM penggilingan_sumber_gabah
+    GROUP BY lokasi_wilayah
+  `);
+
+  let gabahDalam = 0;
+  let gabahLuar = 0;
+  gabahRes.forEach((row: any) => {
+    const vol = parseFloat(row.total_volume as string) || 0;
+    if (row.lokasi_wilayah === 'Dalam Lebak' || row.lokasi_wilayah === 'Lokal') {
+      gabahDalam += vol;
+    } else {
+      gabahLuar += vol;
+    }
+  });
+
   const komoditasDalamRes = await db.execute(sql`
     SELECT COUNT(DISTINCT pb.jenis_pangan_id) as count
     FROM sppg_pembelian_bahan pb
