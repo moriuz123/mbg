@@ -14,7 +14,6 @@ import { getSiteSettings, getPengumumanAktif } from '@/app/actions/frontend';
 import LaporanHarianClient from '@/components/LaporanHarianClient';
 import AnimatedStats from '@/components/AnimatedStats';
 import PengumumanBadgeClient from '@/components/PengumumanBadgeClient';
-import StokBerasCard from '@/components/StokBerasCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -267,13 +266,6 @@ export default async function Public({
             <div className="w-20 h-1.5 bg-primary-500 mx-auto rounded-full"></div>
           </div>
           <AnimatedStats stats={stats} supplyChainStats={supplyChainStats} />
-          
-          {/* KARTU STOK BERAS */}
-          <StokBerasCard 
-            totalStok={totalSisaStokBeras}
-            stokPenggilingan={sisaStokBerasPenggilingan}
-            stokSppg={sisaStokBerasSppg}
-          />
         </div>
       </section>
 
@@ -306,6 +298,38 @@ export default async function Public({
             <p className="text-lg text-slate-500 font-medium">Pemantauan distribusi bahan pangan segar secara real-time dari mitra pemasok lokal ke seluruh Dapur SPPG.</p>
           </div>
 
+          <div className="grid gap-6 md:grid-cols-3 mb-6">
+            <div className="bg-gradient-to-br from-[#071840] to-[#0a2463] rounded-2xl p-6 shadow-sm flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                <Package size={24} className="text-accent-500" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Total Sisa Stok Beras</div>
+                <div className="text-2xl font-black text-white">{totalSisaStokBeras.toLocaleString('id-ID')} <span className="text-sm font-medium text-white/50">Kg</span></div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                <Factory size={24} />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sisa di Penggilingan (Hulu)</div>
+                <div className="text-2xl font-black text-slate-800">{sisaStokBerasPenggilingan.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 border-t-4 border-t-blue-500 shadow-sm flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <Utensils size={24} />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sisa di Dapur SPPG (Hilir)</div>
+                <div className="text-2xl font-black text-slate-800">{sisaStokBerasSppg.toLocaleString('id-ID')} <span className="text-sm font-medium text-slate-500">Kg</span></div>
+              </div>
+            </div>
+          </div>
+          
           <div className="grid gap-6 md:grid-cols-3 mb-10">
             <div className="bg-white rounded-2xl p-6 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
