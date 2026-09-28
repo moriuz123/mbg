@@ -119,7 +119,59 @@ export async function getDashboardStats() {
   `);
   const totalRapidTestBermasalah = parseInt(rapidTestBermasalahRes[0]?.total as string) || 0;
 
+    const gabahRes = await db.execute(sql`
+    SELECT lokasi_wilayah, SUM(volume_kg) as total_volume
+    FROM penggilingan_sumber_gabah
+    GROUP BY lokasi_wilayah
+  `);
+
+  let gabahDalam = 0;
+  let gabahLuar = 0;
+  gabahRes.forEach((row: any) => {
+    const vol = parseFloat(row.total_volume as string) || 0;
+    if (row.lokasi_wilayah === 'Dalam Lebak' || row.lokasi_wilayah === 'Lokal') {
+      gabahDalam += vol;
+    } else {
+      gabahLuar += vol;
+    }
+  });
+
+  // 12. Sisa Stok Beras (Penggilingan & SPPG)
+  let sisaStokBerasPenggilingan = 0;
+  let sisaStokBerasSppg = 0;
+  let totalSisaStokBeras = 0;
+
+  try {
+    const prodRes = await db.execute(sql`SELECT SUM(beras_dihasilkan_kg) as total FROM penggilingan_produksi`);
+    const distRes = await db.execute(sql`SELECT SUM(volume_kg) as total FROM penggilingan_distribusi`);
+    
+    const prod = parseFloat(prodRes[0]?.total as string) || 0;
+    const dist = parseFloat(distRes[0]?.total as string) || 0;
+    sisaStokBerasPenggilingan = prod - dist;
+
+    // SPPG Beras
+    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
+    if (berasRes.length > 0) {
+      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
+      const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
+      const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
+      
+      const beli = parseFloat(beliRes[0]?.total as string) || 0;
+      const pakai = parseFloat(pakaiRes[0]?.total as string) || 0;
+      sisaStokBerasSppg = beli - pakai;
+    }
+    
+    totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
+  } catch (error) {
+    console.error("Error calculating stock", error);
+  }
+
   return {
+    sisaStokBerasPenggilingan,
+    sisaStokBerasSppg,
+    totalSisaStokBeras,
+    gabahDalam,
+    gabahLuar,
     sppgCount,
     totalSiswa,
     totalSekolah,

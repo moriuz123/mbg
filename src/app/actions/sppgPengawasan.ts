@@ -12,7 +12,16 @@ async function getSessionData() {
     headers: await headers(),
   });
   const role = session?.user?.role;
-  const sppgId = session?.user?.sppgId;
+  let sppgId = session?.user?.sppgId;
+  
+  if (!sppgId && session?.user?.id) {
+    const { user } = await import('@/db/schema');
+    const dbUser = await db.query.user.findFirst({
+      where: eq(user.id, session.user.id)
+    });
+    sppgId = dbUser?.sppgId;
+  }
+  
   const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
   return { role, sppgId, isAdmin };
 }

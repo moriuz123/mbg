@@ -116,6 +116,29 @@ export default async function Public({
     volume: volume
   }));
 
+  
+  // Data Beras SPPG
+  let totalBerasMasukSppg = 0;
+  let totalBerasKeluarSppg = 0;
+  try {
+    const { jenisPangan, sppgPembelianBahan, sppgPemakaianBahan } = await import("@/db/schema");
+    const { ilike, inArray, sum } = await import("drizzle-orm");
+    const berasRows = await db.select({ id: jenisPangan.id }).from(jenisPangan).where(ilike(jenisPangan.nama, '%beras%'));
+    const berasIds = berasRows.map(r => r.id);
+    
+    if (berasIds.length > 0) {
+      const beli = await db.select({ total: sum(sppgPembelianBahan.volume) }).from(sppgPembelianBahan).where(inArray(sppgPembelianBahan.jenisPanganId, berasIds));
+      totalBerasMasukSppg = Number(beli[0]?.total || 0);
+      
+      const pakai = await db.select({ total: sum(sppgPemakaianBahan.volume) }).from(sppgPemakaianBahan).where(inArray(sppgPemakaianBahan.jenisPanganId, berasIds));
+      totalBerasKeluarSppg = Number(pakai[0]?.total || 0);
+    }
+  } catch (e) {}
+
+  const sisaStokBerasSppg = totalBerasMasukSppg - totalBerasKeluarSppg;
+  const sisaStokBerasPenggilingan = totalBerasUtama - totalDistribusi;
+  const totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
+
   const macroStats = {
     totalGabah,
     totalGabahLokal,
@@ -127,7 +150,8 @@ export default async function Public({
     totalKapasitas,
     persenLokal,
     rataRendemen,
-    utilisasiMesin
+    utilisasiMesin,
+    sisaStokBerasPenggilingan
   };
   const laporanHarian = await getPublicLaporanHarian(dateStr);
   const settings = await getSiteSettings();
@@ -275,7 +299,26 @@ export default async function Public({
             <p className="text-lg text-slate-500 font-medium">Pemantauan distribusi bahan pangan segar secara real-time dari mitra pemasok lokal ke seluruh Dapur SPPG.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3 mb-10">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
+            {/* 1. Sisa Stok Beras Card */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-200 border-t-4 border-t-indigo-500 shadow-sm flex flex-col justify-center">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <Package size={22} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sisa Stok Beras</div>
+                  <div className="text-xl font-black text-slate-800 leading-none">{totalSisaStokBeras.toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-500">Kg</span></div>
+                </div>
+              </div>
+              <div className="flex justify-between items-center text-[9px] text-slate-500 font-bold pt-2 border-t border-slate-100">
+                <span>Hulu: {sisaStokBerasPenggilingan.toLocaleString('id-ID')}</span>
+                <span>Hilir: {sisaStokBerasSppg.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+            
+            {/* 3 Original Stats Cards */}
+
             <div className="bg-white rounded-2xl p-6 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
                 <Users size={24} />
@@ -344,25 +387,7 @@ export default async function Public({
         </div>
       </section>
 
-      {/* LAPORAN HARIAN */}
-      <section id="laporan-harian" className="py-32 bg-[#f8fafc] border-t border-slate-200">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div className="max-w-2xl">
-              <span className="text-accent-500 font-bold uppercase tracking-widest text-sm mb-3 block">Transparansi Logistik</span>
-              <h2 className="font-heading text-4xl font-extrabold text-[#071840] mb-4 tracking-tight">Data Distribusi Harian</h2>
-              <p className="text-lg text-slate-500 font-medium">
-                Sistem pencatatan elektronik memvalidasi setiap titik pengiriman antara Dapur Satelit (SPPG) dan unit sekolah / posyandu.
-              </p>
-            </div>
-
-          </div>
-
-          <div className="bg-white p-6 md:p-10 rounded-2xl border border-slate-200 shadow-[0_16px_40px_rgba(0,0,0,0.04)]">
-            <LaporanHarianClient data={laporanHarian} />
-          </div>
-        </div>
-      </section>
+      
 
     </div>
   );

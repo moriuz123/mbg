@@ -1,8 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Users, Edit2, Shield, X, Save, Search, Filter, CheckCircle2, UserCheck, ShieldAlert } from 'lucide-react';
-import { updateUserRole } from '@/app/actions/userManagement';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
+import {
+  Users, Edit2, Shield, X, Save, Search, Filter,
+  CheckCircle2, ShieldAlert, UserPlus, AtSign, Lock, User,
+  Building2, GraduationCap, HeartPulse, Factory, Utensils,
+  ShieldCheck, ChevronDown, Eye, EyeOff
+} from 'lucide-react';
+import { updateUserRole, createUserByAdmin } from '@/app/actions/userManagement';
 
 type UserData = {
   id: string;
@@ -23,389 +29,403 @@ type UserData = {
 };
 
 type ReferenceData = {
-  sekolahList: { id: number, nama: string }[];
-  posyanduList: { id: number, nama: string }[];
-  penggilinganList: { id: number, nama: string }[];
-  sppgList: { id: number, nama: string }[];
+  sekolahList: { id: number; nama: string }[];
+  posyanduList: { id: number; nama: string }[];
+  penggilinganList: { id: number; nama: string }[];
+  sppgList: { id: number; nama: string }[];
 };
 
-export default function UserManagementClient({ 
-  users, 
-  referenceData 
-}: { 
-  users: UserData[], 
-  referenceData: ReferenceData 
+const ROLE_CONFIG: Record<string, { label: string; badgeClass: string; icon: React.ReactNode }> = {
+  admin_dinas:           { label: 'Admin Dinas',           badgeClass: 'bg-violet-100 text-violet-700', icon: <ShieldCheck size={11} /> },
+  operator_sppg:         { label: 'Operator SPPG',         badgeClass: 'bg-sky-100 text-sky-700',       icon: <Utensils size={11} /> },
+  operator_sekolah:      { label: 'Operator Sekolah',      badgeClass: 'bg-emerald-100 text-emerald-700', icon: <GraduationCap size={11} /> },
+  operator_posyandu:     { label: 'Operator Posyandu',     badgeClass: 'bg-rose-100 text-rose-700',     icon: <HeartPulse size={11} /> },
+  operator_penggilingan: { label: 'Operator Penggilingan', badgeClass: 'bg-amber-100 text-amber-700',   icon: <Factory size={11} /> },
+  publik:                { label: 'Publik',                 badgeClass: 'bg-slate-100 text-slate-600',   icon: <User size={11} /> },
+};
+
+function RoleBadge({ role }: { role: string }) {
+  const cfg = ROLE_CONFIG[role] ?? ROLE_CONFIG.publik;
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${cfg.badgeClass}`}>
+      {cfg.icon} {cfg.label}
+    </span>
+  );
+}
+
+/* ─── Portal Modal ─── renders directly to document.body ─── */
+function PortalModal({ onClose, title, children }: {
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
 }) {
-  const [activeUser, setActiveUser] = useState<UserData | null>(null);
-  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) return null;
+
+  return ReactDOM.createPortal(
+    <div
+      style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(15,23,42,0.6)',
+        backdropFilter: 'blur(6px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        padding: '16px',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          backgroundColor: '#ffffff',
+          borderRadius: '20px',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.2)',
+          width: '100%',
+          maxWidth: '500px',
+          maxHeight: '88vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          animation: 'modalIn 0.2s ease',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 24px', borderBottom: '1px solid #f1f5f9', flexShrink: 0,
+        }}>
+          <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#1e293b' }}>{title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#94a3b8', lineHeight: 1 }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+        {/* Scrollable body */}
+        <div style={{ overflowY: 'auto', flex: 1 }}>{children}</div>
+      </div>
+      <style>{`@keyframes modalIn { from { opacity:0; transform:scale(0.96) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }`}</style>
+    </div>,
+    document.body
+  );
+}
+
+/* ─── Shared field styles ─── */
+const S = {
+  label: { display:'block', fontSize:'11px', fontWeight:700, color:'#64748b', marginBottom:'5px', textTransform:'uppercase', letterSpacing:'0.05em' } as React.CSSProperties,
+  input: { width:'100%', padding:'11px 14px', borderRadius:'10px', border:'1px solid #e2e8f0', background:'#f8fafc', color:'#0f172a', fontSize:'14px', outline:'none', boxSizing:'border-box', fontFamily:'inherit' } as React.CSSProperties,
+  inputPL: { width:'100%', padding:'11px 14px 11px 38px', borderRadius:'10px', border:'1px solid #e2e8f0', background:'#f8fafc', color:'#0f172a', fontSize:'14px', outline:'none', boxSizing:'border-box', fontFamily:'inherit' } as React.CSSProperties,
+  select: { width:'100%', padding:'11px 14px', borderRadius:'10px', border:'1px solid #e2e8f0', background:'#ffffff', color:'#0f172a', fontSize:'14px', fontWeight:600, outline:'none', boxSizing:'border-box', fontFamily:'inherit', cursor:'pointer' } as React.CSSProperties,
+  row: { position:'relative' } as React.CSSProperties,
+  icon: { position:'absolute', left:'12px', top:'50%', transform:'translateY(-50%)', color:'#94a3b8', pointerEvents:'none' } as React.CSSProperties,
+};
+
+export default function UserManagementClient({
+  users,
+  referenceData,
+}: {
+  users: UserData[];
+  referenceData: ReferenceData;
+}) {
+  const [activeUser, setActiveUser]   = useState<UserData | null>(null);
+  const [editRole, setEditRole]       = useState('');
+  const [showCreate, setShowCreate]   = useState(false);
+  const [createRole, setCreateRole]   = useState('operator_sppg');
+  const [showPass, setShowPass]       = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notification, setNotification] = useState<{type: 'success'|'error', msg: string} | null>(null);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [searchTerm, setSearchTerm]   = useState('');
+  const [roleFilter, setRoleFilter]   = useState('Semua');
+  const createFormRef = useRef<HTMLFormElement>(null);
 
-  // Search & Filter state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('Semua');
-
-  const openEditModal = (user: UserData) => {
-    setActiveUser(user);
-    setSelectedRole(user.role);
+  const notify = (type: 'success' | 'error', msg: string) => {
+    setNotification({ type, msg });
+    setTimeout(() => setNotification(null), 4000);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const filteredUsers = useMemo(() =>
+    users.filter((u) => {
+      const q = searchTerm.toLowerCase();
+      return (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+        && (roleFilter === 'Semua' || u.role === roleFilter);
+    }),
+    [users, searchTerm, roleFilter]
+  );
+
+  const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const formData = new FormData(e.currentTarget);
-    
-    const res = await updateUserRole(formData);
-    
-    if (res.success) {
-      setActiveUser(null);
-      setNotification({ type: 'success', msg: res.message });
-      setTimeout(() => window.location.reload(), 1500);
-    } else {
-      setNotification({ type: 'error', msg: res.message });
-    }
-    setIsSubmitting(false);
+    try {
+      const result = await createUserByAdmin(new FormData(e.currentTarget));
+      if (result.success) { setShowCreate(false); notify('success', result.message ?? 'Pengguna berhasil dibuat!'); }
+      else notify('error', result.message ?? 'Gagal membuat pengguna');
+    } catch { notify('error', 'Terjadi kesalahan sistem'); }
+    finally { setIsSubmitting(false); }
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    switch(role) {
-      case 'admin_dinas': 
-      case 'super_admin':
-      case 'admin': return 'bg-purple-100 text-purple-700 border border-purple-200';
-      case 'operator_sekolah': 
-      case 'sekolah': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-      case 'operator_posyandu': 
-      case 'posyandu': return 'bg-rose-100 text-rose-700 border border-rose-200';
-      case 'operator_penggilingan': return 'bg-amber-100 text-amber-700 border border-amber-200';
-      case 'operator_sppg': 
-      case 'sppg': return 'bg-sky-100 text-sky-700 border border-sky-200';
-      default: return 'bg-slate-100 text-slate-600 border border-slate-200';
-    }
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const result = await updateUserRole(new FormData(e.currentTarget));
+      if (result.success) { setActiveUser(null); notify('success', result.message ?? 'Hak akses diperbarui!'); }
+      else notify('error', result.message ?? 'Gagal memperbarui');
+    } catch { notify('error', 'Terjadi kesalahan sistem'); }
+    finally { setIsSubmitting(false); }
   };
 
-  const getRoleLabel = (role: string) => {
-    switch(role) {
-      case 'admin_dinas':
-      case 'super_admin':
-      case 'admin': return 'Admin';
-      case 'operator_sekolah':
-      case 'sekolah': return 'Sekolah';
-      case 'operator_posyandu':
-      case 'posyandu': return 'Posyandu';
-      case 'operator_penggilingan': return 'Penggilingan';
-      case 'operator_sppg':
-      case 'sppg': return 'SPPG';
-      default: return 'Belum Ditugaskan';
-    }
+  const AssignmentField = ({ role, user }: { role: string; user?: UserData | null }) => {
+    const cfg: Record<string, { name: string; label: string; list: { id: number; nama: string }[] }> = {
+      operator_sekolah:      { name:'sekolahId',      label:'Sekolah',      list:referenceData.sekolahList },
+      operator_posyandu:     { name:'posyanduId',     label:'Posyandu',     list:referenceData.posyanduList },
+      operator_penggilingan: { name:'penggilinganId', label:'Penggilingan', list:referenceData.penggilinganList },
+      operator_sppg:         { name:'sppgId',         label:'SPPG',         list:referenceData.sppgList },
+    };
+    const c = cfg[role];
+    if (!c) return null;
+    const defVal = user ? (user as any)[c.name] ?? '' : '';
+    return (
+      <div>
+        <label style={S.label}>Penugasan {c.label}</label>
+        <select name={c.name} required defaultValue={defVal} style={S.select}>
+          <option value="">-- Pilih {c.label} --</option>
+          {c.list.map((item) => <option key={item.id} value={item.id}>{item.nama}</option>)}
+        </select>
+      </div>
+    );
   };
 
-  // Role Counts
-  const counts = {
-    all: users.length,
-    admin: users.filter(u => u.role === 'admin_dinas' || u.role === 'super_admin' || u.role === 'admin').length,
-    sppg: users.filter(u => u.role === 'operator_sppg' || u.role === 'sppg').length,
-    sekolah: users.filter(u => u.role === 'operator_sekolah' || u.role === 'sekolah').length,
-    posyandu: users.filter(u => u.role === 'operator_posyandu' || u.role === 'posyandu').length,
-    penggilingan: users.filter(u => u.role === 'operator_penggilingan').length,
-    publik: users.filter(u => !u.role || u.role === 'publik').length,
+  const btnPrimary: React.CSSProperties = {
+    padding:'11px 24px', borderRadius:'10px', background:'#4f46e5', color:'#fff',
+    fontWeight:700, fontSize:'13px', border:'none', cursor:'pointer',
+    display:'flex', alignItems:'center', gap:'8px', opacity: isSubmitting ? 0.7 : 1,
   };
-
-  // Filtering users
-  const filteredUsers = users.filter(u => {
-    const matchesSearch = 
-      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.displayUsername?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.sekolahName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.posyanduName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.sppgName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.penggilinganName?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    let matchesRole = true;
-    if (selectedRoleFilter !== 'Semua') {
-      if (selectedRoleFilter === 'admin_dinas') {
-        matchesRole = u.role === 'admin_dinas' || u.role === 'super_admin' || u.role === 'admin';
-      } else if (selectedRoleFilter === 'operator_sppg') {
-        matchesRole = u.role === 'operator_sppg' || u.role === 'sppg';
-      } else if (selectedRoleFilter === 'operator_sekolah') {
-        matchesRole = u.role === 'operator_sekolah' || u.role === 'sekolah';
-      } else if (selectedRoleFilter === 'operator_posyandu') {
-        matchesRole = u.role === 'operator_posyandu' || u.role === 'posyandu';
-      } else if (selectedRoleFilter === 'operator_penggilingan') {
-        matchesRole = u.role === 'operator_penggilingan';
-      } else if (selectedRoleFilter === 'publik') {
-        matchesRole = !u.role || u.role === 'publik';
-      }
-    }
-
-    return matchesSearch && matchesRole;
-  });
+  const btnSecondary: React.CSSProperties = {
+    padding:'11px 20px', borderRadius:'10px', background:'#f8fafc', color:'#475569',
+    fontWeight:600, fontSize:'13px', border:'1px solid #e2e8f0', cursor:'pointer',
+  };
 
   return (
     <div className="space-y-6">
+
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight">Manajemen Hak Akses</h1>
+          <p className="text-slate-500 text-sm mt-1">
+            Kelola pengguna &amp; penugasan ·{' '}
+            <span className="font-semibold text-slate-700">{users.length} pengguna</span>
+          </p>
+        </div>
+        <button
+          onClick={() => { setShowCreate(true); setCreateRole('operator_sppg'); setShowPass(false); }}
+          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all shrink-0"
+        >
+          <UserPlus size={16} /> Tambah Pengguna
+        </button>
+      </div>
+
+      {/* NOTIFICATION */}
       {notification && (
-        <div className={`p-4 rounded-2xl shadow-sm border ${notification.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'}`}>
-          <div className="font-semibold flex items-center gap-2">
-            {notification.type === 'success' ? <Shield size={18}/> : <X size={18}/>}
-            {notification.msg}
-          </div>
+        <div className={`p-4 rounded-2xl flex items-center gap-3 border text-sm font-semibold ${
+          notification.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
+        }`}>
+          {notification.type === 'success' ? <CheckCircle2 size={17} className="shrink-0" /> : <ShieldAlert size={17} className="shrink-0" />}
+          {notification.msg}
         </div>
       )}
 
-      {/* HEADER BANNER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-indigo-100 text-indigo-600 rounded-2xl">
-            <Users size={26} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black text-slate-800 tracking-tight">Manajemen Hak Akses & User</h1>
-            <p className="text-slate-500 mt-0.5 text-xs font-medium">
-              Kelola penugasan peran, username, dan wilayah kerja akun pengguna di sistem MBG
-            </p>
-          </div>
+      {/* SEARCH & FILTER */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Cari nama atau email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 text-sm text-slate-800 border border-slate-200 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500/30 outline-none"
+          />
         </div>
-
-        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200/80">
-          <div className="text-right px-2">
-            <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total User</div>
-            <div className="text-lg font-black text-slate-800">{counts.all} Akun</div>
-          </div>
-        </div>
-      </div>
-
-      {/* SEARCH & FILTER CONTROLS */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
-        <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
-          {/* SEARCH INPUT */}
-          <div className="relative flex-1">
-            <Search size={18} className="absolute left-4 top-3.5 text-slate-400" />
-            <input 
-              type="text"
-              placeholder="Cari berdasarkan nama, @username, email, sekolah, posyandu, sppg..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-            />
-            {searchTerm && (
-              <button 
-                onClick={() => setSearchTerm('')} 
-                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 p-1"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-
-          {/* QUICK ROLE FILTER PILLS */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 custom-scrollbar">
-            {[
-              { id: 'Semua', label: 'Semua', count: counts.all },
-              { id: 'admin_dinas', label: 'Admin', count: counts.admin },
-              { id: 'operator_sppg', label: 'SPPG', count: counts.sppg },
-              { id: 'operator_sekolah', label: 'Sekolah', count: counts.sekolah },
-              { id: 'operator_posyandu', label: 'Posyandu', count: counts.posyandu },
-              { id: 'operator_penggilingan', label: 'Penggilingan', count: counts.penggilingan },
-              { id: 'publik', label: 'Belum Ditugaskan', count: counts.publik },
-            ].map((roleFilter) => (
-              <button
-                key={roleFilter.id}
-                onClick={() => setSelectedRoleFilter(roleFilter.id)}
-                className={`whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
-                  selectedRoleFilter === roleFilter.id 
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-                }`}
-              >
-                <span>{roleFilter.label}</span>
-                <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${
-                  selectedRoleFilter === roleFilter.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {roleFilter.count}
-                </span>
-              </button>
-            ))}
-          </div>
+        <div className="relative">
+          <Filter size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="pl-9 pr-8 py-2.5 text-sm font-semibold text-slate-700 border border-slate-200 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500/30 outline-none appearance-none cursor-pointer"
+          >
+            <option value="Semua">Semua Role</option>
+            {Object.entries(ROLE_CONFIG).map(([k, c]) => <option key={k} value={k}>{c.label}</option>)}
+          </select>
         </div>
       </div>
 
-      {/* TABLE DATA USERS */}
+      {/* TABLE */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                <th className="p-4 pl-6">Pengguna & @Username</th>
-                <th className="p-4">Hak Akses (Role)</th>
-                <th className="p-4">Lingkup Penugasan</th>
-                <th className="p-4 text-right pr-6">Aksi</th>
+              <tr className="border-b border-slate-100 bg-slate-50/80">
+                {['Pengguna','Role','Penugasan','Bergabung',''].map((h, i) => (
+                  <th key={i} className={`text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider px-${i === 0 || i === 4 ? '6' : '4'} py-3.5 ${i === 2 ? 'hidden md:table-cell' : ''} ${i === 3 ? 'hidden lg:table-cell' : ''}`}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="text-sm">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-                  <td className="p-4 pl-6">
-                    <div className="font-bold text-slate-800">{user.name}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                      <span>{user.email}</span>
-                      {(user.displayUsername || user.username) && (
-                        <span className="px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-md font-extrabold text-[11px]">
-                          @{user.displayUsername || user.username}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-1" suppressHydrationWarning>
-                      Terdaftar: {user.createdAt ? new Date(user.createdAt).toLocaleDateString('id-ID') : '-'}
+            <tbody className="divide-y divide-slate-100">
+              {filteredUsers.map((u) => (
+                <tr key={u.id} className="hover:bg-slate-50/60 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-400 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                        {u.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">{u.name}</p>
+                        <p className="text-xs text-slate-500">{u.username ? `@${u.username}` : u.email}</p>
+                      </div>
                     </div>
                   </td>
-                  <td className="p-4">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-black ${getRoleBadgeColor(user.role)}`}>
-                      {getRoleLabel(user.role)}
+                  <td className="px-4 py-4"><RoleBadge role={u.role} /></td>
+                  <td className="px-4 py-4 hidden md:table-cell">
+                    {u.sppgName ?? u.sekolahName ?? u.posyanduName ?? u.penggilinganName
+                      ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg">
+                          <Building2 size={11} />{u.sppgName ?? u.sekolahName ?? u.posyanduName ?? u.penggilinganName}
+                        </span>
+                      : <span className="text-xs text-slate-400 italic">Global</span>}
+                  </td>
+                  <td className="px-4 py-4 hidden lg:table-cell">
+                    <span className="text-xs text-slate-500">
+                      {new Date(u.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' })}
                     </span>
                   </td>
-                  <td className="p-4">
-                    {user.role === 'operator_sekolah' && user.sekolahName ? (
-                      <div className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 inline-block px-2.5 py-1 rounded-lg">
-                        Sekolah: {user.sekolahName}
-                      </div>
-                    ) : user.role === 'operator_posyandu' && user.posyanduName ? (
-                      <div className="text-xs font-bold text-rose-800 bg-rose-50 border border-rose-200 inline-block px-2.5 py-1 rounded-lg">
-                        Posyandu: {user.posyanduName}
-                      </div>
-                    ) : user.role === 'operator_penggilingan' && user.penggilinganName ? (
-                      <div className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 inline-block px-2.5 py-1 rounded-lg">
-                        Penggilingan: {user.penggilinganName}
-                      </div>
-                    ) : (user.role === 'operator_sppg' || user.role === 'sppg') && user.sppgName ? (
-                      <div className="text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 inline-block px-2.5 py-1 rounded-lg">
-                        SPPG: {user.sppgName}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-slate-400 italic font-medium">Global / Tidak terikat</span>
-                    )}
-                  </td>
-                  <td className="p-4 text-right pr-6">
-                    <button 
-                      onClick={() => openEditModal(user)}
-                      className="p-2.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-xl transition-all font-bold text-xs inline-flex items-center gap-1 border border-indigo-100"
-                      title="Ubah Hak Akses"
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => { setActiveUser(u); setEditRole(u.role); }}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-bold text-xs border border-indigo-100 transition-all"
                     >
-                      <Edit2 size={16} /> Edit Role
+                      <Edit2 size={13} /> Edit
                     </button>
                   </td>
                 </tr>
               ))}
-              
               {filteredUsers.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="p-12 text-center text-slate-500">
-                    <Users size={48} className="mx-auto mb-3 text-slate-300" />
-                    <p className="font-bold text-base text-slate-700">Tidak ada pengguna yang cocok</p>
-                    <p className="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau filter role.</p>
-                  </td>
-                </tr>
+                <tr><td colSpan={5} className="p-12 text-center">
+                  <Users size={40} className="mx-auto mb-3 text-slate-300" />
+                  <p className="font-bold text-slate-700">Tidak ada pengguna ditemukan</p>
+                </td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* EDIT MODAL */}
-      {activeUser && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="flex justify-between items-center p-6 border-b border-slate-100">
-              <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                <Shield size={20} className="text-indigo-600"/> Penugasan Hak Akses
-              </h3>
-              <button onClick={() => setActiveUser(null)} className="text-slate-400 hover:text-slate-600 p-1">
-                <X size={24} />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto space-y-6">
-              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Pengguna Terpilih</p>
-                <p className="font-bold text-slate-800 text-lg">{activeUser.name}</p>
-                <p className="text-sm font-medium text-slate-600">
-                  {activeUser.email} {(activeUser.displayUsername || activeUser.username) ? `• @${activeUser.displayUsername || activeUser.username}` : ''}
-                </p>
+      {/* ═══ PORTAL MODAL: TAMBAH PENGGUNA ═══ */}
+      {showCreate && (
+        <PortalModal onClose={() => setShowCreate(false)} title="Tambah Pengguna Baru">
+          <form ref={createFormRef} onSubmit={handleCreate} style={{ padding:'24px', display:'flex', flexDirection:'column', gap:'14px' }}>
+            <div style={S.row}>
+              <label style={S.label}>Nama Lengkap</label>
+              <div style={{ position:'relative' }}>
+                <User size={14} style={S.icon} />
+                <input name="name" type="text" required placeholder="Contoh: Budi Santoso" style={S.inputPL} />
               </div>
-
-              <form id="roleForm" onSubmit={handleSubmit} className="space-y-5">
-                <input type="hidden" name="id" value={activeUser.id} />
-                
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-700">Pilih Hak Akses (Role)</label>
-                  <select 
-                    name="role" 
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white font-semibold text-sm"
-                  >
-                    <option value="admin_dinas">Admin Dinas (Super Admin)</option>
-                    <option value="operator_sppg">Operator SPPG (Dapur Sentral)</option>
-                    <option value="operator_sekolah">Operator Sekolah</option>
-                    <option value="operator_posyandu">Operator Posyandu</option>
-                    <option value="operator_penggilingan">Operator Penggilingan Gabah</option>
-                  </select>
-                </div>
-
-                {/* Conditional Fields based on Role */}
-                {selectedRole === 'operator_sekolah' && (
-                  <div className="space-y-2 animate-fade-in">
-                    <label className="text-xs font-bold text-emerald-700">Penugasan Sekolah</label>
-                    <select name="sekolahId" required defaultValue={activeUser.sekolahId || ''} className="w-full p-3.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 outline-none bg-emerald-50/30 text-sm font-medium">
-                      <option value="">-- Pilih Sekolah --</option>
-                      {referenceData.sekolahList.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
-                    </select>
-                  </div>
-                )}
-
-                {selectedRole === 'operator_posyandu' && (
-                  <div className="space-y-2 animate-fade-in">
-                    <label className="text-xs font-bold text-rose-700">Penugasan Posyandu</label>
-                    <select name="posyanduId" required defaultValue={activeUser.posyanduId || ''} className="w-full p-3.5 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 outline-none bg-rose-50/30 text-sm font-medium">
-                      <option value="">-- Pilih Posyandu --</option>
-                      {referenceData.posyanduList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-                    </select>
-                  </div>
-                )}
-
-                {selectedRole === 'operator_penggilingan' && (
-                  <div className="space-y-2 animate-fade-in">
-                    <label className="text-xs font-bold text-amber-700">Penugasan Penggilingan</label>
-                    <select name="penggilinganId" required defaultValue={activeUser.penggilinganId || ''} className="w-full p-3.5 rounded-xl border border-amber-200 focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50/30 text-sm font-medium">
-                      <option value="">-- Pilih Penggilingan --</option>
-                      {referenceData.penggilinganList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-                    </select>
-                  </div>
-                )}
-
-                {selectedRole === 'operator_sppg' && (
-                  <div className="space-y-2 animate-fade-in">
-                    <label className="text-xs font-bold text-sky-700">Penugasan SPPG</label>
-                    <select name="sppgId" required defaultValue={activeUser.sppgId || ''} className="w-full p-3.5 rounded-xl border border-sky-200 focus:ring-2 focus:ring-sky-500 outline-none bg-sky-50/30 text-sm font-medium">
-                      <option value="">-- Pilih SPPG --</option>
-                      {referenceData.sppgList.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
-                    </select>
-                  </div>
-                )}
-
-              </form>
             </div>
-            
-            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
-              <button type="button" onClick={() => setActiveUser(null)} className="px-5 py-2.5 text-slate-600 font-semibold text-xs hover:bg-slate-200 rounded-xl transition-colors">
-                Batal
-              </button>
-              <button type="submit" form="roleForm" disabled={isSubmitting} className="px-5 py-2.5 bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-indigo-600/30">
-                <Save size={16} /> {isSubmitting ? 'Menyimpan...' : 'Simpan Hak Akses'}
+
+            <div style={S.row}>
+              <label style={S.label}>Username Login</label>
+              <div style={{ position:'relative' }}>
+                <AtSign size={14} style={S.icon} />
+                <input name="username" type="text" required placeholder="budi_sppg1" pattern="[a-z0-9_]+" title="Hanya huruf kecil, angka, dan underscore" style={S.inputPL} />
+              </div>
+              <p style={{ fontSize:'11px', color:'#94a3b8', marginTop:'4px' }}>Hanya huruf kecil, angka, dan underscore (contoh: budi_sppg1)</p>
+            </div>
+
+            <div style={S.row}>
+              <label style={S.label}>Password Sementara</label>
+              <div style={{ position:'relative' }}>
+                <Lock size={14} style={S.icon} />
+                <input name="password" type={showPass ? 'text' : 'password'} required minLength={8} placeholder="Minimal 8 karakter" style={{ ...S.inputPL, paddingRight:'40px' }} />
+                <button type="button" onClick={() => setShowPass(p => !p)}
+                  style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'#94a3b8', padding:0 }}>
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+              <p style={{ fontSize:'11px', color:'#94a3b8', marginTop:'4px' }}>Pengguna dapat mengubah sendiri di Pengaturan Akun</p>
+            </div>
+
+            <div>
+              <label style={S.label}>Hak Akses (Role)</label>
+              <select name="role" value={createRole} onChange={(e) => setCreateRole(e.target.value)} style={S.select}>
+                <option value="admin_dinas">Admin Dinas (Super Admin)</option>
+                <option value="operator_sppg">Operator SPPG (Dapur Sentral)</option>
+                <option value="operator_sekolah">Operator Sekolah</option>
+                <option value="operator_posyandu">Operator Posyandu</option>
+                <option value="operator_penggilingan">Operator Penggilingan Gabah</option>
+              </select>
+            </div>
+
+            <AssignmentField role={createRole} />
+
+            <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', paddingTop:'14px', borderTop:'1px solid #f1f5f9', marginTop:'4px' }}>
+              <button type="button" onClick={() => setShowCreate(false)} style={btnSecondary}>Batal</button>
+              <button type="submit" disabled={isSubmitting} style={btnPrimary}>
+                <Save size={14} />{isSubmitting ? 'Memproses...' : 'Buat Pengguna'}
               </button>
             </div>
-          </div>
-        </div>
+          </form>
+        </PortalModal>
+      )}
+
+      {/* ═══ PORTAL MODAL: EDIT ROLE ═══ */}
+      {activeUser && (
+        <PortalModal onClose={() => setActiveUser(null)} title="Edit Hak Akses Pengguna">
+          <form onSubmit={handleEditSubmit} style={{ padding:'24px', display:'flex', flexDirection:'column', gap:'14px' }}>
+            <input type="hidden" name="id" value={activeUser.id} />
+
+            {/* User card */}
+            <div style={{ display:'flex', alignItems:'center', gap:'12px', padding:'14px 16px', background:'#f8fafc', borderRadius:'14px', border:'1px solid #e2e8f0' }}>
+              <div style={{ width:'44px', height:'44px', borderRadius:'50%', background:'linear-gradient(135deg,#6366f1,#38bdf8)', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'18px', flexShrink:0 }}>
+                {activeUser.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p style={{ fontWeight:700, color:'#1e293b', fontSize:'15px', margin:'0 0 2px' }}>{activeUser.name}</p>
+                <p style={{ fontSize:'12px', color:'#64748b', margin:'0 0 6px' }}>{activeUser.email}</p>
+                <RoleBadge role={activeUser.role} />
+              </div>
+            </div>
+
+            <div>
+              <label style={S.label}>Ganti Hak Akses</label>
+              <select name="role" value={editRole} onChange={(e) => setEditRole(e.target.value)} style={S.select}>
+                <option value="admin_dinas">Admin Dinas (Super Admin)</option>
+                <option value="operator_sppg">Operator SPPG (Dapur Sentral)</option>
+                <option value="operator_sekolah">Operator Sekolah</option>
+                <option value="operator_posyandu">Operator Posyandu</option>
+                <option value="operator_penggilingan">Operator Penggilingan Gabah</option>
+                <option value="publik">Publik (Tanpa Akses Admin)</option>
+              </select>
+            </div>
+
+            <AssignmentField role={editRole} user={activeUser} />
+
+            <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', paddingTop:'14px', borderTop:'1px solid #f1f5f9', marginTop:'4px' }}>
+              <button type="button" onClick={() => setActiveUser(null)} style={btnSecondary}>Batal</button>
+              <button type="submit" disabled={isSubmitting} style={btnPrimary}>
+                <Save size={14} />{isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </button>
+            </div>
+          </form>
+        </PortalModal>
       )}
     </div>
   );

@@ -10,11 +10,13 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 export default function SppgClientUI({ 
   initialData, 
   yayasanData = [],
-  kecamatanData = []
+  kecamatanData = [],
+  isAdmin = false
 }: { 
   initialData: any[]; 
   yayasanData?: any[]; 
   kecamatanData?: any[];
+  isAdmin?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,15 +144,17 @@ export default function SppgClientUI({
         onCancel={() => setConfirmOpen(false)}
       />
       <div className="flex justify-end mb-4">
-        <button 
-          onClick={() => {
-            setEditingSppg(null);
-            setIsOpen(true);
-          }}
-          className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
-        >
-          <Plus size={20} /> Tambah SPPG
-        </button>
+        {isAdmin && (
+          <button 
+            onClick={() => {
+              setEditingSppg(null);
+              setIsOpen(true);
+            }}
+            className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
+          >
+            <Plus size={20} /> Tambah SPPG
+          </button>
+        )}
       </div>
 
       {/* MODAL FORM */}

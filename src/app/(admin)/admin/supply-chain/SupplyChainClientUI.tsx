@@ -65,7 +65,6 @@ export default function SupplyChainClientUI({
   const [activeTab, setActiveTab] = useState<'inventory' | 'planning' | 'inbound' | 'suppliers'>('inventory');
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sumberPasokan, setSumberPasokan] = useState('Pembelian Lokal');
   const [searchTerm, setSearchTerm] = useState('');
 
   const [toastMessage, setToastMessage] = useState('');
@@ -646,20 +645,6 @@ export default function SupplyChainClientUI({
                 </select>
               </div>
 
-              <div>
-                <label className="block mb-2 text-sm font-semibold text-slate-700">Sumber Pasokan</label>
-                <select 
-                  name="sumberPasokan" 
-                  value={sumberPasokan}
-                  onChange={(e) => setSumberPasokan(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
-                >
-                  <option value="Pembelian Lokal">Pembelian Pangan Lokal (Dana Banper)</option>
-                  <option value="Dropping Pusat">Bantuan / Dropping Pusat (Non-pembelian)</option>
-                </select>
-              </div>
-
-              {sumberPasokan === 'Pembelian Lokal' && (
                 <div>
                   <label className="block mb-2 text-sm font-semibold text-slate-700">Pemasok Lokal (Opsional)</label>
                   <select name="pemasokId" className="w-full p-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all">
@@ -669,7 +654,6 @@ export default function SupplyChainClientUI({
                     ))}
                   </select>
                 </div>
-              )}
               
               <div className="grid grid-cols-2 gap-4">
                 <div>

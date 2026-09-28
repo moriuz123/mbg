@@ -80,6 +80,24 @@ export default async function AnalitikRantaiPasok() {
     LIMIT 9
   `);
 
+  // 4. Sisa Stok Beras SPPG
+  let sisaStokBerasSppg = 0;
+  try {
+    const { jenisPangan, sppgPembelianBahan, sppgPemakaianBahan } = await import("@/db/schema");
+    const { ilike, inArray, sum } = await import("drizzle-orm");
+    const berasRows = await db.select({ id: jenisPangan.id }).from(jenisPangan).where(ilike(jenisPangan.nama, '%beras%'));
+    const berasIds = berasRows.map(r => r.id);
+    
+    if (berasIds.length > 0) {
+      const beli = await db.select({ total: sum(sppgPembelianBahan.volume) }).from(sppgPembelianBahan).where(inArray(sppgPembelianBahan.jenisPanganId, berasIds));
+      const totalBerasMasuk = Number(beli[0]?.total || 0);
+      
+      const pakai = await db.select({ total: sum(sppgPemakaianBahan.volume) }).from(sppgPemakaianBahan).where(inArray(sppgPemakaianBahan.jenisPanganId, berasIds));
+      const totalBerasKeluar = Number(pakai[0]?.total || 0);
+      sisaStokBerasSppg = totalBerasMasuk - totalBerasKeluar;
+    }
+  } catch (e) {}
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <PageHeader 
@@ -93,7 +111,7 @@ export default async function AnalitikRantaiPasok() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             {/* KPI Stats */}
-            <div className="grid gap-4 sm:grid-cols-3 mb-12">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-12">
               <div className="rounded-2xl border border-slate-200 border-t-4 border-t-emerald-500 bg-white p-6 flex flex-col shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><Users size={24} /></div>
@@ -149,6 +167,23 @@ export default async function AnalitikRantaiPasok() {
                 <div className="mt-auto pt-3 border-t border-slate-100">
                   <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
                     <TrendingUp size={14} className="text-amber-500" /> {stats.transaksi.toLocaleString('id-ID')} Total Transaksi
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-indigo-500 bg-white p-6 flex flex-col shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Package size={24} /></div>
+                  <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">Inventory</span>
+                </div>
+                <div className="text-3xl font-black text-slate-800 mb-1">
+                  {sisaStokBerasSppg.toLocaleString('id-ID')} <span className="text-base font-semibold text-slate-500">Kg</span>
+                </div>
+                <div className="text-sm font-medium text-slate-500 mb-3">Sisa Stok Beras di SPPG</div>
+                
+                <div className="mt-auto pt-3 border-t border-slate-100">
+                  <div className="text-[10px] font-semibold text-slate-400">
+                    Akumulasi seluruh Dapur SPPG Aktif
                   </div>
                 </div>
               </div>

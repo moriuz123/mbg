@@ -1,11 +1,13 @@
 import React from 'react';
 import { db } from '@/db';
-import { sppg, sppgLaporanAktifitas } from '@/db/schema';
+import { sppg, sppgPenerimaManfaat, sppgPosyanduManfaat } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
-import { MapPin, ChefHat, Activity, Phone, Star, TrendingUp } from 'lucide-react';
+import { MapPin, Users, GraduationCap, HeartPulse, ChefHat, Activity, Phone, Star, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import SppgActivityLogClient from './SppgActivityLogClient';
+import SppgPenerimaClient from './SppgPenerimaClient';
+import PageHeader from '@/components/PageHeader';
+
 
 export async function generateMetadata({ params }: any) {
   const resolvedParams = await params;
@@ -34,33 +36,36 @@ export default async function SppgDetailPublicPage({ params }: any) {
     }
   });
 
+
   if (!data) notFound();
 
-  // Ambil riwayat pengiriman terbaru dari SPPG ini
-  const recentActivities = await db.query.sppgLaporanAktifitas.findMany({
-    where: eq(sppgLaporanAktifitas.sppgId, sppgId),
+  const sekolahList = await db.query.sppgPenerimaManfaat.findMany({
+    where: eq(sppgPenerimaManfaat.sppgId, sppgId),
     with: {
-      sekolah: true,
-      posyandu: true,
-      standarMenuGizi: true,
-    },
-    orderBy: [desc(sppgLaporanAktifitas.tanggal)],
-    limit: 10
+      sekolah: true
+    }
   });
 
-  return (
-    <div className="container py-12 animate-fade-in" style={{ minHeight: '80vh', paddingTop: '3rem' }}>
-      
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-slate-500 mb-6 mt-4">
-        <Link href="/" className="hover:text-primary-600">Beranda</Link>
-        <span>/</span>
-        <Link href="/sppg" className="hover:text-primary-600">Data SPPG</Link>
-        <span>/</span>
-        <span className="font-semibold text-slate-800">{data.namaSppg}</span>
-      </div>
+  const posyanduList = await db.query.sppgPosyanduManfaat.findMany({
+    where: eq(sppgPosyanduManfaat.sppgId, sppgId),
+    with: {
+      posyandu: true
+    }
+  });
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+  return (
+    <div className="min-h-screen bg-slate-50 pb-20 animate-fade-in">
+      <PageHeader 
+        title="Profil Titik Layanan" 
+        description="Informasi detail mengenai Satuan Pelayanan Pemenuhan Gizi (SPPG)"
+        breadcrumbs={[
+          { label: 'SPPG', href: '/sppg' },
+          { label: data.namaSppg || 'Detail SPPG' }
+        ]}
+      />
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Col: Profile Info */}
         <div className="lg:col-span-1 space-y-6">
@@ -104,18 +109,14 @@ export default async function SppgDetailPublicPage({ params }: any) {
           </div>
         </div>
 
-        {/* Right Col: Activity Log */}
+
+        {/* Right Col: Data Penerima */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 h-full">
-            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <Activity className="text-primary-600" /> Riwayat Distribusi Makanan
-            </h2>
-            
-            <SppgActivityLogClient recentActivities={recentActivities} />
-          </div>
+          <SppgPenerimaClient sekolahList={sekolahList} posyanduList={posyanduList} />
         </div>
 
       </div>
+    </div>
     </div>
   );
 }

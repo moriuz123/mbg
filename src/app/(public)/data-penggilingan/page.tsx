@@ -28,6 +28,26 @@ export default async function PublicPenggilingan() {
       with: { kecamatan: true, desa: true }
     });
     filterOptions = await getFilterOptions();
+
+  pabriks = pabriks.map(p => {
+    let totalProduksi = 0;
+    produksis.forEach(prod => {
+      if (prod.penggilinganId === p.id) {
+        totalProduksi += Number(prod.berasDihasilkanKg || 0);
+      }
+    });
+    let totalDist = 0;
+    distribusis.forEach(dist => {
+      if (dist.penggilinganId === p.id) {
+        totalDist += Number(dist.volumeKg || 0);
+      }
+    });
+    return {
+      ...p,
+      sisaStokBeras: Math.max(0, totalProduksi - totalDist)
+    };
+  });
+
   } catch (e) {
     console.error('Error fetching public data:', e);
   }

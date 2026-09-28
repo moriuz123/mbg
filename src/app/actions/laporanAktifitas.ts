@@ -12,7 +12,16 @@ async function getSessionData() {
     headers: await headers(),
   });
   const role = session?.user?.role;
-  const sppgId = session?.user?.sppgId;
+  let sppgId = session?.user?.sppgId;
+  
+  // Bulletproof fallback in case BetterAuth Drizzle adapter misses the sppgId mapping
+  if (!sppgId && session?.user?.id) {
+    const dbUser = await db.query.user.findFirst({
+      where: eq(user.id, session.user.id)
+    });
+    sppgId = dbUser?.sppgId;
+  }
+  
   const isAdmin = role === 'admin_dinas' || role === 'super_admin' || role === 'admin';
   return { role, sppgId, isAdmin };
 }

@@ -151,20 +151,22 @@ export default function SppgDetailClientUI({
         >
           <ArrowLeft size={18} /> {isAdmin ? "Kembali ke Daftar SPPG" : "Kembali ke Dasbor Utama"}
         </Link>
-        <div className="flex gap-3">
-          <button 
-            onClick={() => setIsOpen(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
-          >
-            <Plus size={20} /> Sekolah
-          </button>
-          <button 
-            onClick={() => setIsPosyanduModalOpen(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-semibold shadow-md shadow-emerald-600/20 hover:-translate-y-0.5"
-          >
-            <Plus size={20} /> Posyandu
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setIsOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-600/20 hover:-translate-y-0.5"
+            >
+              <Plus size={20} /> Sekolah
+            </button>
+            <button 
+              onClick={() => setIsPosyanduModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-semibold shadow-md shadow-emerald-600/20 hover:-translate-y-0.5"
+            >
+              <Plus size={20} /> Posyandu
+            </button>
+          </div>
+        )}
       </div>
 
       {/* MODAL FORM */}
@@ -292,7 +294,7 @@ export default function SppgDetailClientUI({
                 <th className="p-5">Sekolah / Lembaga</th>
                 <th className="p-5 text-center">Total Siswa</th>
                 <th className="p-5">Status & Info</th>
-                <th className="p-5 text-right">Aksi</th>
+                {isAdmin && <th className="p-5 text-right">Aksi</th>}
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -315,20 +317,22 @@ export default function SppgDetailClientUI({
                       </span>
                     </div>
                   </td>
-                  <td className="p-5 text-right">
-                    <button 
-                      onClick={() => handleRemoveClick(item.sekolahId, 'sekolah')}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 inline-flex items-center"
-                      title="Berhentikan SPPG untuk Sekolah Ini"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
+                  {isAdmin && (
+                    <td className="p-5 text-right">
+                      <button 
+                        onClick={() => handleRemoveClick(item.sekolahId, 'sekolah')}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 inline-flex items-center"
+                        title="Berhentikan SPPG untuk Sekolah Ini"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
               {assignedSekolah.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-slate-500">
+                  <td colSpan={isAdmin ? 4 : 3} className="p-12 text-center text-slate-500">
                     <Users size={48} className="mx-auto mb-4 text-slate-300" />
                     <p className="font-medium text-lg">Belum ada Sekolah Penerima</p>
                     <p className="text-sm text-slate-400 mt-1">Tambahkan sekolah ke dapur SPPG ini untuk mulai mendistribusikan MBG.</p>
@@ -348,7 +352,7 @@ export default function SppgDetailClientUI({
                 <th className="p-5">Posyandu</th>
                 <th className="p-5 text-center">Total Sasaran</th>
                 <th className="p-5">Status & Info</th>
-                <th className="p-5 text-right">Aksi</th>
+                {isAdmin && <th className="p-5 text-right">Aksi</th>}
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -377,15 +381,17 @@ export default function SppgDetailClientUI({
                       </span>
                     </div>
                   </td>
-                  <td className="p-5 text-right">
-                    <button 
-                      onClick={() => handleRemoveClick(item.posyanduId, 'posyandu')}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 inline-flex items-center"
-                      title="Berhentikan SPPG untuk Posyandu Ini"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
+                  {isAdmin && (
+                    <td className="p-5 text-right">
+                      <button 
+                        onClick={() => handleRemoveClick(item.posyanduId, 'posyandu')}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 inline-flex items-center"
+                        title="Berhentikan SPPG untuk Posyandu Ini"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
               {assignedPosyandu.length === 0 && (

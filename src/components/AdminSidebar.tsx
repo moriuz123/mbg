@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Map, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X } from 'lucide-react';
+import { Home, Map, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { LogoutButtonSidebar } from './LogoutButton';
 
@@ -109,19 +109,10 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                   {isAdmin ? 'Mitra Penggilingan' : 'Operasional Penggilingan'}
                 </NavItem>
               )}
+              
               {isAdmin && (
                 <NavItem href="/admin/matriks-logistik" icon={Map} isActive={pathname?.includes('/admin/matriks-logistik')}>Matriks Geo-Logistik</NavItem>
               )}
-
-              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
-                <NavItem href="/admin/laporan-aktifitas" icon={Activity} isActive={pathname?.includes('/admin/laporan-aktifitas')}>Laporan Aktifitas</NavItem>
-              )}
-
-              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
-                <NavItem href="/admin/pengawasan" icon={ClipboardCheck} isActive={pathname?.includes('/admin/pengawasan')}>Pengawasan Logistik</NavItem>
-              )}
-
-              
 
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
                 <NavItem href="/admin/mitra-pemasok" icon={Building2} isActive={pathname?.includes('/admin/mitra-pemasok')}>Mitra Pemasok</NavItem>
@@ -129,6 +120,14 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
 
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
                 <NavItem href="/admin/standar-menu" icon={Utensils} isActive={pathname?.includes('/admin/standar-menu')}>Katalog Menu Harian</NavItem>
+              )}
+              
+              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
+                <NavItem href="/admin/pengawasan" icon={ClipboardCheck} isActive={pathname?.includes('/admin/pengawasan')}>Pengawasan Logistik</NavItem>
+              )}
+
+              {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
+                <NavItem href="/admin/laporan-aktifitas" icon={Activity} isActive={pathname?.includes('/admin/laporan-aktifitas')}>Laporan Aktifitas</NavItem>
               )}
 
               {isAdmin && (
@@ -139,7 +138,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                 <NavItem href="/admin/pengaduan" icon={MessageSquare} isActive={pathname?.includes('/admin/pengaduan')}>Pengaduan Masuk</NavItem>
               )}
 
-              {(isAdmin || userRole === 'operator_sppg' || userRole === 'sppg') && (
+              {isAdmin && (
                 <NavItem href="/admin/pengumuman" icon={MessageSquare} isActive={pathname?.includes('/admin/pengumuman')}>Pengumuman</NavItem>
               )}
 
@@ -204,6 +203,18 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
             </div>
           )}
         </div>
+
+
+          {/* Menu Pengaturan Akun (For all logged in users) */}
+          <div className="pt-4 mt-4 border-t border-slate-100">
+            <NavItem 
+              href="/admin/pengaturan-akun" 
+              icon={Settings} 
+              isActive={pathname?.startsWith('/admin/pengaturan-akun')}
+            >
+              Pengaturan Akun
+            </NavItem>
+          </div>
 
         {/* Footer / Logout */}
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
