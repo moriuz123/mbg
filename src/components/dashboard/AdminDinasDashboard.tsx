@@ -306,7 +306,6 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
 
       {/* VISUALISASI CHARTS */}
       <DashboardCharts stats={stats} />
-      </div>
     </div>
   );
 }
