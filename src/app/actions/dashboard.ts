@@ -119,7 +119,7 @@ export async function getDashboardStats() {
   `);
   const totalRapidTestBermasalah = parseInt(rapidTestBermasalahRes[0]?.total as string) || 0;
 
-  // 12. Sisa Stok Beras (Penggilingan & SPPG)
+    // 12. Sisa Stok Beras (Penggilingan & SPPG)
   let sisaStokBerasPenggilingan = 0;
   let sisaStokBerasSppg = 0;
   let totalSisaStokBeras = 0;
@@ -277,36 +277,6 @@ export async function getSppgDashboardStats(sppgId: number) {
   const totalPemasokDalam = (parseInt(pemasokDalamRes[0]?.count as string) || 0) + (parseInt(penggilinganRes[0]?.count as string) || 0); // Penggilingan are all local Lebak RMUs
   const totalPemasokLuar = parseInt(pemasokLuarRes[0]?.count as string) || 0;
 
-  // 12. Sisa Stok Beras (Penggilingan & SPPG)
-  let sisaStokBerasPenggilingan = 0;
-  let sisaStokBerasSppg = 0;
-  let totalSisaStokBeras = 0;
-
-  try {
-    const prodRes = await db.execute(sql`SELECT SUM(beras_dihasilkan_kg) as total FROM penggilingan_produksi`);
-    const distRes = await db.execute(sql`SELECT SUM(volume_kg) as total FROM penggilingan_distribusi`);
-    
-    const prod = parseFloat(prodRes[0]?.total as string) || 0;
-    const dist = parseFloat(distRes[0]?.total as string) || 0;
-    sisaStokBerasPenggilingan = prod - dist;
-
-    // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
-    if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
-      const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      
-      const beli = parseFloat(beliRes[0]?.total as string) || 0;
-      const pakai = parseFloat(pakaiRes[0]?.total as string) || 0;
-      sisaStokBerasSppg = beli - pakai;
-    }
-    
-    totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
-  } catch (error) {
-    console.error("Error calculating stock", error);
-  }
-
   return {
     namaSppg,
     statusOperasional,
@@ -365,36 +335,6 @@ export async function getSekolahDashboardStats(sekolahId: number) {
     ORDER BY l.tanggal DESC, l.id DESC
     LIMIT 5
   `);
-
-  // 12. Sisa Stok Beras (Penggilingan & SPPG)
-  let sisaStokBerasPenggilingan = 0;
-  let sisaStokBerasSppg = 0;
-  let totalSisaStokBeras = 0;
-
-  try {
-    const prodRes = await db.execute(sql`SELECT SUM(beras_dihasilkan_kg) as total FROM penggilingan_produksi`);
-    const distRes = await db.execute(sql`SELECT SUM(volume_kg) as total FROM penggilingan_distribusi`);
-    
-    const prod = parseFloat(prodRes[0]?.total as string) || 0;
-    const dist = parseFloat(distRes[0]?.total as string) || 0;
-    sisaStokBerasPenggilingan = prod - dist;
-
-    // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
-    if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
-      const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      
-      const beli = parseFloat(beliRes[0]?.total as string) || 0;
-      const pakai = parseFloat(pakaiRes[0]?.total as string) || 0;
-      sisaStokBerasSppg = beli - pakai;
-    }
-    
-    totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
-  } catch (error) {
-    console.error("Error calculating stock", error);
-  }
 
   return {
     namaSekolah,
@@ -458,36 +398,6 @@ export async function getPosyanduDashboardStats(posyanduId: number) {
     ORDER BY l.tanggal DESC, l.id DESC
     LIMIT 5
   `);
-
-  // 12. Sisa Stok Beras (Penggilingan & SPPG)
-  let sisaStokBerasPenggilingan = 0;
-  let sisaStokBerasSppg = 0;
-  let totalSisaStokBeras = 0;
-
-  try {
-    const prodRes = await db.execute(sql`SELECT SUM(beras_dihasilkan_kg) as total FROM penggilingan_produksi`);
-    const distRes = await db.execute(sql`SELECT SUM(volume_kg) as total FROM penggilingan_distribusi`);
-    
-    const prod = parseFloat(prodRes[0]?.total as string) || 0;
-    const dist = parseFloat(distRes[0]?.total as string) || 0;
-    sisaStokBerasPenggilingan = prod - dist;
-
-    // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
-    if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
-      const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      
-      const beli = parseFloat(beliRes[0]?.total as string) || 0;
-      const pakai = parseFloat(pakaiRes[0]?.total as string) || 0;
-      sisaStokBerasSppg = beli - pakai;
-    }
-    
-    totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
-  } catch (error) {
-    console.error("Error calculating stock", error);
-  }
 
   return {
     namaPosyandu,
@@ -597,37 +507,7 @@ export async function getPenggilinganDashboardStats(penggilinganId: number) {
       `);
     }
 
-    // 12. Sisa Stok Beras (Penggilingan & SPPG)
-  let sisaStokBerasPenggilingan = 0;
-  let sisaStokBerasSppg = 0;
-  let totalSisaStokBeras = 0;
-
-  try {
-    const prodRes = await db.execute(sql`SELECT SUM(beras_dihasilkan_kg) as total FROM penggilingan_produksi`);
-    const distRes = await db.execute(sql`SELECT SUM(volume_kg) as total FROM penggilingan_distribusi`);
-    
-    const prod = parseFloat(prodRes[0]?.total as string) || 0;
-    const dist = parseFloat(distRes[0]?.total as string) || 0;
-    sisaStokBerasPenggilingan = prod - dist;
-
-    // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
-    if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
-      const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      
-      const beli = parseFloat(beliRes[0]?.total as string) || 0;
-      const pakai = parseFloat(pakaiRes[0]?.total as string) || 0;
-      sisaStokBerasSppg = beli - pakai;
-    }
-    
-    totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
-  } catch (error) {
-    console.error("Error calculating stock", error);
-  }
-
-  return {
+    return {
       namaPenggilingan,
       kapasitasKGMinggu,
       totalSuplaiKg,
@@ -639,37 +519,7 @@ export async function getPenggilinganDashboardStats(penggilinganId: number) {
     };
   } catch (error) {
     console.error('Error in getPenggilinganDashboardStats:', error);
-    // 12. Sisa Stok Beras (Penggilingan & SPPG)
-  let sisaStokBerasPenggilingan = 0;
-  let sisaStokBerasSppg = 0;
-  let totalSisaStokBeras = 0;
-
-  try {
-    const prodRes = await db.execute(sql`SELECT SUM(beras_dihasilkan_kg) as total FROM penggilingan_produksi`);
-    const distRes = await db.execute(sql`SELECT SUM(volume_kg) as total FROM penggilingan_distribusi`);
-    
-    const prod = parseFloat(prodRes[0]?.total as string) || 0;
-    const dist = parseFloat(distRes[0]?.total as string) || 0;
-    sisaStokBerasPenggilingan = prod - dist;
-
-    // SPPG Beras
-    const berasRes = await db.execute(sql`SELECT jenis_pangan_id FROM jenis_pangan WHERE nama_bahan ILIKE '%beras%'`);
-    if (berasRes.length > 0) {
-      const berasIds = berasRes.map((r: any) => r.jenis_pangan_id).join(',');
-      const beliRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pembelian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      const pakaiRes = await db.execute(sql`SELECT SUM(volume) as total FROM sppg_pemakaian_bahan WHERE jenis_pangan_id IN (${sql.raw(berasIds)})`);
-      
-      const beli = parseFloat(beliRes[0]?.total as string) || 0;
-      const pakai = parseFloat(pakaiRes[0]?.total as string) || 0;
-      sisaStokBerasSppg = beli - pakai;
-    }
-    
-    totalSisaStokBeras = sisaStokBerasPenggilingan + sisaStokBerasSppg;
-  } catch (error) {
-    console.error("Error calculating stock", error);
-  }
-
-  return {
+    return {
       namaPenggilingan: 'Penggilingan',
       kapasitasKGMinggu: 0,
       totalSuplaiKg: 0,
