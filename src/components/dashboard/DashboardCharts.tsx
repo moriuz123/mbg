@@ -40,7 +40,7 @@ export default function DashboardCharts({ stats }: { stats: any }) {
       const label = `${monthName} '${year}`;
       
       if (!monthlyMap[s.bulan]) {
-        monthlyMap[s.bulan] = { name: label, sortBy: s.bulan, 'Beras Lokal': 0, 'Beras Luar': 0, 'Protein Lokal': 0, 'Protein Luar': 0 };
+        monthlyMap[s.bulan] = { name: label, sortBy: s.bulan, 'Beras Lokal': 0, 'Beras Luar': 0 };
       }
       
       const isBeras = s.namaBahan.toLowerCase().includes('beras');
@@ -48,9 +48,6 @@ export default function DashboardCharts({ stats }: { stats: any }) {
       if (isBeras) {
         monthlyMap[s.bulan]['Beras Lokal'] += s.volumeDalam;
         monthlyMap[s.bulan]['Beras Luar'] += s.volumeLuar;
-      } else {
-        monthlyMap[s.bulan]['Protein Lokal'] += s.volumeDalam;
-        monthlyMap[s.bulan]['Protein Luar'] += s.volumeLuar;
       }
     });
 
@@ -75,7 +72,7 @@ export default function DashboardCharts({ stats }: { stats: any }) {
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm lg:col-span-2">
         <div className="mb-6">
           <h3 className="text-base font-bold text-slate-800">Tren Suplai Rantai Pasok (6 Bulan Terakhir)</h3>
-          <p className="text-xs text-slate-500 mt-1">Perbandingan volume beras dan protein (Lokal vs Luar).</p>
+          <p className="text-xs text-slate-500 mt-1">Perbandingan volume beras (Lokal vs Luar).</p>
         </div>
         
         <div className="h-[300px] w-full">
@@ -90,9 +87,6 @@ export default function DashboardCharts({ stats }: { stats: any }) {
                 
                 <Bar dataKey="Beras Lokal" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} barSize={32} />
                 <Bar dataKey="Beras Luar" stackId="a" fill="#34d399" radius={[4, 4, 0, 0]} opacity={0.5} />
-                
-                <Line type="monotone" dataKey="Protein Lokal" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="Protein Luar" stroke="#93c5fd" strokeWidth={3} strokeDasharray="5 5" dot={false} />
               </ComposedChart>
             </ResponsiveContainer>
           ) : (
