@@ -48,7 +48,6 @@ export default function PengawasanClient({
   const [activeTab, setActiveTab] = useState<'stok' | 'pembelian' | 'pemakaian' | 'uji' | 'analitik'>(isAdmin ? 'analitik' : 'stok');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sumberPasokan, setSumberPasokan] = useState('Pembelian Lokal');
   const [selectedParameterId, setSelectedParameterId] = useState<string>('');
   const [selectedSppgFilter, setSelectedSppgFilter] = useState<string>('all');
   
@@ -602,18 +601,7 @@ export default function PengawasanClient({
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Tanggal Pembelian <span className="text-red-500">*</span></label>
                     <input type="date" name="tanggalPembelian" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Sumber Pasokan <span className="text-red-500">*</span></label>
-                    <select 
-                      name="sumberPasokan" 
-                      value={sumberPasokan}
-                      onChange={(e) => setSumberPasokan(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm"
-                    >
-                      <option value="Pembelian Lokal">Pembelian Pangan Lokal (Dana Banper)</option>
-                      <option value="Dropping Pusat">Bantuan / Dropping Pusat (Non-pembelian)</option>
-                    </select>
-                  </div>
+
 
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Komoditas / Bahan <span className="text-red-500">*</span></label>
@@ -630,9 +618,7 @@ export default function PengawasanClient({
                     />
                   </div>
 
-                  {sumberPasokan === 'Pembelian Lokal' && (
-                    <>
-                      {isBeras ? (
+                  {isBeras ? (
                         <div>
                           <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Sumber Pengadaan Beras <span className="text-red-500">*</span></label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
@@ -704,8 +690,6 @@ export default function PengawasanClient({
                           <input type="hidden" name="tipeSumber" value="Pemasok" />
                         </div>
                       )}
-                    </>
-                  )}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Volume Total <span className="text-red-500">*</span></label>
