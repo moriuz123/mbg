@@ -107,14 +107,20 @@ Jika Anda lebih memilih hosting Serverless Vercel & Supabase Cloud PostgreSQL, g
 
 ---
 
-## 🔐 Informasi Akun Dummy (Testing)
-Data berikut disertakan di dalam backup `mbg_backup_20260914_094230.sql` (Password untuk semua akun: **`password123`**):
+## 🔐 Informasi Akun Pilot Project MBG
+Data berikut disertakan di dalam backup `mbg_backup_pilot_project_20261006.sql` (Password untuk semua akun: **`password123`**):
 
-**1. Admin Dinas:** `admin`
-**2. Operator Sekolah:**
-- PAUD Alhidayah: `sekolah1`
-- SDN 1 MCB: `sekolah2`
-- SDN 2 MCB: `sekolah3`
-- SMPN 1 Rangkasbitung: `sekolah4`
-**3. Operator Posyandu:**
-- Posyandu Tulip 4 & 5: `posyandu1`
+**1. Admin Dinas:** `admin` (Email: `admin@mbg.lebak.go.id`)
+
+**2. Operator SPPG (5 SPPG Pilot Project):**
+- **SPPG 1 (Cibadak - Pasar Keong):** `sppg1` (SPPG Lebak Cibadak Pasar Keong - 14 Sekolah, 6 Posyandu)
+- **SPPG 2 (Warunggunung - Cibuah):** `sppg2` (SPPG LEBAK WARUNGGUNUNG CIBUAH 1 - 21 Sekolah)
+- **SPPG 3 (Kalanganyar - Aweh):** `sppg3` (SPPG Lebak Kalanganyar Aweh 2 - 11 Sekolah, 7 Posyandu)
+- **SPPG 4 (Rangkasbitung - MC Timur):** `sppg4` (SPPG Lebak Rangkasbitung Muara Ciujung Timur 3 - 6 Sekolah, 1 Posyandu)
+- **SPPG 5 (Rangkasbitung - MC Barat):** `sppg5` (SPPG Lebak Rangkasbitung Muara Ciujung Barat 1 - 4 Sekolah, 1 Posyandu)
+
+**3. Operator Sekolah (56 Sekolah):**
+- Menggunakan username `sekolah1` s/d `sekolah56` (Password: `password123`)
+
+**4. Operator Posyandu (15 Posyandu):**
+- Menggunakan username `posyandu1` s/d `posyandu15` (Password: `password123`)
