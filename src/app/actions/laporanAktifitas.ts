@@ -7,6 +7,9 @@ import { eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
+import fs from 'fs';
+import path from 'path';
+
 async function getSessionData() {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -36,6 +39,7 @@ export async function createLaporanAktifitas(formData: FormData) {
     const posyanduId = formData.get('posyanduId') ? parseInt(formData.get('posyanduId') as string) : null;
     const menuId = parseInt(formData.get('menuId') as string);
     const jumlahPorsi = parseInt(formData.get('jumlahPorsi') as string);
+    const catatan = (formData.get('catatan') as string) || null;
 
     // SECURITY CHECK: If not admin, override sppgId with user's own sppgId
     if (!isAdmin) {
@@ -52,6 +56,25 @@ export async function createLaporanAktifitas(formData: FormData) {
       return { success: false, message: 'Menu tidak ditemukan' };
     }
 
+    // Handle foto dokumentasi upload
+    let fotoDokumentasi: string | null = null;
+    const foto = formData.get('fotoDokumentasi') as File | null;
+    if (foto && foto.size > 0) {
+      const buffer = Buffer.from(await foto.arrayBuffer());
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const safeName = foto.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fileName = `sppg-${sppgId}-${Date.now()}-${safeName}`;
+      const filePath = path.join(uploadDir, fileName);
+      
+      await fs.promises.writeFile(filePath, buffer);
+      fotoDokumentasi = `/uploads/${fileName}`;
+    }
+
     if (tujuanTipe === 'Posyandu' && posyanduId) {
       await db.insert(sppgLaporanAktifitas).values({
         sppgId,
@@ -59,7 +82,9 @@ export async function createLaporanAktifitas(formData: FormData) {
         tanggal,
         standarMenuId: menuId,
         jumlahPorsi,
-        status: 'Terkirim'
+        status: 'Terkirim',
+        catatan,
+        fotoDokumentasi
       });
     } else if (tujuanTipe === 'Sekolah' && sekolahId) {
       await db.insert(sppgLaporanAktifitas).values({
@@ -68,7 +93,9 @@ export async function createLaporanAktifitas(formData: FormData) {
         tanggal,
         standarMenuId: menuId,
         jumlahPorsi,
-        status: 'Terkirim'
+        status: 'Terkirim',
+        catatan,
+        fotoDokumentasi
       });
     } else {
       return { success: false, message: 'Tujuan (Sekolah/Posyandu) tidak valid' };
