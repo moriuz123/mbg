@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Save, Activity, Search, Filter, Package, CheckCircle, Clock, Eye, GraduationCap, HeartPulse, Utensils, Calendar, MapPin } from 'lucide-react';
+import { Plus, X, Save, Activity, Search, Filter, Package, CheckCircle, Clock, Eye, GraduationCap, HeartPulse, Utensils, Calendar, MapPin, Upload, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { createLaporanAktifitas } from '@/app/actions/laporanAktifitas';
 
@@ -43,6 +43,7 @@ export default function LaporanAktifitasClient({
   const [selectedVerifikasi, setSelectedVerifikasi] = useState<any>(null);
   const [selectedDetailLaporan, setSelectedDetailLaporan] = useState<any | null>(null);
   const [tujuanTipe, setTujuanTipe] = useState<'Sekolah' | 'Posyandu'>('Sekolah');
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   
   const [filterTanggal, setFilterTanggal] = useState('');
   const [filterPenerima, setFilterPenerima] = useState('');
@@ -78,6 +79,24 @@ export default function LaporanAktifitasClient({
     return match;
   });
 
+  const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFotoPreview(null);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setFotoPreview(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -87,6 +106,7 @@ export default function LaporanAktifitasClient({
     
     if (res.success) {
       setIsModalOpen(false);
+      setFotoPreview(null);
       window.location.reload(); 
     } else {
       alert(res.message);
@@ -227,10 +247,31 @@ export default function LaporanAktifitasClient({
                     {laporan.sekolahName}
                   </td>
                   <td className="p-4">
-                    <p className="text-slate-700 font-medium mb-1 line-clamp-1">{laporan.menu}</p>
-                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                      {laporan.jumlahPorsi} Porsi
-                    </span>
+                    <div className="flex items-center gap-3">
+                      {laporan.fotoDokumentasi ? (
+                        <div 
+                          onClick={() => setSelectedDetailLaporan(laporan)}
+                          className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 cursor-pointer shadow-sm hover:opacity-85 hover:ring-2 hover:ring-primary-500/30 transition-all bg-slate-100"
+                          title="Klik untuk melihat foto"
+                        >
+                          <img 
+                            src={laporan.fotoDokumentasi} 
+                            alt={laporan.menu} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 text-slate-400">
+                          <Utensils size={20} />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-slate-700 font-semibold mb-1 line-clamp-1">{laporan.menu}</p>
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium">
+                          {laporan.jumlahPorsi} Porsi
+                        </span>
+                      </div>
+                    </div>
                   </td>
                   <td className="p-4">
                     <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
@@ -270,7 +311,7 @@ export default function LaporanAktifitasClient({
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-6 border-b border-slate-100">
               <h3 className="text-xl font-bold text-slate-800">Kirim Laporan Distribusi Baru</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
+              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-600 p-1">
                 <X size={24} />
               </button>
             </div>
@@ -338,12 +379,75 @@ export default function LaporanAktifitasClient({
                     <input type="number" name="jumlahPorsi" required min="1" className="w-full p-2.5 rounded-lg border border-primary-200 outline-none bg-white focus:ring-2 focus:ring-primary-500" placeholder="Contoh: 150" />
                   </div>
                 </div>
+
+                {/* Upload Foto Dokumentasi Makanan */}
+                <div className="space-y-1">
+                  <label className="text-sm font-semibold text-slate-700 flex items-center justify-between">
+                    <span>Foto Dokumentasi Makanan</span>
+                    <span className="text-xs text-slate-400 font-normal">Format JPG, PNG (Maks 5MB)</span>
+                  </label>
+
+                  {fotoPreview ? (
+                    <div className="relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 p-2">
+                      <div className="relative h-44 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
+                        <img 
+                          src={fotoPreview} 
+                          alt="Preview Foto Makanan" 
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFotoPreview(null);
+                            const input = document.getElementById('fotoDokumentasiInput') as HTMLInputElement;
+                            if (input) input.value = '';
+                          }}
+                          className="absolute top-2 right-2 bg-red-600/90 hover:bg-red-700 text-white p-1.5 rounded-full shadow transition-colors"
+                          title="Hapus Foto"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label 
+                      htmlFor="fotoDokumentasiInput"
+                      className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-primary-500 rounded-xl p-5 cursor-pointer bg-slate-50 hover:bg-primary-50/30 transition-colors group"
+                    >
+                      <div className="p-3 bg-white rounded-full text-slate-400 group-hover:text-primary-600 shadow-sm border border-slate-200 mb-2 transition-colors">
+                        <Upload size={20} />
+                      </div>
+                      <p className="text-sm font-semibold text-slate-700 group-hover:text-primary-700">Pilih Foto Makanan yang Dikirim</p>
+                      <p className="text-xs text-slate-400 mt-0.5">Dokumentasikan paket porsi MBG yang disiapkan</p>
+                    </label>
+                  )}
+
+                  <input 
+                    type="file" 
+                    id="fotoDokumentasiInput" 
+                    name="fotoDokumentasi" 
+                    accept="image/*" 
+                    onChange={handleFotoChange}
+                    className="hidden" 
+                  />
+                </div>
+
+                {/* Catatan Pengiriman SPPG */}
+                <div className="space-y-1">
+                  <label className="text-sm font-semibold text-slate-700">Catatan Pengiriman (Opsional)</label>
+                  <textarea 
+                    name="catatan" 
+                    rows={2} 
+                    placeholder="Contoh: Paket menu lengkap beserta buah, diantar sesuai jadwal..." 
+                    className="w-full p-2.5 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                  />
+                </div>
                 
               </form>
             </div>
             
             <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
-              <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-slate-600 font-medium hover:bg-slate-200 rounded-xl transition-colors">
+              <button type="button" onClick={handleCloseModal} className="px-5 py-2.5 text-slate-600 font-medium hover:bg-slate-200 rounded-xl transition-colors">
                 Batal
               </button>
               <button type="submit" form="laporanForm" disabled={isSubmitting} className="px-5 py-2.5 bg-primary-600 text-white font-medium hover:bg-primary-700 rounded-xl transition-colors flex items-center gap-2 shadow-sm shadow-primary-600/30">
@@ -433,6 +537,32 @@ export default function LaporanAktifitasClient({
 
             <div className="p-6 overflow-y-auto space-y-5 text-sm text-slate-700">
               
+              {/* Foto Dokumentasi Makanan SPPG */}
+              {selectedDetailLaporan.fotoDokumentasi ? (
+                <div>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                    <ImageIcon size={14} className="text-primary-600" /> Foto Makanan yang Dikirim (SPPG)
+                  </span>
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm max-h-72 flex items-center justify-center">
+                    <img 
+                      src={selectedDetailLaporan.fotoDokumentasi} 
+                      alt="Dokumentasi Makanan MBG" 
+                      className="w-full h-auto max-h-72 object-cover object-center"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center gap-3 text-slate-400">
+                  <div className="p-2.5 bg-white rounded-xl border border-slate-200 text-slate-400 shrink-0">
+                    <Utensils size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600">Belum Ada Foto Makanan</p>
+                    <p className="text-[11px] text-slate-400">SPPG belum melampirkan foto makanan pada pengiriman ini.</p>
+                  </div>
+                </div>
+              )}
+
               {/* Info Pengiriman */}
               <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                 <div>
@@ -536,6 +666,18 @@ export default function LaporanAktifitasClient({
                     <div className="mt-2 pt-2 border-t border-emerald-200/60 text-xs text-slate-700">
                       <span className="font-semibold text-emerald-800">Catatan Penerima: </span>
                       "{selectedDetailLaporan.verifikasi.catatan}"
+                    </div>
+                  )}
+                  {selectedDetailLaporan.verifikasi.fotoDokumentasi && (
+                    <div className="mt-2 pt-2 border-t border-emerald-200/60">
+                      <span className="block text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1.5 flex items-center gap-1">
+                        <ImageIcon size={13} /> Foto Dokumentasi Penerima
+                      </span>
+                      <img 
+                        src={selectedDetailLaporan.verifikasi.fotoDokumentasi} 
+                        alt="Foto Dokumentasi Penerima" 
+                        className="w-full max-h-56 object-cover rounded-xl border border-emerald-200"
+                      />
                     </div>
                   )}
                 </div>

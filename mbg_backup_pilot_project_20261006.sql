@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ZIuyjNuooUFmBDhAdeae6zscAOHAE6OqxQCKyVmlMrPwuVF0NRKjWmW2HUW3xOK
+\restrict 1whmYnLUQlifxD2Inody320r2JisTYuIkpBAgLqcBcAHZ8i6bl8QD5cJfO9ERdB
 
 -- Dumped from database version 15.18
 -- Dumped by pg_dump version 15.18
@@ -2130,10 +2130,10 @@ COPY public.posyandu (id, nama_posyandu, desa_id, kecamatan_id, alamat_posyandu,
 --
 
 COPY public.posyandu_laporan_aktifitas (id, sppg_laporan_id, posyandu_id, tanggal_diterima, status_diterima, jumlah_porsi_diterima, kondisi_makanan, catatan, foto_dokumentasi, diverifikasi_oleh, created_at, status_verifikasi) FROM stdin;
-1	2	1	2026-10-06 03:27:18.462147	Diterima Lengkap	203	Baik	Paket makanan bergizi posyandu diterima dalam kondisi segar.	\N	Kader Posyandu Jeruk	2026-10-06 03:27:18.462147	Terverifikasi
 2	5	7	2026-10-06 03:27:18.462147	Diterima Lengkap	133	Baik	Paket makanan bergizi posyandu diterima dalam kondisi segar.	\N	Kader Posyandu Anaku Sayang	2026-10-06 03:27:18.462147	Terverifikasi
 3	7	14	2026-10-06 03:27:18.462147	Diterima Lengkap	560	Baik	Paket makanan bergizi posyandu diterima dalam kondisi segar.	\N	Kader Posyandu Melati 1 sd 12	2026-10-06 03:27:18.462147	Terverifikasi
 4	9	15	2026-10-06 03:27:18.462147	Diterima Lengkap	222	Baik	Paket makanan bergizi posyandu diterima dalam kondisi segar.	\N	Kader Posyandu Tulip 4 & 5	2026-10-06 03:27:18.462147	Terverifikasi
+1	2	1	2026-10-06 03:27:18.462147	Diterima Lengkap	203	Baik	Paket makanan bergizi posyandu diterima dalam kondisi segar.	/images/food/paket-posyandu.jpg	Kader Posyandu Jeruk	2026-10-06 03:27:18.462147	Terverifikasi
 \.
 
 
@@ -2229,11 +2229,11 @@ COPY public.sekolah (sekolah_id, nama_sekolah, npsn, kategori_id, desa_id, kecam
 --
 
 COPY public.sekolah_laporan_aktifitas (id, sppg_laporan_id, sekolah_id, tanggal_diterima, status_diterima, jumlah_porsi_diterima, kondisi_makanan, catatan, foto_dokumentasi, diverifikasi_oleh, created_at, status_verifikasi) FROM stdin;
-1	1	1	2026-10-06 03:27:18.462147	Diterima Lengkap	34	Baik	Makanan telah diterima lengkap dan sesuai standar gizi.	\N	Operator TK Negeri Syeh Malka	2026-10-06 03:27:18.462147	Terverifikasi
-2	3	15	2026-10-06 03:27:18.462147	Diterima Lengkap	46	Baik	Makanan telah diterima lengkap dan sesuai standar gizi.	\N	Operator KB Nurul Muhtadin	2026-10-06 03:27:18.462147	Terverifikasi
 3	4	36	2026-10-06 03:27:18.462147	Diterima Lengkap	125	Baik	Makanan telah diterima lengkap dan sesuai standar gizi.	\N	Operator RA ASSUKIYA	2026-10-06 03:27:18.462147	Terverifikasi
 4	6	47	2026-10-06 03:27:18.462147	Diterima Lengkap	69	Baik	Makanan telah diterima lengkap dan sesuai standar gizi.	\N	Operator TK PGRI 1 RANGKASBITUNG	2026-10-06 03:27:18.462147	Terverifikasi
 5	8	53	2026-10-06 03:27:18.462147	Diterima Lengkap	24	Baik	Makanan telah diterima lengkap dan sesuai standar gizi.	\N	Operator PAUD ALHIDAYAH	2026-10-06 03:27:18.462147	Terverifikasi
+1	1	1	2026-10-06 03:27:18.462147	Diterima Lengkap	34	Baik	Makanan telah diterima lengkap dan sesuai standar gizi.	/images/food/ayam-bakar.jpg	Operator TK Negeri Syeh Malka	2026-10-06 03:27:18.462147	Terverifikasi
+2	3	15	2026-10-06 03:27:18.462147	Diterima Lengkap	46	Baik	Makanan telah diterima lengkap dan sesuai standar gizi.	/images/food/bento-mbg.jpg	Operator KB Nurul Muhtadin	2026-10-06 03:27:18.462147	Terverifikasi
 \.
 
 
@@ -2398,15 +2398,15 @@ COPY public.sppg (sppg_id, id_sppg_code, nama_sppg, desa_id, yayasan_id, alamat,
 --
 
 COPY public.sppg_laporan_aktifitas (id, sppg_id, sekolah_id, tanggal, jumlah_porsi, status, catatan, foto_dokumentasi, created_at, posyandu_id, standar_menu_id, status_verifikasi) FROM stdin;
-1	1	1	2026-10-06	34	Diterima	Pengiriman makanan bergizi pilot project	https://placehold.co/600x400/EEE/31343C?text=Pengiriman+SPPG+1	2026-10-06 03:27:18.462147	\N	1	Terverifikasi
-2	1	\N	2026-10-06	203	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	https://placehold.co/600x400/EEE/31343C?text=Posyandu+SPPG+1	2026-10-06 03:27:18.462147	1	1	Terverifikasi
-3	2	15	2026-10-06	46	Diterima	Pengiriman makanan bergizi pilot project	https://placehold.co/600x400/EEE/31343C?text=Pengiriman+SPPG+2	2026-10-06 03:27:18.462147	\N	10	Terverifikasi
-4	3	36	2026-10-06	125	Diterima	Pengiriman makanan bergizi pilot project	https://placehold.co/600x400/EEE/31343C?text=Pengiriman+SPPG+3	2026-10-06 03:27:18.462147	\N	11	Terverifikasi
-5	3	\N	2026-10-06	133	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	https://placehold.co/600x400/EEE/31343C?text=Posyandu+SPPG+3	2026-10-06 03:27:18.462147	7	11	Terverifikasi
-6	4	47	2026-10-06	69	Diterima	Pengiriman makanan bergizi pilot project	https://placehold.co/600x400/EEE/31343C?text=Pengiriman+SPPG+4	2026-10-06 03:27:18.462147	\N	12	Terverifikasi
-7	4	\N	2026-10-06	560	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	https://placehold.co/600x400/EEE/31343C?text=Posyandu+SPPG+4	2026-10-06 03:27:18.462147	14	12	Terverifikasi
-8	5	53	2026-10-06	24	Diterima	Pengiriman makanan bergizi pilot project	https://placehold.co/600x400/EEE/31343C?text=Pengiriman+SPPG+5	2026-10-06 03:27:18.462147	\N	13	Terverifikasi
-9	5	\N	2026-10-06	222	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	https://placehold.co/600x400/EEE/31343C?text=Posyandu+SPPG+5	2026-10-06 03:27:18.462147	15	13	Terverifikasi
+1	1	1	2026-10-06	34	Diterima	Pengiriman makanan bergizi pilot project	/images/food/ayam-bakar.jpg	2026-10-06 03:27:18.462147	\N	1	Terverifikasi
+2	1	\N	2026-10-06	203	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	/images/food/paket-posyandu.jpg	2026-10-06 03:27:18.462147	1	1	Terverifikasi
+3	2	15	2026-10-06	46	Diterima	Pengiriman makanan bergizi pilot project	/images/food/bento-mbg.jpg	2026-10-06 03:27:18.462147	\N	10	Terverifikasi
+4	3	36	2026-10-06	125	Diterima	Pengiriman makanan bergizi pilot project	/images/food/bento-mbg.jpg	2026-10-06 03:27:18.462147	\N	11	Terverifikasi
+5	3	\N	2026-10-06	133	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	/images/food/paket-posyandu.jpg	2026-10-06 03:27:18.462147	7	11	Terverifikasi
+6	4	47	2026-10-06	69	Diterima	Pengiriman makanan bergizi pilot project	/images/food/sup-ayam.jpg	2026-10-06 03:27:18.462147	\N	12	Terverifikasi
+7	4	\N	2026-10-06	560	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	/images/food/paket-posyandu.jpg	2026-10-06 03:27:18.462147	14	12	Terverifikasi
+8	5	53	2026-10-06	24	Diterima	Pengiriman makanan bergizi pilot project	/images/food/ikan-fillet.jpg	2026-10-06 03:27:18.462147	\N	13	Terverifikasi
+9	5	\N	2026-10-06	222	Diterima	Pengiriman paket gizi posyandu (bumil, busui, balita)	/images/food/paket-posyandu.jpg	2026-10-06 03:27:18.462147	15	13	Terverifikasi
 \.
 
 
@@ -4003,5 +4003,5 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ZIuyjNuooUFmBDhAdeae6zscAOHAE6OqxQCKyVmlMrPwuVF0NRKjWmW2HUW3xOK
+\unrestrict 1whmYnLUQlifxD2Inody320r2JisTYuIkpBAgLqcBcAHZ8i6bl8QD5cJfO9ERdB
 
