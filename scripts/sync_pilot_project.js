@@ -259,10 +259,20 @@ async function main() {
           "updatedAt" = NOW()
         WHERE username = ${'sppg' + s.sppg_id}
       `;
+      const sppgUser = await tx`SELECT id FROM "user" WHERE username = ${'sppg' + s.sppg_id}`;
+      if (sppgUser.length > 0) {
+        await tx`UPDATE account SET password = ${PWD_HASH} WHERE "userId" = ${sppgUser[0].id}`;
+      }
       console.log(`✓ Updated SPPG ${s.sppg_id}: ${s.namaSppg}`);
     }
 
     // 3. Delete dependent tables for schools & posyandu
+    const adminUser = await tx`SELECT id FROM "user" WHERE username = 'admin'`;
+    if (adminUser.length > 0) {
+      await tx`UPDATE account SET password = ${PWD_HASH} WHERE "userId" = ${adminUser[0].id}`;
+      console.log('✓ Ensured admin password is password123');
+    }
+
     console.log('🧹 Cleaning old penerima manfaat & activity reports...');
     await tx`DELETE FROM sekolah_laporan_aktifitas`;
     await tx`DELETE FROM posyandu_laporan_aktifitas`;
