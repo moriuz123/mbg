@@ -190,7 +190,11 @@ export async function getPemakaianBahan(sppgId?: number) {
       with: {
         sppg: true,
         jenisPangan: true,
-        standarMenuGizi: true,
+        standarMenuGizi: {
+          with: {
+            kategoriTarget: true,
+          },
+        },
       },
       orderBy: [desc(sppgPemakaianBahan.tanggalPemakaian), desc(sppgPemakaianBahan.createdAt)]
     });
@@ -201,14 +205,16 @@ export async function getPemakaianBahan(sppgId?: number) {
       if (isAllMeals && d.catatan) {
         displayCatatan = d.catatan.replace('[3 Waktu Makan: Pagi, Siang, Sore]', '').trim() || null;
       }
+      const kategoriNama = d.standarMenuGizi?.kategoriTarget?.namaKategori || null;
       return {
         ...d,
         sppgNama: d.sppg?.namaSppg,
         jenisPanganNama: d.jenisPangan?.namaBahan,
         isAllMeals,
         catatan: displayCatatan,
+        kategoriNama,
         menuNama: d.standarMenuGizi 
-          ? `[${d.standarMenuGizi.jenisMakan || 'Siang'}] ${d.standarMenuGizi.namaMenu}` 
+          ? `[${d.standarMenuGizi.jenisMakan || 'Siang'}] ${d.standarMenuGizi.namaMenu}${kategoriNama ? ` [${kategoriNama}]` : ''}` 
           : (isAllMeals ? '3 Waktu Makan (Pagi, Siang, Sore)' : undefined)
       };
     });

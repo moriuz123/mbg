@@ -970,8 +970,16 @@ export const standarKecukupanGiziRelations = relations(standarKecukupanGizi, ({ 
   }),
 }));
 
+export const standarMenuGiziRelations = relations(standarMenuGizi, ({ one }) => ({
+  kategoriTarget: one(kategoriPenerima, {
+    fields: [standarMenuGizi.kategoriTargetId],
+    references: [kategoriPenerima.id],
+  }),
+}));
+
 export const kategoriPenerimaRelations = relations(kategoriPenerima, ({ many }) => ({
   standarKecukupanGizi: many(standarKecukupanGizi),
+  standarMenuGizi: many(standarMenuGizi),
 }));
 
 export const pemasokRelations = relations(pemasok, ({ one }) => ({

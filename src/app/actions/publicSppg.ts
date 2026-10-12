@@ -52,7 +52,11 @@ export async function getPublicLaporanAktifitas() {
       sppg: true,
       sekolah: true,
       posyandu: true,
-      standarMenuGizi: true
+      standarMenuGizi: {
+        with: {
+          kategoriTarget: true
+        }
+      }
     },
     orderBy: [desc(sppgLaporanAktifitas.tanggal), desc(sppgLaporanAktifitas.createdAt)]
   });
@@ -63,7 +67,7 @@ export async function getPublicLaporanAktifitas() {
     sppgId: p.sppgId,
     sekolahId: p.sekolahId,
     posyanduId: p.posyanduId,
-    menu: p.standarMenuGizi?.namaMenu || '-',
+    menu: p.standarMenuGizi ? `${p.standarMenuGizi.namaMenu}${p.standarMenuGizi.kategoriTarget?.namaKategori ? ` [${p.standarMenuGizi.kategoriTarget.namaKategori}]` : ''}` : '-',
     standarMenuGizi: p.standarMenuGizi ? {
       namaMenu: p.standarMenuGizi.namaMenu,
       deskripsi: p.standarMenuGizi.deskripsi,
@@ -72,6 +76,7 @@ export async function getPublicLaporanAktifitas() {
       karbohidratGram: p.standarMenuGizi.karbohidratGram,
       lemakGram: p.standarMenuGizi.lemakGram,
       jenisMakan: p.standarMenuGizi.jenisMakan || 'Siang',
+      kategoriNama: p.standarMenuGizi.kategoriTarget?.namaKategori || null,
     } : null,
     jumlahPorsi: p.jumlahPorsi,
     status: p.status,

@@ -57,18 +57,24 @@ export async function getPendingPosyanduDeliveries(posyanduId: number) {
         eq(sppgLaporanAktifitas.status, 'Terkirim')
       ),
       with: {
-        standarMenuGizi: true
+        standarMenuGizi: {
+          with: {
+            kategoriTarget: true
+          }
+        }
       },
       orderBy: [desc(sppgLaporanAktifitas.tanggal)]
     });
 
     return rawData.map(l => {
       const jenisMakan = l.standarMenuGizi?.jenisMakan || 'Siang';
+      const kat = l.standarMenuGizi?.kategoriTarget?.namaKategori ? ` [${l.standarMenuGizi.kategoriTarget.namaKategori}]` : '';
       return {
         id: l.id,
         tanggal: l.tanggal,
-        menu: l.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        menu: l.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.standarMenuGizi.namaMenu}${kat} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
         jenisMakan,
+        kategoriNama: l.standarMenuGizi?.kategoriTarget?.namaKategori || null,
         jumlahPorsi: l.jumlahPorsi,
         status: l.status
       };

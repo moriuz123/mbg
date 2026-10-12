@@ -32,7 +32,11 @@ export default async function LaporanAktifitasPage() {
       sppg: true,
       sekolah: true,
       posyandu: true,
-      standarMenuGizi: true,
+      standarMenuGizi: {
+        with: {
+          kategoriTarget: true
+        }
+      },
       verifikasiSekolah: true,
       verifikasiPosyandu: true
     },
@@ -50,6 +54,7 @@ export default async function LaporanAktifitasPage() {
     menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
     menuDetail: l.standarMenuGizi,
     jenisMakan: l.standarMenuGizi?.jenisMakan || 'Siang',
+    kategoriNama: l.standarMenuGizi?.kategoriTarget?.namaKategori || null,
     jumlahPorsi: l.jumlahPorsi,
     status: l.status,
     catatan: l.catatan,

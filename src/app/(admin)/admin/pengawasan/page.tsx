@@ -1,6 +1,6 @@
 import React from 'react';
 import { db } from '@/db';
-import { pemasok, jenisPangan, standarMenuGizi, sppg, penggilingan } from '@/db/schema';
+import { pemasok, jenisPangan, standarMenuGizi, sppg, penggilingan, kategoriPenerima } from '@/db/schema';
 import PengawasanClient from '@/components/PengawasanClient';
 import { getPembelianBahan, getPemakaianBahan, getUjiRapidTest, getActiveMasterParameterUjiList, getKartuStok, getAdminLogisticsAnalytics } from '@/app/actions/sppgPengawasan';
 import { auth } from '@/lib/auth';
@@ -62,7 +62,16 @@ export default async function PengawasanPage() {
   }
 
   try {
-    standarMenuList = await db.select().from(standarMenuGizi);
+    standarMenuList = await db.select({
+      id: standarMenuGizi.id,
+      namaMenu: standarMenuGizi.namaMenu,
+      deskripsi: standarMenuGizi.deskripsi,
+      jenisMakan: standarMenuGizi.jenisMakan,
+      kaloriKkal: standarMenuGizi.kaloriKkal,
+      kategoriTargetId: standarMenuGizi.kategoriTargetId,
+      kategoriNama: kategoriPenerima.namaKategori,
+    }).from(standarMenuGizi)
+    .leftJoin(kategoriPenerima, eq(standarMenuGizi.kategoriTargetId, kategoriPenerima.id));
   } catch (e) {
     console.error('Error fetching standarMenuList:', e);
   }

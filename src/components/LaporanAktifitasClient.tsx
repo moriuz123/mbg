@@ -16,6 +16,7 @@ type LaporanType = {
   menu: string;
   menuDetail?: any;
   jenisMakan?: string | null;
+  kategoriNama?: string | null;
   jumlahPorsi: number | null;
   status: string | null;
   catatan?: string | null;
@@ -316,10 +317,18 @@ export default function LaporanAktifitasClient({
                               : jm === 'Sore'
                               ? 'bg-purple-50 text-purple-700 border-purple-200'
                               : 'bg-blue-50 text-blue-700 border-blue-200';
+                            const kat = laporan.kategoriNama || laporan.menuDetail?.kategoriTarget?.namaKategori;
                             return (
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
-                                {jm === 'Pagi' ? 'Pagi' : jm === 'Sore' ? 'Sore' : 'Siang'}
-                              </span>
+                              <>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
+                                  {jm === 'Pagi' ? 'Pagi' : jm === 'Sore' ? 'Sore' : 'Siang'}
+                                </span>
+                                {kat && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold border bg-emerald-50 text-emerald-800 border-emerald-200">
+                                    {kat}
+                                  </span>
+                                )}
+                              </>
                             );
                           })()}
                         </div>

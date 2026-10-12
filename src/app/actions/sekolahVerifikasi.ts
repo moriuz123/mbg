@@ -57,18 +57,24 @@ export async function getPendingDeliveries(sekolahId: number) {
         eq(sppgLaporanAktifitas.status, 'Terkirim')
       ),
       with: {
-        standarMenuGizi: true
+        standarMenuGizi: {
+          with: {
+            kategoriTarget: true
+          }
+        }
       },
       orderBy: [desc(sppgLaporanAktifitas.tanggal)]
     });
 
     return rawData.map(l => {
       const jenisMakan = l.standarMenuGizi?.jenisMakan || 'Siang';
+      const kat = l.standarMenuGizi?.kategoriTarget?.namaKategori ? ` [${l.standarMenuGizi.kategoriTarget.namaKategori}]` : '';
       return {
         id: l.id,
         tanggal: l.tanggal,
-        menu: l.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        menu: l.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.standarMenuGizi.namaMenu}${kat} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
         jenisMakan,
+        kategoriNama: l.standarMenuGizi?.kategoriTarget?.namaKategori || null,
         jumlahPorsi: l.jumlahPorsi,
         status: l.status
       };
@@ -161,7 +167,11 @@ export async function getVerifiedDeliveries(sekolahId: number) {
       with: {
         laporanSppg: {
           with: {
-            standarMenuGizi: true
+            standarMenuGizi: {
+              with: {
+                kategoriTarget: true
+              }
+            }
           }
         }
       },
@@ -169,13 +179,16 @@ export async function getVerifiedDeliveries(sekolahId: number) {
     });
 
     return rawData.map(l => {
-      const jenisMakan = l.laporanSppg?.standarMenuGizi?.jenisMakan || 'Siang';
+      const sm = l.laporanSppg?.standarMenuGizi;
+      const jenisMakan = sm?.jenisMakan || 'Siang';
+      const kat = sm?.kategoriTarget?.namaKategori ? ` [${sm.kategoriTarget.namaKategori}]` : '';
       return {
         id: l.id,
         sppgLaporanId: l.sppgLaporanId,
         tanggal: l.laporanSppg?.tanggal,
-        menu: l.laporanSppg?.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.laporanSppg.standarMenuGizi.namaMenu} (${l.laporanSppg.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        menu: sm ? `[Makan ${jenisMakan}] ${sm.namaMenu}${kat} (${sm.kaloriKkal || 0} Kkal)` : '-',
         jenisMakan,
+        kategoriNama: sm?.kategoriTarget?.namaKategori || null,
         jumlahPorsiAsli: l.laporanSppg?.jumlahPorsi,
         jumlahPorsiDiterima: l.jumlahPorsiDiterima,
         statusDiterima: l.statusDiterima,
