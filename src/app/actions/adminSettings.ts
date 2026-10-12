@@ -55,8 +55,26 @@ export async function updateSiteSettingsBulk(settingsData: Record<string, string
   );
 
   await Promise.all(promises);
-  revalidatePath('/');
+  revalidatePath('/', 'layout');
   revalidatePath('/admin/pengaturan-situs/umum');
+}
+
+export async function toggleMaintenanceMode(enable: boolean) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const role = session?.user?.role as string;
+  if (role !== 'admin' && role !== 'admin_dinas' && role !== 'super_admin') throw new Error('Forbidden');
+
+  await db.insert(siteSetting).values({ 
+    key: 'maintenance_mode', 
+    value: enable ? 'true' : 'false' 
+  }).onConflictDoUpdate({
+    target: siteSetting.key,
+    set: { value: enable ? 'true' : 'false', updatedAt: new Date() }
+  });
+
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin/pengaturan-situs/umum');
+  return { success: true, isMaintenance: enable };
 }
 
 export async function addMenu(data: { name: string; url: string; urutan: number }) {

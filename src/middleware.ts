@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-current-path', path);
   
   // Protect /admin routes
   if (path.startsWith('/admin')) {
@@ -61,9 +63,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
 
-
       // Allow access if passed rules
-      return NextResponse.next();
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
       
     } catch (error) {
       console.error('Middleware Auth Error:', error);
@@ -91,9 +96,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|uploads|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
