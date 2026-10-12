@@ -1,14 +1,35 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Save, Globe, Image as ImageIcon, MapPin, Phone, Mail, UploadCloud, Loader2 } from 'lucide-react';
-import { updateSiteSettingsBulk } from '@/app/actions/adminSettings';
+import { Save, Globe, Image as ImageIcon, MapPin, Phone, Mail, UploadCloud, Loader2, Wrench, AlertTriangle, ShieldAlert, Power } from 'lucide-react';
+import { updateSiteSettingsBulk, toggleMaintenanceMode } from '@/app/actions/adminSettings';
 import { uploadFile } from '@/app/actions/upload';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function SettingWebClient({ initialSettings }: { initialSettings: Record<string, string> }) {
   const [settings, setSettings] = useState(initialSettings);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
+
+  const handleToggleMaintenance = async () => {
+    const nextState = settings.maintenance_mode !== 'true';
+    setIsTogglingMaintenance(true);
+    const toastId = toast.loading(nextState ? 'Mengaktifkan mode pemeliharaan...' : 'Menonaktifkan mode pemeliharaan...');
+    try {
+      await toggleMaintenanceMode(nextState);
+      setSettings(prev => ({ ...prev, maintenance_mode: nextState ? 'true' : 'false' }));
+      toast.success(
+        nextState 
+          ? 'Mode pemeliharaan AKTIF! Publik sekarang melihat halaman pemeliharaan.' 
+          : 'Mode pemeliharaan DINONAKTIFKAN. Website publik kembali normal!', 
+        { id: toastId }
+      );
+    } catch (e: any) {
+      toast.error('Gagal mengubah mode pemeliharaan: ' + (e.message || ''), { id: toastId });
+    } finally {
+      setIsTogglingMaintenance(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSettings(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -52,6 +73,142 @@ export default function SettingWebClient({ initialSettings }: { initialSettings:
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <Toaster position="top-right" />
+
+      {/* Mode Pemeliharaan (Maintenance Mode) */}
+      <div className={`p-6 rounded-2xl shadow-sm border transition-all ${
+        settings.maintenance_mode === 'true' 
+          ? 'bg-amber-50/60 border-amber-300 ring-2 ring-amber-300/50 shadow-amber-500/10' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-200/80">
+          <div className="flex items-center gap-3">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+              settings.maintenance_mode === 'true' 
+                ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30' 
+                : 'bg-slate-100 text-slate-600'
+            }`}>
+              <Wrench size={22} className={settings.maintenance_mode === 'true' ? 'animate-bounce' : ''} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-slate-800">Mode Pemeliharaan (Maintenance Mode)</h2>
+                {settings.maintenance_mode === 'true' && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-red-500 text-white animate-pulse">
+                    LIVE AKTIF
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Alihkan seluruh pengunjung publik ke halaman perbaikan sistem. Petugas/Admin tetap dapat mengakses sistem setelah login.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={handleToggleMaintenance}
+              disabled={isTogglingMaintenance}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm ${
+                settings.maintenance_mode === 'true'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
+                  : 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-amber-500/20'
+              }`}
+            >
+              <Power size={14} />
+              {settings.maintenance_mode === 'true' ? 'Matikan Mode Pemeliharaan' : 'Aktifkan Mode Pemeliharaan'}
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Quick Status Box */}
+          <div className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            settings.maintenance_mode === 'true' 
+              ? 'bg-amber-100/70 border-amber-300 text-amber-900' 
+              : 'bg-slate-50 border-slate-200 text-slate-700'
+          }`}>
+            <div className="flex items-start sm:items-center gap-2.5">
+              <AlertTriangle size={18} className={settings.maintenance_mode === 'true' ? 'text-amber-600 shrink-0 mt-0.5 sm:mt-0' : 'text-slate-400 shrink-0 mt-0.5 sm:mt-0'} />
+              <div className="text-xs">
+                <span className="font-bold block sm:inline">
+                  {settings.maintenance_mode === 'true'
+                    ? 'Mode Pemeliharaan Sedang Berjalan: '
+                    : 'Sistem Berjalan Normal: '}
+                </span>
+                <span>
+                  {settings.maintenance_mode === 'true'
+                    ? 'Pengunjung non-admin melihat layar pemeliharaan resmi dengan pesan kustom di bawah ini.'
+                    : 'Seluruh portal publik dan direktori terbuka untuk masyarakat umum.'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className={`text-[11px] font-bold px-3 py-1 rounded-full border ${
+                settings.maintenance_mode === 'true'
+                  ? 'bg-amber-200 text-amber-900 border-amber-300'
+                  : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+              }`}>
+                {settings.maintenance_mode === 'true' ? '🔴 Status: PEMELIHARAAN' : '🟢 Status: TERBUKA'}
+              </span>
+            </div>
+          </div>
+
+          {/* Form Fields for Maintenance Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1 md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700">Judul Layar Pemeliharaan</label>
+              <input 
+                type="text" 
+                name="maintenance_title" 
+                value={settings.maintenance_title || ''} 
+                onChange={handleChange} 
+                placeholder="Contoh: Sistem Sedang Dalam Pemeliharaan Berkala" 
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 outline-none text-sm" 
+              />
+            </div>
+
+            <div className="space-y-1 md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700">Pesan / Penjelasan untuk Masyarakat</label>
+              <textarea 
+                name="maintenance_message" 
+                value={settings.maintenance_message || ''} 
+                onChange={handleChange} 
+                rows={3} 
+                placeholder="Contoh: Kami sedang melakukan peningkatan infrastruktur sistem Makan Bergizi Gratis..." 
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 outline-none resize-none text-sm"
+              ></textarea>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-semibold text-gray-700">Estimasi Waktu Selesai (Opsional)</label>
+              <input 
+                type="text" 
+                name="maintenance_end_time" 
+                value={settings.maintenance_end_time || ''} 
+                onChange={handleChange} 
+                placeholder="Contoh: 12 Oktober 2026 pukul 18:00 WIB" 
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 outline-none text-sm" 
+              />
+              <p className="text-[11px] text-gray-400">Kosongkan jika waktu selesai tidak ingin ditentukan secara spesifik.</p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-semibold text-gray-700">Kontak Narahubung / Helpdesk (Opsional)</label>
+              <input 
+                type="text" 
+                name="maintenance_contact" 
+                value={settings.maintenance_contact || ''} 
+                onChange={handleChange} 
+                placeholder="Contoh: mbg@lebakkab.go.id / (0252) 201113" 
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 outline-none text-sm" 
+              />
+              <p className="text-[11px] text-gray-400">Ditampilkan di footer layar pemeliharaan jika masyarakat butuh konfirmasi darurat.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Identitas Utama */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
