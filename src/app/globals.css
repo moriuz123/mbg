@@ -523,3 +523,55 @@ tr:hover {
   border-color: #3b82f6 !important;
   color: #1d4ed8 !important;
 }
+
+/* --- PRINT UTILITY STYLES --- */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #000000 !important;
+    font-size: 11px !important;
+  }
+  .print-hidden,
+  .no-print,
+  aside,
+  header,
+  nav,
+  .navbar,
+  .modal-overlay,
+  button:not(.print-allow) {
+    display: none !important;
+  }
+  main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .table-container, table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    box-shadow: none !important;
+  }
+  th, td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    color: #0f172a !important;
+    background: transparent !important;
+  }
+  th {
+    background-color: #f8fafc !important;
+    font-weight: 700 !important;
+  }
+  .card, div {
+    box-shadow: none !important;
+  }
+}
+
