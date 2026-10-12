@@ -15,6 +15,7 @@ type LaporanType = {
   tujuanId?: number;
   menu: string;
   menuDetail?: any;
+  jenisMakan?: string | null;
   jumlahPorsi: number | null;
   status: string | null;
   catatan?: string | null;
@@ -26,7 +27,8 @@ type DropdownData = {
   sppgList: { id: number, nama: string }[];
   sekolahList: { id: number, nama: string }[];
   posyanduList: { id: number, nama: string }[];
-  menuList: { id: number, nama: string, kalori: number | null }[];
+  menuList: { id: number, nama: string, kalori: number | null, jenisMakan?: string | null, kategoriTargetId?: number | null, kategoriNama?: string | null }[];
+  kategoriList?: { id: number, namaKategori: string }[];
   isAdmin?: boolean;
   userSppgId?: number | null;
 };
@@ -44,11 +46,14 @@ export default function LaporanAktifitasClient({
   const [selectedDetailLaporan, setSelectedDetailLaporan] = useState<any | null>(null);
   const [tujuanTipe, setTujuanTipe] = useState<'Sekolah' | 'Posyandu'>('Sekolah');
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [modalFilterWaktuMakan, setModalFilterWaktuMakan] = useState<string>('');
   
   const [filterTanggal, setFilterTanggal] = useState('');
   const [filterPenerima, setFilterPenerima] = useState('');
   const [filterSppg, setFilterSppg] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [filterWaktuMakan, setFilterWaktuMakan] = useState('');
+  const [filterKategori, setFilterKategori] = useState('');
 
   // Dashboard Metrics for SPPG
   const todayStr = new Date().toISOString().split('T')[0];
@@ -73,11 +78,23 @@ export default function LaporanAktifitasClient({
     if (dropdownData.isAdmin && filterSppg && l.sppgName !== filterSppg) {
       match = false;
     }
-    if (dropdownData.isAdmin && filterStatus && l.status !== filterStatus) {
+    if (filterStatus && l.status !== filterStatus) {
       match = false;
+    }
+    if (filterWaktuMakan) {
+      const jm = l.jenisMakan || l.menuDetail?.jenisMakan || 'Siang';
+      if (jm !== filterWaktuMakan) match = false;
+    }
+    if (filterKategori) {
+      const ktId = l.menuDetail?.kategoriTargetId?.toString();
+      if (ktId !== filterKategori) match = false;
     }
     return match;
   });
+
+  const modalMenuList = modalFilterWaktuMakan
+    ? dropdownData.menuList.filter(m => (m.jenisMakan || 'Siang') === modalFilterWaktuMakan)
+    : dropdownData.menuList;
 
   const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,6 +112,7 @@ export default function LaporanAktifitasClient({
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setFotoPreview(null);
+    setModalFilterWaktuMakan('');
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -175,7 +193,7 @@ export default function LaporanAktifitasClient({
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {/* Filters */}
-        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-4 bg-slate-50/50">
+        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row flex-wrap gap-3 bg-slate-50/50">
           {dropdownData.isAdmin && (
             <div className="flex-1 md:max-w-xs flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
               <Filter size={16} className="text-slate-400" />
@@ -196,11 +214,34 @@ export default function LaporanAktifitasClient({
               </select>
             </div>
           )}
-          <div className="flex-1 flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
+          
+          {/* Filter Waktu Makan */}
+          <div className="flex-shrink-0 flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
+            <Utensils size={16} className="text-slate-400" />
+            <select value={filterWaktuMakan} onChange={(e) => setFilterWaktuMakan(e.target.value)} className="text-sm outline-none bg-transparent cursor-pointer font-medium text-slate-700">
+              <option value="">Semua Waktu Makan</option>
+              <option value="Pagi">Makan Pagi</option>
+              <option value="Siang">Makan Siang</option>
+              <option value="Sore">Makan Sore</option>
+            </select>
+          </div>
+
+          {/* Filter Kategori / Jenjang */}
+          {dropdownData.kategoriList && dropdownData.kategoriList.length > 0 && (
+            <div className="flex-shrink-0 flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
+              <GraduationCap size={16} className="text-slate-400" />
+              <select value={filterKategori} onChange={(e) => setFilterKategori(e.target.value)} className="text-sm outline-none bg-transparent cursor-pointer font-medium text-slate-700">
+                <option value="">Semua Kategori</option>
+                {dropdownData.kategoriList.map(k => <option key={k.id} value={k.id.toString()}>{k.namaKategori}</option>)}
+              </select>
+            </div>
+          )}
+
+          <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
             <Search size={16} className="text-slate-400" />
             <input 
               type="text" 
-              placeholder="Cari nama penerima (Sekolah/Posyandu)..." 
+              placeholder="Cari nama penerima..." 
               className="w-full text-sm outline-none bg-transparent"
               value={filterPenerima}
               onChange={(e) => setFilterPenerima(e.target.value)}
@@ -266,7 +307,22 @@ export default function LaporanAktifitasClient({
                         </div>
                       )}
                       <div className="min-w-0">
-                        <p className="text-slate-700 font-semibold mb-1 line-clamp-1">{laporan.menu}</p>
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          <p className="text-slate-700 font-semibold line-clamp-1">{laporan.menu}</p>
+                          {(() => {
+                            const jm = laporan.jenisMakan || laporan.menuDetail?.jenisMakan || 'Siang';
+                            const badgeStyle = jm === 'Pagi'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : jm === 'Sore'
+                              ? 'bg-purple-50 text-purple-700 border-purple-200'
+                              : 'bg-blue-50 text-blue-700 border-blue-200';
+                            return (
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
+                                {jm === 'Pagi' ? 'Pagi' : jm === 'Sore' ? 'Sore' : 'Siang'}
+                              </span>
+                            );
+                          })()}
+                        </div>
                         <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium">
                           {laporan.jumlahPorsi} Porsi
                         </span>
@@ -363,15 +419,54 @@ export default function LaporanAktifitasClient({
                 )}
 
                 <div className="p-4 bg-primary-50 border border-primary-100 rounded-xl space-y-4 my-2">
-                  <div className="space-y-1">
-                    <label className="text-sm font-bold text-primary-800">Menu Standar yang Dikirim</label>
-                    <p className="text-xs text-primary-600 mb-2">Pilih dari katalog standar menu gizi dinas.</p>
-                    <select name="menuId" required className="w-full p-2.5 rounded-lg border border-primary-200 outline-none bg-white font-medium text-slate-800 focus:ring-2 focus:ring-primary-500">
+                  <div className="space-y-1.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <label className="text-sm font-bold text-primary-800">Menu Standar yang Dikirim</label>
+                      {/* Filter Waktu Makan buttons in Modal */}
+                      <div className="inline-flex items-center gap-1 bg-white p-1 rounded-lg border border-primary-200 text-xs self-start sm:self-auto">
+                        {[
+                          { label: 'Semua', val: '' },
+                          { label: 'Pagi', val: 'Pagi' },
+                          { label: 'Siang', val: 'Siang' },
+                          { label: 'Sore', val: 'Sore' }
+                        ].map(({ label, val }) => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setModalFilterWaktuMakan(val)}
+                            className={`px-2.5 py-1 rounded-md font-semibold transition-all ${
+                              modalFilterWaktuMakan === val
+                                ? val === 'Pagi'
+                                  ? 'bg-amber-500 text-white shadow-sm'
+                                  : val === 'Sore'
+                                  ? 'bg-purple-600 text-white shadow-sm'
+                                  : val === 'Siang'
+                                  ? 'bg-blue-600 text-white shadow-sm'
+                                  : 'bg-primary-600 text-white shadow-sm'
+                                : 'text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-primary-600 mb-1.5">Pilih dari katalog standar menu gizi dinas.</p>
+                    <select name="menuId" required className="w-full p-2.5 rounded-lg border border-primary-200 outline-none bg-white font-medium text-slate-800 focus:ring-2 focus:ring-primary-500 text-sm">
                       <option value="">-- Pilih Menu Gizi --</option>
-                      {dropdownData.menuList.map(m => (
-                        <option key={m.id} value={m.id}>{m.nama} ({m.kalori} Kkal)</option>
-                      ))}
+                      {modalMenuList.map(m => {
+                        const jm = m.jenisMakan || 'Siang';
+                        const kat = m.kategoriNama ? ` [${m.kategoriNama}]` : '';
+                        return (
+                          <option key={m.id} value={m.id}>
+                            [{jm}] {m.nama} ({m.kalori || 0} Kkal){kat}
+                          </option>
+                        );
+                      })}
                     </select>
+                    {modalMenuList.length === 0 && (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">Tidak ada menu untuk filter waktu makan {modalFilterWaktuMakan}.</p>
+                    )}
                   </div>
                   
                   <div className="space-y-1">
@@ -597,7 +692,22 @@ export default function LaporanAktifitasClient({
 
               {/* Detail Menu Gizi */}
               <div className="p-4 bg-primary-50/50 rounded-2xl border border-primary-100">
-                <span className="text-xs font-bold uppercase tracking-wider text-primary-800 block mb-1">Menu Makanan Gizi</span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary-800 block">Menu Makanan Gizi</span>
+                  {(() => {
+                    const jm = selectedDetailLaporan.jenisMakan || selectedDetailLaporan.menuDetail?.jenisMakan || 'Siang';
+                    const badgeStyle = jm === 'Pagi'
+                      ? 'bg-amber-100 text-amber-800 border-amber-200'
+                      : jm === 'Sore'
+                      ? 'bg-purple-100 text-purple-800 border-purple-200'
+                      : 'bg-blue-100 text-blue-800 border-blue-200';
+                    return (
+                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
+                        Makan {jm}
+                      </span>
+                    );
+                  })()}
+                </div>
                 <p className="font-bold text-slate-800 text-base">{selectedDetailLaporan.menuDetail?.namaMenu || selectedDetailLaporan.menu}</p>
                 {selectedDetailLaporan.menuDetail?.deskripsi && (
                   <p className="text-xs text-slate-600 mt-1 italic font-medium">"{selectedDetailLaporan.menuDetail.deskripsi}"</p>

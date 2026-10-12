@@ -188,7 +188,7 @@ export async function getPemakaianBahan(sppgId?: number) {
       ...d,
       sppgNama: d.sppg?.namaSppg,
       jenisPanganNama: d.jenisPangan?.namaBahan,
-      menuNama: d.standarMenuGizi?.namaMenu
+      menuNama: d.standarMenuGizi ? `[${d.standarMenuGizi.jenisMakan || 'Siang'}] ${d.standarMenuGizi.namaMenu}` : undefined
     }));
   } catch (error) {
     console.error('Error getPemakaianBahan:', error);
@@ -237,12 +237,16 @@ export async function getActiveMasterParameterUjiList() {
 export async function createUjiRapidTest(formData: FormData) {
   try {
     let { sppgId, isAdmin } = await getSessionData();
-    const userSppgId = sppgId;
+    let finalSppgId: number | null = null;
     
     if (isAdmin && formData.get('sppgId')) {
-      sppgId = parseInt(formData.get('sppgId') as string, 10);
-    } else if (!sppgId) {
-      sppgId = userSppgId;
+      finalSppgId = parseInt(formData.get('sppgId') as string, 10);
+    } else if (sppgId) {
+      finalSppgId = sppgId;
+    }
+
+    if (!finalSppgId) {
+      return { success: false, message: 'SPPG ID harus dipilih.' };
     }
 
     const parameterUjiIdRaw = formData.get('parameterUjiId') as string;
@@ -255,13 +259,9 @@ export async function createUjiRapidTest(formData: FormData) {
 
     const pembelianIdRaw = formData.get('pembelianId') as string;
     const pembelianId = pembelianIdRaw ? parseInt(pembelianIdRaw) : null;
-
-    if (!sppgId) {
-      return { success: false, message: 'SPPG wajib dipilih.' };
-    }
     
     const data = {
-      sppgId,
+      sppgId: finalSppgId,
       jenisPanganId: parseInt(formData.get('jenisPanganId') as string),
       parameterUjiId: parameterUjiIdRaw ? parseInt(parameterUjiIdRaw) : null,
       tanggalUji: formData.get('tanggalUji') as string,
@@ -562,7 +562,6 @@ export async function getAdminLogisticsAnalytics() {
     // 3. Tracking Hasil Uji Rapid Bermasalah
     const ujiList = await db.query.sppgUjiRapidTest.findMany({
       with: {
-        parameterMaster: true,
         sppg: true,
         jenisPangan: true,
         pembelian: {
@@ -581,7 +580,7 @@ export async function getAdminLogisticsAnalytics() {
       tanggalUji: u.tanggalUji,
       sppgNama: u.sppg?.namaSppg,
       bahan: u.jenisPangan?.namaBahan,
-      parameter: u.parameterUji || u.parameterMaster?.namaParameter || '-',
+      parameter: u.parameterUji || '-',
       hasil: u.hasilUji,
       tindakan: u.tindakanLanjut,
       pemasok: u.pembelian?.pemasok?.namaPemasok || 'Tidak Diketahui'

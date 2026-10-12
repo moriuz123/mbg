@@ -49,6 +49,7 @@ export default async function LaporanAktifitasPage() {
     tujuanId: l.sekolahId || l.posyanduId,
     menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
     menuDetail: l.standarMenuGizi,
+    jenisMakan: l.standarMenuGizi?.jenisMakan || 'Siang',
     jumlahPorsi: l.jumlahPorsi,
     status: l.status,
     catatan: l.catatan,

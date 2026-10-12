@@ -1,6 +1,6 @@
 import React from 'react';
 import { db } from '@/db';
-import { sekolah } from '@/db/schema';
+import { sekolah, sppgLaporanAktifitas } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { MapPin, GraduationCap, Users, Calendar, Utensils, Star, Activity } from 'lucide-react';
@@ -34,7 +34,15 @@ export default async function SekolahDetailPublicPage({ params }: any) {
   if (!data) notFound();
 
   // Ambil riwayat penerimaan makanan untuk sekolah ini
-  const recentActivities: any[] = [];
+  const recentActivities = await db.query.sppgLaporanAktifitas.findMany({
+    where: eq(sppgLaporanAktifitas.sekolahId, sekolahId),
+    with: {
+      sppg: true,
+      standarMenuGizi: true,
+    },
+    orderBy: [desc(sppgLaporanAktifitas.tanggal), desc(sppgLaporanAktifitas.createdAt)],
+    limit: 10
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 animate-fade-in">
@@ -114,7 +122,22 @@ export default async function SekolahDetailPublicPage({ params }: any) {
                           <Activity size={16} />
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800">{act.standarMenuGizi?.namaMenu || 'Menu Tidak Diketahui'}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-semibold text-slate-800">{act.standarMenuGizi?.namaMenu || 'Menu Tidak Diketahui'}</p>
+                            {(() => {
+                              const jm = act.standarMenuGizi?.jenisMakan || 'Siang';
+                              const badgeStyle = jm === 'Pagi'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : jm === 'Sore'
+                                ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                : 'bg-blue-50 text-blue-700 border-blue-200';
+                              return (
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
+                                  Makan {jm}
+                                </span>
+                              );
+                            })()}
+                          </div>
                           <p className="text-sm text-slate-500">{act.jumlahPorsi} Porsi</p>
                         </div>
                       </div>

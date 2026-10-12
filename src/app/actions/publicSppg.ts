@@ -71,6 +71,7 @@ export async function getPublicLaporanAktifitas() {
       proteinGram: p.standarMenuGizi.proteinGram,
       karbohidratGram: p.standarMenuGizi.karbohidratGram,
       lemakGram: p.standarMenuGizi.lemakGram,
+      jenisMakan: p.standarMenuGizi.jenisMakan || 'Siang',
     } : null,
     jumlahPorsi: p.jumlahPorsi,
     status: p.status,

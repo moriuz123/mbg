@@ -62,13 +62,17 @@ export async function getPendingDeliveries(sekolahId: number) {
       orderBy: [desc(sppgLaporanAktifitas.tanggal)]
     });
 
-    return rawData.map(l => ({
-      id: l.id,
-      tanggal: l.tanggal,
-      menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
-      jumlahPorsi: l.jumlahPorsi,
-      status: l.status
-    }));
+    return rawData.map(l => {
+      const jenisMakan = l.standarMenuGizi?.jenisMakan || 'Siang';
+      return {
+        id: l.id,
+        tanggal: l.tanggal,
+        menu: l.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        jenisMakan,
+        jumlahPorsi: l.jumlahPorsi,
+        status: l.status
+      };
+    });
   } catch (error) {
     console.error('Error fetching pending deliveries:', error);
     return [];
@@ -164,18 +168,22 @@ export async function getVerifiedDeliveries(sekolahId: number) {
       orderBy: [desc(sekolahLaporanAktifitas.tanggalDiterima)]
     });
 
-    return rawData.map(l => ({
-      id: l.id,
-      sppgLaporanId: l.sppgLaporanId,
-      tanggal: l.laporanSppg?.tanggal,
-      menu: l.laporanSppg?.standarMenuGizi ? `${l.laporanSppg.standarMenuGizi.namaMenu} (${l.laporanSppg.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
-      jumlahPorsiAsli: l.laporanSppg?.jumlahPorsi,
-      jumlahPorsiDiterima: l.jumlahPorsiDiterima,
-      statusDiterima: l.statusDiterima,
-      kondisiMakanan: l.kondisiMakanan,
-      diverifikasiOleh: l.diverifikasiOleh,
-      catatan: l.catatan
-    }));
+    return rawData.map(l => {
+      const jenisMakan = l.laporanSppg?.standarMenuGizi?.jenisMakan || 'Siang';
+      return {
+        id: l.id,
+        sppgLaporanId: l.sppgLaporanId,
+        tanggal: l.laporanSppg?.tanggal,
+        menu: l.laporanSppg?.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.laporanSppg.standarMenuGizi.namaMenu} (${l.laporanSppg.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        jenisMakan,
+        jumlahPorsiAsli: l.laporanSppg?.jumlahPorsi,
+        jumlahPorsiDiterima: l.jumlahPorsiDiterima,
+        statusDiterima: l.statusDiterima,
+        kondisiMakanan: l.kondisiMakanan,
+        diverifikasiOleh: l.diverifikasiOleh,
+        catatan: l.catatan
+      };
+    });
   } catch (error) {
     console.error('Error fetching verified deliveries:', error);
     return [];

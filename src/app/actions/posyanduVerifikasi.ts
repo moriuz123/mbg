@@ -62,13 +62,17 @@ export async function getPendingPosyanduDeliveries(posyanduId: number) {
       orderBy: [desc(sppgLaporanAktifitas.tanggal)]
     });
 
-    return rawData.map(l => ({
-      id: l.id,
-      tanggal: l.tanggal,
-      menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
-      jumlahPorsi: l.jumlahPorsi,
-      status: l.status
-    }));
+    return rawData.map(l => {
+      const jenisMakan = l.standarMenuGizi?.jenisMakan || 'Siang';
+      return {
+        id: l.id,
+        tanggal: l.tanggal,
+        menu: l.standarMenuGizi ? `[Makan ${jenisMakan}] ${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        jenisMakan,
+        jumlahPorsi: l.jumlahPorsi,
+        status: l.status
+      };
+    });
   } catch (error) {
     console.error('Error fetching pending deliveries:', error);
     return [];

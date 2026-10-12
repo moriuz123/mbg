@@ -5,8 +5,8 @@ import { getSekolahList, getPendingDeliveries, submitVerifikasiSekolah, getVerif
 import { Edit2 } from 'lucide-react';
 
 type Sekolah = { id: number; namaSekolah: string };
-type Pengiriman = { id: number; tanggal: string; menu: string; jumlahPorsi: number | null; status: string | null };
-type VerifiedDelivery = { id: number; sppgLaporanId: number; tanggal: string; menu: string; jumlahPorsiAsli: number | null; jumlahPorsiDiterima: number | null; statusDiterima: string; kondisiMakanan: string | null; diverifikasiOleh: string | null; catatan: string | null };
+type Pengiriman = { id: number; tanggal: string; menu: string; jumlahPorsi: number | null; status: string | null; jenisMakan?: string };
+type VerifiedDelivery = { id: number; sppgLaporanId: number; tanggal: string; menu: string; jumlahPorsiAsli: number | null; jumlahPorsiDiterima: number | null; statusDiterima: string; kondisiMakanan: string | null; diverifikasiOleh: string | null; catatan: string | null; jenisMakan?: string };
 
 export default function VerifikasiSekolahForm() {
   const [sekolahList, setSekolahList] = useState<Sekolah[]>([]);

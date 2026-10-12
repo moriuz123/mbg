@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { user, sppgLaporanAktifitas, standarMenuGizi, sekolah, posyandu, sppg, sppgPenerimaManfaat, sppgPosyanduManfaat } from '@/db/schema';
+import { user, sppgLaporanAktifitas, standarMenuGizi, sekolah, posyandu, sppg, sppgPenerimaManfaat, sppgPosyanduManfaat, kategoriPenerima } from '@/db/schema';
 import { revalidatePath } from 'next/cache';
 import { eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
@@ -159,11 +159,20 @@ export async function getDropdownData() {
     }
   }
 
+  const kategoriList = await db.select({
+    id: kategoriPenerima.id,
+    namaKategori: kategoriPenerima.namaKategori
+  }).from(kategoriPenerima).orderBy(kategoriPenerima.urutan);
+
   const menuList = await db.select({ 
     id: standarMenuGizi.id, 
     nama: standarMenuGizi.namaMenu,
-    kalori: standarMenuGizi.kaloriKkal
+    kalori: standarMenuGizi.kaloriKkal,
+    jenisMakan: standarMenuGizi.jenisMakan,
+    kategoriTargetId: standarMenuGizi.kategoriTargetId,
+    kategoriNama: kategoriPenerima.namaKategori
   }).from(standarMenuGizi)
+  .leftJoin(kategoriPenerima, eq(standarMenuGizi.kategoriTargetId, kategoriPenerima.id))
   .where(
     sql`${standarMenuGizi.status} = 'Aktif' 
     AND (${isAdmin} 
@@ -171,5 +180,5 @@ export async function getDropdownData() {
       OR ${standarMenuGizi.sppgId} = ${userSppgId || null})`
   );
 
-  return { sppgList, sekolahList, posyanduList, menuList, userSppgId, isAdmin };
+  return { sppgList, sekolahList, posyanduList, menuList, kategoriList, userSppgId, isAdmin };
 }
