@@ -41,28 +41,7 @@ export default async function AnalitikRantaiPasok() {
     transaksi: parseInt(statsRes[0]?.total_transaksi as string) || 0,
   };
 
-  // 2. Dapatkan Riwayat Terbaru (Live Feed - Max 10)
-  const feedRes = await db.execute(sql`
-    SELECT 
-      pb.id,
-      pb.tanggal_pembelian,
-      jp.nama_bahan,
-      pb.volume,
-      COALESCE(pb.satuan, jp.satuan_default, 'Kg') as satuan,
-      s.nama_sppg,
-      COALESCE(p.nama_pemasok, pg.nama_penggilingan) as nama_sumber,
-      COALESCE(p.alamat_pemasok, pg.alamat) as alamat_sumber,
-      pb.tipe_sumber
-    FROM sppg_pembelian_bahan pb
-    JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
-    JOIN sppg s ON pb.sppg_id = s.sppg_id
-    LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id
-    LEFT JOIN penggilingan pg ON pb.penggilingan_id = pg.penggilingan_id
-    ORDER BY pb.tanggal_pembelian DESC, pb.created_at DESC
-    LIMIT 10
-  `);
-
-  // 3. Profil Pemasok Teratas (Berdasarkan Volume)
+  // 2. Profil Pemasok Teratas (Berdasarkan Volume)
   const topPemasokRes = await db.execute(sql`
     SELECT 
       p.nama_pemasok,
@@ -229,64 +208,7 @@ export default async function AnalitikRantaiPasok() {
               </div>
             </div>
 
-            {/* Live Feed Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-12 relative">
-              <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <Activity size={20} className="text-primary-600" />
-                    Live Feed Pembelian Terbaru
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1">10 transaksi pencatatan bahan segar terakhir secara real-time.</p>
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
-                  <thead>
-                    <tr className="bg-white text-slate-400 text-[10px] font-extrabold uppercase tracking-widest border-b border-slate-100">
-                      <th className="px-6 py-4">Tanggal</th>
-                      <th className="px-6 py-4">Sumber Pemasok</th>
-                      <th className="px-6 py-4">Komoditas</th>
-                      <th className="px-6 py-4 text-right">Volume</th>
-                      <th className="px-6 py-4">Tujuan SPPG</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50 text-sm">
-                    {feedRes.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="p-10 text-center text-slate-400">
-                          <Package className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-                          <div className="font-bold text-slate-500">Belum ada transaksi logistik</div>
-                        </td>
-                      </tr>
-                    )}
-                    {feedRes.map((d: any) => (
-                      <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-4 text-xs font-semibold text-slate-500 whitespace-nowrap">
-                          {new Date(d.tanggal_pembelian).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-slate-800">{d.nama_sumber || '-'}</div>
-                          <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">
-                            {d.tipe_sumber === 'Penggilingan' ? '🌾 PENGGILINGAN' : '🏢 PEMASOK'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 font-bold text-slate-700">{d.nama_bahan || '-'}</td>
-                        <td className="px-6 py-4 text-right">
-                          <span className="font-black text-slate-800">{parseFloat(d.volume as string).toLocaleString('id-ID')}</span>
-                          <span className="text-xs font-semibold text-slate-500 ml-1">{d.satuan}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold border border-slate-200">
-                            <Factory size={12} className="text-slate-400" /> {d.nama_sppg || '-'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+
 
           </div>
         </section>

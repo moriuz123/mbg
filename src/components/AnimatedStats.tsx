@@ -116,7 +116,7 @@ export default function AnimatedStats({ stats, supplyChainStats }: { stats: any,
               <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px] mt-1">Titik Dapur SPPG</p>
             </div>
           </div>
-          <Link href="/data-sppg" className="relative z-10 flex items-center justify-between bg-slate-50 hover:bg-blue-50 px-3 py-2.5 rounded-lg text-xs font-bold text-slate-600 hover:text-blue-700 transition-colors mt-2">
+          <Link href="/sppg" className="relative z-10 flex items-center justify-between bg-slate-50 hover:bg-blue-50 px-3 py-2.5 rounded-lg text-xs font-bold text-slate-600 hover:text-blue-700 transition-colors mt-2">
             Lihat Lokasi <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
