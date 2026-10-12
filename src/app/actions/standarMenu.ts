@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { standarMenuGizi, kategoriPenerima, standarKecukupanGizi } from '@/db/schema';
+import { standarMenuGizi, kategoriPenerima, standarKecukupanGizi, sppg } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
@@ -19,16 +19,30 @@ export async function getStandarMenu(userSppgId?: number | null) {
       status: standarMenuGizi.status,
       kategoriTargetId: standarMenuGizi.kategoriTargetId,
       sppgId: standarMenuGizi.sppgId,
+      sppgNama: sppg.namaSppg,
       kategoriNama: kategoriPenerima.namaKategori
     })
     .from(standarMenuGizi)
     .leftJoin(kategoriPenerima, eq(standarMenuGizi.kategoriTargetId, kategoriPenerima.id))
+    .leftJoin(sppg, eq(standarMenuGizi.sppgId, sppg.id))
     .where(userSppgId ? sql`${standarMenuGizi.sppgId} IS NULL OR ${standarMenuGizi.sppgId} = ${userSppgId}` : undefined)
     .orderBy(standarMenuGizi.namaMenu);
     
     return list;
   } catch (error) {
     console.error('Error fetching standar menu:', error);
+    return [];
+  }
+}
+
+export async function getSPPGList() {
+  try {
+    return await db.select({
+      id: sppg.id,
+      namaSppg: sppg.namaSppg
+    }).from(sppg).orderBy(sppg.namaSppg);
+  } catch (error) {
+    console.error('Error fetching sppg list:', error);
     return [];
   }
 }

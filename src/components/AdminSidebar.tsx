@@ -126,7 +126,9 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
               )}
 
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (
-                <NavItem href="/admin/standar-menu" icon={Utensils} isActive={pathname?.includes('/admin/standar-menu')}>Katalog Menu Harian</NavItem>
+                <NavItem href="/admin/standar-menu" icon={Utensils} isActive={pathname?.includes('/admin/standar-menu')}>
+                  {isAdmin ? 'Monitoring Menu SPPG' : 'Katalog Menu Harian'}
+                </NavItem>
               )}
               
               {(isAdmin || userRole === 'sppg' || userRole === 'operator_sppg') && (

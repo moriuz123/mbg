@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit2, Trash2, X, Save, ChevronLeft, ChevronRight, AlertCircle, Search, Filter, Clock, RotateCcw } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Save, ChevronLeft, ChevronRight, AlertCircle, Search, Filter, Clock, RotateCcw, Building2 } from 'lucide-react';
 import { saveStandarMenu, deleteStandarMenu } from '@/app/actions/standarMenu';
 import Toast from '@/components/ui/Toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -20,6 +20,7 @@ type Menu = {
   status: string | null;
   kategoriTargetId: number | null;
   sppgId: number | null;
+  sppgNama?: string | null;
   kategoriNama: string | null;
 };
 
@@ -42,16 +43,23 @@ type AKG = {
   maxKarbohidratGram: string;
 };
 
+type SPPG = {
+  id: number;
+  namaSppg: string;
+};
+
 export default function StandarMenuClient({
   initialData,
   kategoriList,
   akgList = [],
-  isAdmin = false
+  isAdmin = false,
+  sppgList = []
 }: {
   initialData: Menu[],
   kategoriList: Kategori[],
   akgList?: AKG[],
-  isAdmin?: boolean
+  isAdmin?: boolean,
+  sppgList?: SPPG[]
 }) {
   const [data, setData] = useState<Menu[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,6 +77,7 @@ export default function StandarMenuClient({
   const [searchQuery, setSearchQuery] = useState('');
   const [filterKategori, setFilterKategori] = useState('');
   const [filterWaktuMakan, setFilterWaktuMakan] = useState('');
+  const [filterSppg, setFilterSppg] = useState('');
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -81,7 +90,8 @@ export default function StandarMenuClient({
       const q = searchQuery.toLowerCase();
       const matchName = item.namaMenu?.toLowerCase().includes(q);
       const matchDesc = item.deskripsi?.toLowerCase().includes(q);
-      if (!matchName && !matchDesc) match = false;
+      const matchSppg = item.sppgNama?.toLowerCase().includes(q);
+      if (!matchName && !matchDesc && !matchSppg) match = false;
     }
     if (filterKategori) {
       if (item.kategoriTargetId?.toString() !== filterKategori) match = false;
@@ -89,12 +99,15 @@ export default function StandarMenuClient({
     if (filterWaktuMakan) {
       if (item.jenisMakan !== filterWaktuMakan) match = false;
     }
+    if (filterSppg) {
+      if (item.sppgId?.toString() !== filterSppg) match = false;
+    }
     return match;
   });
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterKategori, filterWaktuMakan, searchQuery]);
+  }, [filterKategori, filterWaktuMakan, filterSppg, searchQuery]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -274,13 +287,31 @@ export default function StandarMenuClient({
             </select>
           </div>
 
+          {/* Filter SPPG (Khusus Admin) */}
+          {isAdmin && sppgList.length > 0 && (
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus-within:border-primary-400 transition-colors">
+              <Building2 size={15} className="text-slate-400 shrink-0" />
+              <select 
+                value={filterSppg} 
+                onChange={e => setFilterSppg(e.target.value)}
+                className="bg-transparent outline-none font-medium text-slate-700 cursor-pointer text-xs sm:text-sm"
+              >
+                <option value="">Semua Dapur SPPG</option>
+                {sppgList.map(s => (
+                  <option key={s.id} value={s.id.toString()}>{s.namaSppg}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Tombol Reset jika ada filter aktif */}
-          {(searchQuery || filterKategori || filterWaktuMakan) && (
+          {(searchQuery || filterKategori || filterWaktuMakan || filterSppg) && (
             <button 
               onClick={() => {
                 setSearchQuery('');
                 setFilterKategori('');
                 setFilterWaktuMakan('');
+                setFilterSppg('');
               }}
               className="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors flex items-center gap-1 border border-rose-200"
               title="Reset Filter"
@@ -297,6 +328,7 @@ export default function StandarMenuClient({
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="p-4 font-semibold text-sm text-slate-600">Menu & Deskripsi</th>
+                {isAdmin && <th className="p-4 font-semibold text-sm text-slate-600">Dapur SPPG</th>}
                 <th className="p-4 font-semibold text-sm text-slate-600">Kalori (Kkal)</th>
                 <th className="p-4 font-semibold text-sm text-slate-600">Makronutrien</th>
                 <th className="p-4 font-semibold text-sm text-slate-600">Target</th>
@@ -308,16 +340,25 @@ export default function StandarMenuClient({
               {paginatedData.length > 0 ? paginatedData.map(item => (
                 <tr key={item.id} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
                   <td className="p-4">
-                    <div className="font-semibold text-slate-900 flex items-center gap-2">
+                    <div className="font-semibold text-slate-900">
                       {item.namaMenu}
-                      {item.sppgId ? (
-                        <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Custom SPPG</span>
-                      ) : (
-                        <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">Global (Dinas)</span>
-                      )}
                     </div>
-                    <div className="text-sm text-slate-500 max-w-xs truncate mt-1">{item.deskripsi || '-'}</div>
+                    <div className="text-sm text-slate-500 max-w-xs truncate mt-0.5">{item.deskripsi || '-'}</div>
                   </td>
+                  {isAdmin && (
+                    <td className="p-4">
+                      {item.sppgNama ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-primary-50 text-primary-800 border border-primary-200">
+                          <Building2 size={12} className="shrink-0 text-primary-600" />
+                          {item.sppgNama}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                          Menu Acuan Dinas
+                        </span>
+                      )}
+                    </td>
+                  )}
                   <td className="p-4 font-medium text-slate-700">{item.kaloriKkal || '-'}</td>
                   <td className="p-4">
                     <div className="text-xs text-slate-600">
@@ -364,8 +405,8 @@ export default function StandarMenuClient({
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={isAdmin ? 5 : 6} className="p-8 text-center text-slate-500">
-                    {searchQuery || filterKategori || filterWaktuMakan
+                  <td colSpan={6} className="p-8 text-center text-slate-500">
+                    {searchQuery || filterKategori || filterWaktuMakan || filterSppg
                       ? 'Tidak ada menu yang sesuai dengan filter yang dipilih.'
                       : 'Belum ada data standar menu.'}
                   </td>
