@@ -41,7 +41,7 @@ export default async function LaporanAktifitasPage() {
       verifikasiPosyandu: true
     },
     orderBy: [desc(sppgLaporanAktifitas.tanggal), desc(sppgLaporanAktifitas.createdAt)],
-    limit: 50
+    limit: 1000
   });
 
   const laporanData = rawLaporanData.map((l: any) => ({

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Save, Activity, Search, Filter, Package, CheckCircle, Clock, Eye, GraduationCap, HeartPulse, Utensils, Calendar, MapPin, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, X, Save, Activity, Search, Filter, Package, CheckCircle, Clock, Eye, GraduationCap, HeartPulse, Utensils, Calendar, MapPin, Upload, Image as ImageIcon, Download, FileSpreadsheet, FileText, Printer, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { createLaporanAktifitas } from '@/app/actions/laporanAktifitas';
 
@@ -55,6 +55,9 @@ export default function LaporanAktifitasClient({
   const [filterStatus, setFilterStatus] = useState('');
   const [filterWaktuMakan, setFilterWaktuMakan] = useState('');
   const [filterKategori, setFilterKategori] = useState('');
+
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Dashboard Metrics for SPPG
   const todayStr = new Date().toISOString().split('T')[0];
@@ -133,35 +136,259 @@ export default function LaporanAktifitasClient({
     setIsSubmitting(false);
   };
 
+  const formatRowForExport = (laporan: LaporanType, index: number) => {
+    const verif = laporan.verifikasi;
+    const menuDet = laporan.menuDetail;
+    const waktuMakan = laporan.jenisMakan || menuDet?.jenisMakan || 'Siang';
+    const kategori = laporan.kategoriNama || menuDet?.kategoriTarget?.namaKategori || '-';
+
+    return {
+      'No': index + 1,
+      'Tanggal Pengiriman': laporan.tanggal ? new Date(laporan.tanggal).toLocaleDateString('id-ID') : '-',
+      'Dapur SPPG': laporan.sppgName || '-',
+      'Tujuan Penerima': laporan.sekolahName || '-',
+      'Tipe Penerima': laporan.tujuanTipe || '-',
+      'Waktu Makan': waktuMakan,
+      'Kategori / Jenjang': kategori,
+      'Nama Menu Makanan': menuDet?.namaMenu || laporan.menu,
+      'Kalori (Kkal)': menuDet?.kaloriKkal ?? '-',
+      'Protein (g)': menuDet?.proteinGram ?? '-',
+      'Karbohidrat (g)': menuDet?.karbohidratGram ?? '-',
+      'Lemak (g)': menuDet?.lemakGram ?? '-',
+      'Jumlah Porsi Dikirim': laporan.jumlahPorsi ?? 0,
+      'Status Distribusi': laporan.status || '-',
+      'Status Verifikasi': verif ? (verif.statusDiterima || 'Terverifikasi') : 'Belum Diverifikasi',
+      'Porsi Diterima': verif?.jumlahPorsiDiterima ?? '-',
+      'Kondisi Makanan': verif?.kondisiMakanan ?? '-',
+      'Petugas Verifikator': verif?.diverifikasiOleh ?? '-',
+      'Tanggal Verifikasi': verif?.tanggalDiterima ? new Date(verif.tanggalDiterima).toLocaleString('id-ID') : '-',
+      'Catatan SPPG': laporan.catatan || '-',
+      'Catatan Penerima': verif?.catatan || '-',
+    };
+  };
+
+  const handleExportExcel = async (exportFiltered: boolean = true) => {
+    const dataToExport = exportFiltered ? filteredData : laporanData;
+    if (dataToExport.length === 0) {
+      alert('Tidak ada data laporan untuk diexport.');
+      return;
+    }
+    
+    setIsExporting(true);
+    try {
+      const XLSX = await import('xlsx');
+      const rows = dataToExport.map((item, index) => formatRowForExport(item, index));
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+
+      // Auto-fit column widths
+      const colKeys = Object.keys(rows[0] || {});
+      worksheet['!cols'] = colKeys.map(key => {
+        let maxLen = key.length;
+        rows.forEach(r => {
+          const val = String((r as any)[key] ?? '');
+          if (val.length > maxLen) maxLen = Math.min(val.length, 45);
+        });
+        return { wch: Math.max(maxLen + 3, 12) };
+      });
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan Aktivitas');
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      const fileName = `Laporan_Aktivitas_MBG_${exportFiltered ? 'Terfilter_' : 'Semua_'}${dateStr}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+    } catch (err) {
+      console.error('Gagal export excel:', err);
+      alert('Gagal mengekspor file Excel.');
+    } finally {
+      setIsExporting(false);
+      setIsExportDropdownOpen(false);
+    }
+  };
+
+  const handleExportCSV = (exportFiltered: boolean = true) => {
+    const dataToExport = exportFiltered ? filteredData : laporanData;
+    if (dataToExport.length === 0) {
+      alert('Tidak ada data laporan untuk diexport.');
+      return;
+    }
+
+    const rows = dataToExport.map((item, index) => formatRowForExport(item, index));
+    const headers = Object.keys(rows[0] || {});
+    
+    const csvContent = [
+      headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','),
+      ...rows.map(row => 
+        headers.map(h => {
+          const val = String((row as any)[h] ?? '');
+          return `"${val.replace(/"/g, '""')}"`;
+        }).join(',')
+      )
+    ].join('\r\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.href = url;
+    link.setAttribute('download', `Laporan_Aktivitas_MBG_${exportFiltered ? 'Terfilter_' : 'Semua_'}${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setIsExportDropdownOpen(false);
+  };
+
+  const handlePrint = () => {
+    setIsExportDropdownOpen(false);
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm print-hidden">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-primary-100 text-primary-600 rounded-xl">
             <Activity size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Laporan Harian SPPG</h1>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+              {dropdownData.isAdmin ? 'Laporan Aktivitas & Rekap Distribusi' : 'Laporan Harian SPPG'}
+            </h1>
             <p className="text-slate-500 mt-1 text-sm">
-              Riwayat laporan pengiriman menu makanan dan detail verifikasi
+              {dropdownData.isAdmin 
+                ? 'Rekapitulasi riwayat pengiriman makanan, porsi, standar gizi, dan verifikasi sekolah/posyandu'
+                : 'Riwayat laporan pengiriman menu makanan dan detail verifikasi'
+              }
             </p>
           </div>
         </div>
         
         {/* Actions */}
-        {!dropdownData.isAdmin && (
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Export Dropdown Button */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+              disabled={isExporting}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              title="Export data ke Excel, CSV, atau Cetak Dokumen"
+            >
+              <Download size={18} className="text-primary-600" />
+              <span>{isExporting ? 'Mengekspor...' : 'Export Laporan'}</span>
+              <ChevronDown size={15} className={`text-slate-400 transition-transform duration-200 ${isExportDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isExportDropdownOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-30" 
+                  onClick={() => setIsExportDropdownOpen(false)}
+                />
+
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-100 z-40 p-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Pilihan Format Export</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {filteredData.length} data terpilih ({laporanData.length} total)
+                    </p>
+                  </div>
+
+                  {/* Excel section */}
+                  <div className="p-1">
+                    <div className="px-2 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <FileSpreadsheet size={14} className="text-emerald-600" />
+                      <span>Microsoft Excel (.xlsx)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleExportExcel(true)}
+                      className="w-full text-left px-3 py-2 text-xs font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-lg transition-colors flex items-center justify-between"
+                    >
+                      <span>Export Data Terfilter</span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">
+                        {filteredData.length} baris
+                      </span>
+                    </button>
+                    {filteredData.length !== laporanData.length && (
+                      <button
+                        type="button"
+                        onClick={() => handleExportExcel(false)}
+                        className="w-full text-left px-3 py-2 text-xs font-medium text-slate-600 hover:bg-emerald-50 hover:text-emerald-800 rounded-lg transition-colors flex items-center justify-between"
+                      >
+                        <span>Export Semua Data</span>
+                        <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold">
+                          {laporanData.length} baris
+                        </span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="h-px bg-slate-100 my-1" />
+
+                  {/* CSV section */}
+                  <div className="p-1">
+                    <div className="px-2 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <FileText size={14} className="text-blue-600" />
+                      <span>CSV Universal (.csv)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleExportCSV(true)}
+                      className="w-full text-left px-3 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 rounded-lg transition-colors flex items-center justify-between"
+                    >
+                      <span>Export CSV Terfilter</span>
+                      <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold">
+                        {filteredData.length} baris
+                      </span>
+                    </button>
+                    {filteredData.length !== laporanData.length && (
+                      <button
+                        type="button"
+                        onClick={() => handleExportCSV(false)}
+                        className="w-full text-left px-3 py-2 text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-800 rounded-lg transition-colors flex items-center justify-between"
+                      >
+                        <span>Export Semua CSV</span>
+                        <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold">
+                          {laporanData.length} baris
+                        </span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="h-px bg-slate-100 my-1" />
+
+                  {/* Print section */}
+                  <div className="p-1">
+                    <button
+                      type="button"
+                      onClick={handlePrint}
+                      className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Printer size={15} className="text-slate-600" />
+                      <span>Cetak Dokumen / Simpan PDF</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {!dropdownData.isAdmin && (
             <button onClick={() => setIsModalOpen(true)} className="btn btn-primary flex items-center gap-2 shadow-sm shadow-primary-500/20">
               <Plus size={18} />
               Buat Laporan Baru
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* SPPG Dashboard Widget */}
       {!dropdownData.isAdmin && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print-hidden">
           <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center gap-4 hover:border-blue-300 transition-colors">
             <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
               <Package size={24} />
@@ -192,9 +419,32 @@ export default function LaporanAktifitasClient({
         </div>
       )}
 
+      {/* Official Print Header */}
+      <div className="print-only mb-6 border-b-2 border-slate-900 pb-4 text-slate-900">
+        <div className="flex items-center justify-between border-b border-slate-300 pb-3 mb-3">
+          <div>
+            <h1 className="text-lg font-black uppercase tracking-wider text-slate-900">Pemerintah Kabupaten Lebak</h1>
+            <h2 className="text-sm font-bold text-slate-700">Program Makan Bergizi Gratis (MBG) — Digitalisasi Supply Chain</h2>
+            <p className="text-xs text-slate-500">Rekapitulasi Laporan Aktivitas Distribusi & Verifikasi Makanan</p>
+          </div>
+          <div className="text-right text-xs text-slate-600">
+            <p className="font-semibold">Tanggal Cetak: {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p>Total Data: {filteredData.length} Laporan</p>
+          </div>
+        </div>
+        <div className="text-xs text-slate-600 flex flex-wrap gap-x-4">
+          {filterSppg && <span>SPPG: <strong>{filterSppg}</strong></span>}
+          {filterStatus && <span>Status: <strong>{filterStatus}</strong></span>}
+          {filterWaktuMakan && <span>Waktu Makan: <strong>{filterWaktuMakan}</strong></span>}
+          {filterTanggal && <span>Tanggal: <strong>{filterTanggal}</strong></span>}
+          {filterPenerima && <span>Penerima: <strong>{filterPenerima}</strong></span>}
+          {!filterSppg && !filterStatus && !filterWaktuMakan && !filterTanggal && !filterPenerima && <span>Filter: <strong>Semua Data</strong></span>}
+        </div>
+      </div>
+
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {/* Filters */}
-        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row flex-wrap gap-3 bg-slate-50/50">
+        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row flex-wrap gap-3 bg-slate-50/50 print-hidden">
           {dropdownData.isAdmin && (
             <div className="flex-1 md:max-w-xs flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
               <Filter size={16} className="text-slate-400" />
@@ -273,7 +523,7 @@ export default function LaporanAktifitasClient({
                 <th className="p-4">Tujuan (Sekolah/Posyandu)</th>
                 <th className="p-4">Menu & Porsi</th>
                 <th className="p-4">Status</th>
-                <th className="p-4 text-right">Aksi</th>
+                <th className="p-4 text-right print-hidden">Aksi</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -293,7 +543,7 @@ export default function LaporanAktifitasClient({
                       {laporan.fotoDokumentasi ? (
                         <div 
                           onClick={() => setSelectedDetailLaporan(laporan)}
-                          className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 cursor-pointer shadow-sm hover:opacity-85 hover:ring-2 hover:ring-primary-500/30 transition-all bg-slate-100"
+                          className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 cursor-pointer shadow-sm hover:opacity-85 hover:ring-2 hover:ring-primary-500/30 transition-all bg-slate-100 print-hidden"
                           title="Klik untuk melihat foto"
                         >
                           <img 
@@ -303,7 +553,7 @@ export default function LaporanAktifitasClient({
                           />
                         </div>
                       ) : (
-                        <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 text-slate-400">
+                        <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 text-slate-400 print-hidden">
                           <Utensils size={20} />
                         </div>
                       )}
@@ -347,7 +597,7 @@ export default function LaporanAktifitasClient({
                       {laporan.status}
                     </span>
                   </td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-right print-hidden">
                     <button 
                       onClick={() => setSelectedDetailLaporan(laporan)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-lg text-xs font-bold transition-all shadow-sm border border-primary-100"
