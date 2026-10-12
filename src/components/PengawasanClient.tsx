@@ -557,12 +557,19 @@ export default function PengawasanClient({
                           : jm === 'Sore'
                           ? 'bg-purple-50 text-purple-700 border-purple-200'
                           : 'bg-blue-50 text-blue-700 border-blue-200';
+                        const kategori = d.kategoriNama || d.standarMenuGizi?.kategoriTarget?.namaKategori;
+                        const cleanNamaMenu = namaMenu ? namaMenu.replace(/\s*\[.*?\]$/, '') : '';
                         return (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
                               Makan {jm}
                             </span>
-                            <span className="font-semibold text-slate-800">{namaMenu}</span>
+                            {kategori && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold border bg-emerald-50 text-emerald-800 border-emerald-200">
+                                {kategori}
+                              </span>
+                            )}
+                            <span className="font-semibold text-slate-800">{cleanNamaMenu || namaMenu}</span>
                           </div>
                         );
                       }
@@ -823,9 +830,10 @@ export default function PengawasanClient({
                       <optgroup label="Pilihan Menu Spesifik:">
                         {safeStandarMenuList.map((m: any) => {
                           const jm = m.jenisMakan || 'Siang';
+                          const kat = m.kategoriNama ? ` [${m.kategoriNama}]` : '';
                           return (
                             <option key={m.id} value={m.id}>
-                              [{jm}] {m.namaMenu} ({m.kaloriKkal || 0} Kkal)
+                              [{jm}] {m.namaMenu} ({m.kaloriKkal || 0} Kkal){kat}
                             </option>
                           );
                         })}

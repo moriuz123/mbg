@@ -132,7 +132,11 @@ export async function getPublicLaporanHarian(dateStr?: string) {
         sppg: true,
         sekolah: true,
         posyandu: true,
-        standarMenuGizi: true
+        standarMenuGizi: {
+          with: {
+            kategoriTarget: true
+          }
+        }
       },
       where: eq(sppgLaporanAktifitas.tanggal, targetDate),
       orderBy: [desc(sppgLaporanAktifitas.createdAt)],
@@ -147,12 +151,15 @@ export async function getPublicLaporanHarian(dateStr?: string) {
         receiverName = `Posyandu ${l.posyandu.namaPosyandu}`;
       }
 
+      const kat = l.standarMenuGizi?.kategoriTarget?.namaKategori ? ` [${l.standarMenuGizi.kategoriTarget.namaKategori}]` : '';
+
       return {
         id: l.id,
         tanggal: l.tanggal,
-        menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
+        menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu}${kat} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
         menuDetail: l.standarMenuGizi?.deskripsi || '',
         jenisMakan: l.standarMenuGizi?.jenisMakan || 'Siang',
+        kategoriNama: l.standarMenuGizi?.kategoriTarget?.namaKategori || null,
         jumlahPorsi: l.jumlahPorsi,
         status: l.status,
         sppgName: l.sppg?.namaSppg || '-',
