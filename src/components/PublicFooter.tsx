@@ -5,9 +5,15 @@ import Link from 'next/link';
 import { MapPin, Mail, Globe, ArrowRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-export default function PublicFooter() {
+export default function PublicFooter({ settings }: { settings?: Record<string, string> }) {
   const pathname = usePathname();
   if (pathname === '/login' || pathname?.startsWith('/admin')) return null;
+
+  const address = settings?.address || 'Pusat Pemerintahan Kabupaten Lebak\nJl. Alun-Alun Rangkasbitung No.1';
+  const siteName = settings?.site_name || 'Sistem Digitalisasi Supply Chain';
+  const govLevel = settings?.gov_level || settings?.tagline || 'Pemerintah Kabupaten Lebak';
+  const logo = settings?.logo || '/LOGO-LEBAK.png';
+  const description = settings?.site_description || 'Sistem Digitalisasi Supply Chain dan pemantauan distribusi logistik Pemerintah Kabupaten Lebak.';
 
   return (
     <footer className="w-full bg-[#071840] text-white pt-16 pb-10 border-t-[6px] border-accent-500 relative overflow-hidden mt-auto">
@@ -31,20 +37,20 @@ export default function PublicFooter() {
           <div>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-14 h-14 bg-white rounded-xl p-1.5 flex items-center justify-center shrink-0 shadow-lg">
-                <img src="/LOGO-LEBAK.png" alt="Lebak Logo" className="w-full h-full object-contain" />
+                <img src={logo} alt={siteName} className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-heading font-extrabold text-white text-xl tracking-wide">
-                  Sistem Digitalisasi Supply Chain
+                  {siteName}
                 </span>
                 <span className="text-xs text-accent-500 font-semibold uppercase tracking-widest mt-0.5">
-                  Pemerintah Kabupaten Lebak
+                  {govLevel}
                 </span>
               </div>
             </div>
             
             <p className="text-white/80 leading-relaxed font-medium mb-8">
-              Sistem Digitalisasi Supply Chain dan pemantauan distribusi logistik Pemerintah Kabupaten Lebak.
+              {description}
             </p>
             
             <div className="flex items-center gap-3">
@@ -101,9 +107,8 @@ export default function PublicFooter() {
             <div className="flex flex-col gap-4 text-white/80 font-medium">
               <div className="flex items-start gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors">
                 <MapPin size={22} className="text-accent-500 shrink-0 mt-0.5" /> 
-                <span className="leading-relaxed text-sm">
-                  Pusat Pemerintahan Kabupaten Lebak<br />
-                  Jl. Alun-Alun Rangkasbitung No.1
+                <span className="leading-relaxed text-sm whitespace-pre-line">
+                  {address}
                 </span>
               </div>
               <Link 

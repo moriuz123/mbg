@@ -57,7 +57,7 @@ export default async function PublicLayout({ children }: { children: React.React
         </div>
         <PublicNavbar dynamicMenus={dynamicMenus} />
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</main>
-        <PublicFooter />
+        <PublicFooter settings={siteSettings} />
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default async function PublicLayout({ children }: { children: React.React
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicNavbar dynamicMenus={dynamicMenus} />
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</main>
-      <PublicFooter />
+      <PublicFooter settings={siteSettings} />
     </div>
   );
 }
