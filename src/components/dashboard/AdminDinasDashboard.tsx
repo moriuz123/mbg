@@ -72,7 +72,7 @@ export default function AdminDinasDashboard({ stats }: AdminDinasDashboardProps)
 
   // Generate last 6 months list explicitly for continuous timeline
   const last6Months = useMemo(() => {
-    const months = [];
+    const months: { key: string; label: string }[] = [];
     const date = new Date();
     for (let i = 5; i >= 0; i--) {
       const d = new Date(date.getFullYear(), date.getMonth() - i, 1);

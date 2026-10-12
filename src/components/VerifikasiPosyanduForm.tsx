@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getPosyanduList, getPendingPosyanduDeliveries, submitVerifikasiPosyandu } from '@/app/actions/posyanduVerifikasi';
 import { Camera, CheckCircle, AlertTriangle, Info, MapPin } from 'lucide-react';
 
-type Pengiriman = { id: number; tanggal: string; menu: string; jumlahPorsi: number | null; status: string | null };
+type Pengiriman = { id: number; tanggal: string; menu: string; jumlahPorsi: number | null; status: string | null; jenisMakan?: string };
 
 export default function VerifikasiPosyanduForm() {
   const [posyanduList, setPosyanduList] = useState<any[]>([]);

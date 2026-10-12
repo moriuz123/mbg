@@ -152,6 +152,7 @@ export async function getPublicLaporanHarian(dateStr?: string) {
         tanggal: l.tanggal,
         menu: l.standarMenuGizi ? `${l.standarMenuGizi.namaMenu} (${l.standarMenuGizi.kaloriKkal || 0} Kkal)` : '-',
         menuDetail: l.standarMenuGizi?.deskripsi || '',
+        jenisMakan: l.standarMenuGizi?.jenisMakan || 'Siang',
         jumlahPorsi: l.jumlahPorsi,
         status: l.status,
         sppgName: l.sppg?.namaSppg || '-',

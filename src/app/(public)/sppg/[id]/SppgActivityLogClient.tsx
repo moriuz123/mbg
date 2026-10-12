@@ -58,7 +58,22 @@ export default function SppgActivityLogClient({ recentActivities }: { recentActi
                       <Activity size={20} />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-800">{menuName}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-bold text-slate-800">{menuName}</p>
+                        {(() => {
+                          const jm = act.standarMenuGizi?.jenisMakan || 'Siang';
+                          const badgeStyle = jm === 'Pagi'
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : jm === 'Sore'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : 'bg-blue-50 text-blue-700 border-blue-200';
+                          return (
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
+                              Makan {jm}
+                            </span>
+                          );
+                        })()}
+                      </div>
                       <p className="text-xs text-slate-500 mt-0.5">{act.jumlahPorsi} Porsi Paket Gizi</p>
                     </div>
                   </div>
@@ -85,8 +100,23 @@ export default function SppgActivityLogClient({ recentActivities }: { recentActi
             {/* Header Modal */}
             <div className="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary-50 text-primary-700 border border-primary-100 mb-2">
-                  <Activity size={14} /> Detail Laporan Distribusi MBG
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary-50 text-primary-700 border border-primary-100">
+                    <Activity size={14} /> Detail Laporan Distribusi MBG
+                  </div>
+                  {(() => {
+                    const jm = selectedActivity.standarMenuGizi?.jenisMakan || 'Siang';
+                    const badgeStyle = jm === 'Pagi'
+                      ? 'bg-amber-100 text-amber-800 border-amber-200'
+                      : jm === 'Sore'
+                      ? 'bg-purple-100 text-purple-800 border-purple-200'
+                      : 'bg-blue-100 text-blue-800 border-blue-200';
+                    return (
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-bold border ${badgeStyle}`}>
+                        Makan {jm}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800">
                   {selectedActivity.standarMenuGizi?.namaMenu || 'Laporan Pengiriman Gizi'}
