@@ -3,8 +3,8 @@ import PageHeader from '@/components/PageHeader';
 import TentangClient from './TentangClient';
 
 export const metadata = {
-  title: 'Tentang Rantai Pasok | Makan Bergizi Gratis (MBG) Kab. Lebak',
-  description: 'Informasi lengkap mengenai ekosistem logistik hulu ke hilir, mulai dari petani lokal hingga meja sekolah dalam Program Makan Bergizi Gratis di Kabupaten Lebak.',
+  title: 'Tentang Rantai Pasok | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
+  description: 'Informasi lengkap mengenai ekosistem logistik hulu ke hilir Sistem Digitalisasi Supply Chain Pemerintah Kabupaten Lebak.',
 };
 
 export default function TentangPage() {

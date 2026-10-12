@@ -254,7 +254,7 @@ export default function PengaduanPublicForm({ targets }: { targets: TargetList }
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <label className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-3 ${targetType === 'umum' ? 'bg-primary-50 border-primary-500 text-primary-900 shadow-sm font-bold' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
                   <input type="radio" name="targetType" value="umum" checked={targetType === 'umum'} onChange={(e) => setTargetType(e.target.value)} className="w-4 h-4 text-primary-600" />
-                  <span className="text-sm">Umum / Sistem MBG</span>
+                  <span className="text-sm">Umum / Sistem Supply Chain</span>
                 </label>
 
                 <label className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-3 ${targetType === 'sekolah' ? 'bg-blue-50 border-blue-500 text-blue-900 shadow-sm font-bold' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'}`}>

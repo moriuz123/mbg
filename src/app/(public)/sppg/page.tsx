@@ -7,7 +7,7 @@ import { getFilterOptions } from '@/app/actions/publicSekolah';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Direktori Titik Layanan (SPPG) | MBG Kab. Lebak',
+  title: 'Direktori Titik Layanan (SPPG) | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
   description: 'Data lokasi Satuan Pelayanan Pemenuhan Gizi di wilayah Kabupaten Lebak',
 };
 

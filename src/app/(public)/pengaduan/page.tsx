@@ -4,8 +4,8 @@ import PageHeader from '@/components/PageHeader';
 import { getPublicTargets } from '@/app/actions/pengaduan';
 
 export const metadata = {
-  title: 'Layanan Pengaduan & Aspirasi | MBG Kab. Lebak',
-  description: 'Sistem pelaporan terpadu Program Makan Bergizi Gratis (MBG) Kabupaten Lebak via Form Direct, WhatsApp Lapor Ruhay (+6281944114581), dan SPAN-LAPOR.go.id.',
+  title: 'Layanan Pengaduan & Aspirasi | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
+  description: 'Sistem pelaporan terpadu Sistem Digitalisasi Supply Chain Pemerintah Kabupaten Lebak via Form Direct, WhatsApp Lapor Ruhay (+6281944114581), dan SPAN-LAPOR.go.id.',
 };
 
 export default async function PengaduanPublicPage() {

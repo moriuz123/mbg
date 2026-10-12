@@ -12,7 +12,7 @@ export default function MaintenanceView({ settings = {} }: MaintenanceViewProps)
   const siteName = settings.site_name || 'MBG Kab. Lebak';
   const logoUrl = settings.logo || '/LOGO-LEBAK.png';
   const title = settings.maintenance_title || 'Sistem Sedang Dalam Pemeliharaan Berkala';
-  const message = settings.maintenance_message || 'Kami sedang melakukan pemeliharaan infrastruktur dan optimalisasi sistem Makan Bergizi Gratis (MBG) Kabupaten Lebak. Layanan publik akan segera aktif kembali.';
+  const message = settings.maintenance_message || 'Kami sedang melakukan pemeliharaan infrastruktur dan optimalisasi Sistem Digitalisasi Supply Chain Pemerintah Kabupaten Lebak. Layanan publik akan segera aktif kembali.';
   const endTime = settings.maintenance_end_time || null;
   const contact = settings.maintenance_contact || settings.email || 'mbg@lebakkab.go.id';
   const phone = settings.phone || '(0252) 201113';
@@ -41,9 +41,17 @@ export default function MaintenanceView({ settings = {} }: MaintenanceViewProps)
       <header className="relative z-10 container mx-auto px-6 py-8 flex items-center justify-between border-b border-white/10">
         <div className="flex items-center gap-3">
           <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain drop-shadow" />
-          <div>
-            <h1 className="font-extrabold text-base sm:text-lg tracking-tight leading-tight">{siteName}</h1>
-            <p className="text-[11px] text-slate-400 font-medium tracking-wide">Pemerintah Kabupaten Lebak</p>
+          <div className="w-px h-8 bg-white/20"></div>
+          <div className="flex flex-col justify-center leading-none text-left">
+            <span className="font-heading font-bold text-white text-[0.8rem] sm:text-[0.85rem] leading-tight tracking-tight">
+              Sistem Digitalisasi
+            </span>
+            <span className="font-heading font-extrabold text-amber-400 text-[0.8rem] sm:text-[0.85rem] leading-tight tracking-tight">
+              Supply Chain
+            </span>
+            <span className="text-[0.625rem] text-slate-300 font-bold uppercase tracking-wider leading-tight mt-0.5">
+              Pemkab Lebak
+            </span>
           </div>
         </div>
 
@@ -125,7 +133,7 @@ export default function MaintenanceView({ settings = {} }: MaintenanceViewProps)
 
       {/* FOOTER */}
       <footer className="relative z-10 container mx-auto px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
-        <p>© {new Date().getFullYear()} Pemerintah Kabupaten Lebak. Sistem Digitalisasi Supply Chain MBG.</p>
+        <p>© {new Date().getFullYear()} Pemerintah Kabupaten Lebak. Sistem Digitalisasi Supply Chain.</p>
         <div className="flex items-center gap-4">
           {contact && (
             <span className="flex items-center gap-1.5 hover:text-slate-200">

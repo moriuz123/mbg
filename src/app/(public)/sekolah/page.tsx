@@ -6,8 +6,8 @@ import { getPublicSekolahPenerima, getFilterOptions } from '@/app/actions/public
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Daftar Sekolah Penerima MBG | MBG Kab. Lebak',
-  description: 'Daftar sekolah penerima manfaat Makan Bergizi Gratis di Kabupaten Lebak',
+  title: 'Daftar Sekolah Penerima | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
+  description: 'Daftar sekolah penerima manfaat program pemenuhan gizi di Kabupaten Lebak',
 };
 
 export default async function SekolahPage() {

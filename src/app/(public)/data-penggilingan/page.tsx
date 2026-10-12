@@ -9,7 +9,7 @@ import { getFilterOptions } from '@/app/actions/publicSekolah';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Rantai Pasok Hulu | MBG Kab. Lebak',
+  title: 'Rantai Pasok Hulu | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
   description: 'Transparansi serapan gabah dan produksi beras lokal Kabupaten Lebak.',
 };
 
