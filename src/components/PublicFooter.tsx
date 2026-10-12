@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Globe, ArrowRight } from 'lucide-react';
+import { MapPin, Mail, Globe, ArrowRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export default function PublicFooter() {
@@ -93,28 +93,30 @@ export default function PublicFooter() {
             </ul>
           </div>
           
-          {/* Column 3: Contact */}
+          {/* Column 3: Alamat & Layanan Aduan */}
           <div>
             <h4 className="font-heading font-bold text-lg mb-6 text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-accent-500 block"></span> Pusat Bantuan
+              <span className="w-2 h-2 rounded-full bg-accent-500 block"></span> Alamat
             </h4>
-            <ul className="flex flex-col gap-4 text-white/80 font-medium">
-              <li className="flex items-start gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors">
+            <div className="flex flex-col gap-4 text-white/80 font-medium">
+              <div className="flex items-start gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors">
                 <MapPin size={22} className="text-accent-500 shrink-0 mt-0.5" /> 
                 <span className="leading-relaxed text-sm">
                   Pusat Pemerintahan Kabupaten Lebak<br />
                   Jl. Alun-Alun Rangkasbitung No.1
                 </span>
-              </li>
-              <li className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors">
-                <Phone size={20} className="text-accent-500 shrink-0" /> 
-                <span className="text-sm">(0252) 1234567</span>
-              </li>
-              <li className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors">
-                <Mail size={20} className="text-accent-500 shrink-0" /> 
-                <span className="text-sm">lapor@mbg.lebak.go.id</span>
-              </li>
-            </ul>
+              </div>
+              <Link 
+                href="/pengaduan" 
+                className="flex items-center justify-between gap-3 p-4 bg-accent-500 hover:bg-[#f5b030] text-[#071840] font-bold rounded-xl shadow-lg shadow-accent-500/20 transition-all group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Mail size={18} className="shrink-0" />
+                  <span className="text-sm">Layanan Aduan & Aspirasi</span>
+                </div>
+                <ArrowRight size={18} className="transform group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
 
         </div>
