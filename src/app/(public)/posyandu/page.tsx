@@ -6,8 +6,8 @@ import { getPublicPosyanduPenerima, getFilterOptions } from '@/app/actions/publi
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Daftar Posyandu Penerima MBG | MBG Kab. Lebak',
-  description: 'Daftar Posyandu penerima manfaat Makan Bergizi Gratis di Kabupaten Lebak',
+  title: 'Daftar Posyandu Penerima | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
+  description: 'Daftar Posyandu penerima manfaat program pemenuhan gizi di Kabupaten Lebak',
 };
 
 export default async function PosyanduPage() {

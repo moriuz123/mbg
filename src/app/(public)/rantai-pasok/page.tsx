@@ -6,8 +6,8 @@ import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
-  title: 'Analitik Rantai Pasok | MBG Kab. Lebak',
-  description: 'Transparansi rantai pasok bahan pangan dari pemasok lokal ke dapur SPPG Program Makan Bergizi Gratis.',
+  title: 'Analitik Rantai Pasok | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
+  description: 'Transparansi rantai pasok bahan pangan dari pemasok lokal ke dapur sentral SPPG.',
 };
 
 export const dynamic = 'force-dynamic';
