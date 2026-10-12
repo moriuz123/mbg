@@ -49,8 +49,8 @@ export default function TentangClient() {
       a: 'Sistem mencatat setiap transaksi pembelian komoditas harian secara real-time. Pada tahap hilir, setiap keberangkatan dan kedatangan kendaraan distribusi ke sekolah diverifikasi secara digital untuk memastikan makanan tiba tepat waktu.'
     },
     {
-      q: 'Apakah warga bisa melihat data pembelian komoditas?',
-      a: 'Tentu. Sistem ini mengusung prinsip "Open Data" di mana masyarakat publik dapat memantau secara langsung volume serapan gabah, asal pasokan bahan pokok, serta aktivitas pembelian Dapur SPPG melalui Dasbor Publik.'
+      q: 'Apakah warga bisa melihat data logistik dan komoditas?',
+      a: 'Masyarakat publik dapat memantau secara langsung agregat capaian, serapan gabah petani lokal, serta persebaran titik layanan SPPG. Untuk rincian logistik dan transaksi pembelian bersifat internal dan hanya dapat diakses oleh Admin Dinas serta pengelola SPPG.'
     },
     {
       q: 'Bagaimana cara bergabung menjadi Mitra Pemasok logistik?',

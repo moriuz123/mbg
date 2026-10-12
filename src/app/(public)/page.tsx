@@ -160,7 +160,6 @@ export default async function Public({
 
   // Data Rantai Pasok (Preview)
   let rpStats = { pemasok: 0, komoditas: 0, transaksi: 0 };
-  let rpFeed: any[] = [];
   try {
     const rpStatsRes = await db.execute(sql`
       SELECT 
@@ -173,17 +172,6 @@ export default async function Public({
       komoditas: parseInt(rpStatsRes[0]?.total_komoditas as string) || 0,
       transaksi: parseInt(rpStatsRes[0]?.total_transaksi as string) || 0,
     };
-    
-    rpFeed = await db.execute(sql`
-      SELECT 
-        pb.id, pb.tanggal_pembelian, jp.nama_bahan, pb.volume, 
-        COALESCE(pb.satuan, jp.satuan_default, 'Kg') as satuan, s.nama_sppg
-      FROM sppg_pembelian_bahan pb
-      JOIN jenis_pangan jp ON pb.jenis_pangan_id = jp.jenis_pangan_id
-      JOIN sppg s ON pb.sppg_id = s.sppg_id
-      ORDER BY pb.tanggal_pembelian DESC, pb.created_at DESC
-      LIMIT 3
-    `);
   } catch(e) {
     console.error("Error fetching rantai pasok preview:", e);
   }
@@ -349,36 +337,7 @@ export default async function Public({
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-10">
-            <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2"><Activity size={18} className="text-emerald-600" /> Cuplikan Feed Pembelian Terbaru</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[700px]">
-                <thead>
-                  <tr className="bg-white text-slate-400 text-[10px] font-extrabold uppercase tracking-widest border-b border-slate-100">
-                    <th className="px-6 py-4">Tanggal</th>
-                    <th className="px-6 py-4">Komoditas</th>
-                    <th className="px-6 py-4 text-right">Volume</th>
-                    <th className="px-6 py-4">Tujuan SPPG</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50 text-sm">
-                  {rpFeed.map((d: any) => (
-                    <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4 text-xs font-semibold text-slate-500">{new Date(d.tanggal_pembelian).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</td>
-                      <td className="px-6 py-4 font-bold text-slate-700">{d.nama_bahan}</td>
-                      <td className="px-6 py-4 text-right"><span className="font-black text-slate-800">{parseFloat(d.volume as string).toLocaleString('id-ID')}</span> <span className="text-xs text-slate-500">{d.satuan}</span></td>
-                      <td className="px-6 py-4"><span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold border border-slate-200"><Factory size={12} className="text-slate-400" /> {d.nama_sppg}</span></td>
-                    </tr>
-                  ))}
-                  {rpFeed.length === 0 && (
-                    <tr><td colSpan={4} className="p-8 text-center text-slate-400 text-sm font-medium">Belum ada transaksi</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+
 
           <div className="text-center">
             <a href="/rantai-pasok" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-[0_8px_20px_rgba(5,150,105,0.2)] transition-all hover:-translate-y-1">
