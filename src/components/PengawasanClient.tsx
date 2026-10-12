@@ -50,6 +50,7 @@ export default function PengawasanClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedParameterId, setSelectedParameterId] = useState<string>('');
   const [selectedSppgFilter, setSelectedSppgFilter] = useState<string>('all');
+  const [filterWaktuPemakaian, setFilterWaktuPemakaian] = useState<string>('');
   
   const [selectedJenisPanganId, setSelectedJenisPanganId] = useState<string>('');
   const [tipeSumberBeras, setTipeSumberBeras] = useState<'Pemasok' | 'Penggilingan'>('Pemasok');
@@ -62,7 +63,17 @@ export default function PengawasanClient({
   const safeMasterParameterList = Array.isArray(masterParameterList) ? masterParameterList : [];
 
   const filteredPembelian = selectedSppgFilter === 'all' ? safePembelian : safePembelian.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
-  const filteredPemakaian = selectedSppgFilter === 'all' ? safePemakaian : safePemakaian.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
+  const filteredPemakaian = safePemakaian.filter((p: any) => {
+    if (selectedSppgFilter !== 'all' && p.sppgId?.toString() !== selectedSppgFilter) return false;
+    if (filterWaktuPemakaian) {
+      const jm = p.standarMenuGizi?.jenisMakan || 
+        (p.menuNama?.startsWith('[Pagi]') ? 'Pagi' : 
+         p.menuNama?.startsWith('[Sore]') ? 'Sore' : 
+         p.menuNama?.startsWith('[Siang]') ? 'Siang' : '');
+      if (jm !== filterWaktuPemakaian) return false;
+    }
+    return true;
+  });
   const filteredUjiRapid = selectedSppgFilter === 'all' ? safeUjiRapid : safeUjiRapid.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
   const filteredKartuStok = selectedSppgFilter === 'all' ? safeKartuStok : safeKartuStok.filter((p: any) => p.sppgId?.toString() === selectedSppgFilter);
   const safePemasokList = Array.isArray(pemasokList) ? pemasokList : [];
@@ -338,22 +349,41 @@ export default function PengawasanClient({
         </div>
       )}
 
-      {/* FILTER BAR - Only on data tabs for Admin */}
-      {isAdmin && activeTab !== 'analitik' && (
+      {/* FILTER BAR - Data tabs */}
+      {activeTab !== 'analitik' && (isAdmin || activeTab === 'pemakaian') && (
         <div className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-3">
-          <div className="text-sm font-bold text-slate-700 flex items-center gap-2">
-            <span className="text-primary-600">🔎</span> Filter Data Dapur:
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <span className="text-primary-600">🔎</span> Filter Data:
+            </div>
+            {isAdmin && (
+              <select 
+                value={selectedSppgFilter}
+                onChange={(e) => setSelectedSppgFilter(e.target.value)}
+                className="p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium text-slate-700"
+              >
+                <option value="all">Semua Dapur SPPG</option>
+                {safeSppgList.map((sppg: any) => (
+                  <option key={sppg.id} value={sppg.id}>{sppg.namaSppg}</option>
+                ))}
+              </select>
+            )}
+            {activeTab === 'pemakaian' && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-500">Waktu Makan:</span>
+                <select
+                  value={filterWaktuPemakaian}
+                  onChange={(e) => setFilterWaktuPemakaian(e.target.value)}
+                  className="p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium text-slate-700"
+                >
+                  <option value="">Semua Waktu Makan</option>
+                  <option value="Pagi">Makan Pagi</option>
+                  <option value="Siang">Makan Siang</option>
+                  <option value="Sore">Makan Sore</option>
+                </select>
+              </div>
+            )}
           </div>
-          <select 
-            value={selectedSppgFilter}
-            onChange={(e) => setSelectedSppgFilter(e.target.value)}
-            className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:max-w-xs font-medium text-slate-700"
-          >
-            <option value="all">Tampilkan Semua Dapur SPPG</option>
-            {sppgList?.map((sppg: any) => (
-              <option key={sppg.id} value={sppg.id}>{sppg.namaSppg}</option>
-            ))}
-          </select>
         </div>
       )}
 
@@ -495,7 +525,35 @@ export default function PengawasanClient({
                   <td className="px-6 py-4 font-semibold text-slate-700">{d.tanggalPemakaian}</td>
                   <td className="px-6 py-4 font-bold text-slate-800">{d.jenisPanganNama || 'Bahan Pangan'}</td>
                   <td className="px-6 py-4 font-bold text-amber-600">{d.volume} {d.satuan}</td>
-                  <td className="px-6 py-4 font-medium text-slate-600">{d.menuNama || 'Umum / Dapur'}</td>
+                  <td className="px-6 py-4">
+                    {(() => {
+                      const jm = d.standarMenuGizi?.jenisMakan || 
+                        (d.menuNama?.startsWith('[Pagi]') ? 'Pagi' : 
+                         d.menuNama?.startsWith('[Sore]') ? 'Sore' : 
+                         d.menuNama?.startsWith('[Siang]') ? 'Siang' : null);
+                      const namaMenu = d.standarMenuGizi?.namaMenu || (d.menuNama ? d.menuNama.replace(/^\[(Pagi|Siang|Sore)\]\s*/, '') : null);
+
+                      if (jm) {
+                        const badgeStyle = jm === 'Pagi'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : jm === 'Sore'
+                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-200';
+                        return (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${badgeStyle}`}>
+                              Makan {jm}
+                            </span>
+                            <span className="font-semibold text-slate-800">{namaMenu}</span>
+                          </div>
+                        );
+                      }
+                      if (d.menuNama) {
+                        return <span className="font-medium text-slate-700">{d.menuNama}</span>;
+                      }
+                      return <span className="text-slate-400 text-xs italic">Umum / Dapur</span>;
+                    })()}
+                  </td>
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => handleDeleteClick(d.id, 'pemakaian')} 
@@ -732,6 +790,26 @@ export default function PengawasanClient({
                       placeholder="-- Cari & Pilih Komoditas --"
                     />
                   </div>
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">
+                      Menu Standar Gizi / Waktu Makan <span className="text-slate-400 font-normal">(Opsional)</span>
+                    </label>
+                    <select
+                      name="standarMenuId"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">-- Pemakaian Umum / Tanpa Menu Tertentu --</option>
+                      {safeStandarMenuList.map((m: any) => {
+                        const jm = m.jenisMakan || 'Siang';
+                        return (
+                          <option key={m.id} value={m.id}>
+                            [{jm}] {m.namaMenu} ({m.kaloriKkal || 0} Kkal)
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <p className="text-[11px] text-slate-400 mt-1">Pilih menu standar MBG jika pemakaian bahan ini dialokasikan untuk Makan Pagi, Siang, atau Sore.</p>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Volume Digunakan <span className="text-red-500">*</span></label>
@@ -741,6 +819,10 @@ export default function PengawasanClient({
                       <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Satuan <span className="text-red-500">*</span></label>
                       <input type="text" name="satuan" required defaultValue="Kg" placeholder="Kg / Liter" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Catatan Pemakaian <span className="text-slate-400 font-normal">(Opsional)</span></label>
+                    <input type="text" name="catatan" placeholder="Misal: Dimasak untuk 250 porsi siswa SDN 1 Rangkasbitung" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm" />
                   </div>
                 </>
               )}
