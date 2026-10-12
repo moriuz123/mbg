@@ -66,6 +66,12 @@ export default function PengawasanClient({
   const filteredPemakaian = safePemakaian.filter((p: any) => {
     if (selectedSppgFilter !== 'all' && p.sppgId?.toString() !== selectedSppgFilter) return false;
     if (filterWaktuPemakaian) {
+      if (filterWaktuPemakaian === 'Seharian') {
+        return !!p.isAllMeals || p.menuNama?.includes('3 Waktu Makan');
+      }
+      if (p.isAllMeals || p.menuNama?.includes('3 Waktu Makan')) {
+        return true; // Termasuk pemakaian seharian yang mencakup Pagi, Siang, dan Sore
+      }
       const jm = p.standarMenuGizi?.jenisMakan || 
         (p.menuNama?.startsWith('[Pagi]') ? 'Pagi' : 
          p.menuNama?.startsWith('[Sore]') ? 'Sore' : 
@@ -377,6 +383,7 @@ export default function PengawasanClient({
                   className="p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium text-slate-700"
                 >
                   <option value="">Semua Waktu Makan</option>
+                  <option value="Seharian">🟢 3 Waktu Makan (Seharian)</option>
                   <option value="Pagi">Makan Pagi</option>
                   <option value="Siang">Makan Siang</option>
                   <option value="Sore">Makan Sore</option>
@@ -527,6 +534,17 @@ export default function PengawasanClient({
                   <td className="px-6 py-4 font-bold text-amber-600">{d.volume} {d.satuan}</td>
                   <td className="px-6 py-4">
                     {(() => {
+                      if (d.isAllMeals || d.menuNama?.includes('3 Waktu Makan')) {
+                        return (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold border bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                              3 Waktu Makan (Pagi, Siang, Sore)
+                            </span>
+                          </div>
+                        );
+                      }
+
                       const jm = d.standarMenuGizi?.jenisMakan || 
                         (d.menuNama?.startsWith('[Pagi]') ? 'Pagi' : 
                          d.menuNama?.startsWith('[Sore]') ? 'Sore' : 
@@ -551,7 +569,7 @@ export default function PengawasanClient({
                       if (d.menuNama) {
                         return <span className="font-medium text-slate-700">{d.menuNama}</span>;
                       }
-                      return <span className="text-slate-400 text-xs italic">Umum / Dapur</span>;
+                      return <span className="text-slate-400 text-xs italic">Umum / Persiapan Dapur</span>;
                     })()}
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -796,19 +814,24 @@ export default function PengawasanClient({
                     </label>
                     <select
                       name="standarMenuId"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm outline-none focus:ring-2 focus:ring-primary-500 font-medium"
                     >
-                      <option value="">-- Pemakaian Umum / Tanpa Menu Tertentu --</option>
-                      {safeStandarMenuList.map((m: any) => {
-                        const jm = m.jenisMakan || 'Siang';
-                        return (
-                          <option key={m.id} value={m.id}>
-                            [{jm}] {m.namaMenu} ({m.kaloriKkal || 0} Kkal)
-                          </option>
-                        );
-                      })}
+                      <option value="all_meals" className="font-bold text-emerald-700 bg-emerald-50">
+                        🟢 [Seharian] Alokasi 3 Sesi Makan (Pagi, Siang & Sore)
+                      </option>
+                      <option value="">-- Pemakaian Umum / Persiapan Dapur --</option>
+                      <optgroup label="Pilihan Menu Spesifik:">
+                        {safeStandarMenuList.map((m: any) => {
+                          const jm = m.jenisMakan || 'Siang';
+                          return (
+                            <option key={m.id} value={m.id}>
+                              [{jm}] {m.namaMenu} ({m.kaloriKkal || 0} Kkal)
+                            </option>
+                          );
+                        })}
+                      </optgroup>
                     </select>
-                    <p className="text-[11px] text-slate-400 mt-1">Pilih menu standar MBG jika pemakaian bahan ini dialokasikan untuk Makan Pagi, Siang, atau Sore.</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Pilih "Alokasi 3 Sesi Makan" untuk beras/minyak/bumbu yang dipakai seharian, atau pilih menu spesifik untuk porsi tertentu.</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>

@@ -146,15 +146,26 @@ export async function createPemakaianBahan(formData: FormData) {
       sppgId = userSppgId;
     }
 
+    const standarMenuIdRaw = formData.get('standarMenuId') as string;
+    let standarMenuId: number | null = null;
+    let rawCatatan = formData.get('catatan') as string || '';
+
+    if (standarMenuIdRaw === 'all_meals') {
+      standarMenuId = null;
+      rawCatatan = rawCatatan ? `[3 Waktu Makan: Pagi, Siang, Sore] ${rawCatatan}` : '[3 Waktu Makan: Pagi, Siang, Sore]';
+    } else if (standarMenuIdRaw) {
+      standarMenuId = parseInt(standarMenuIdRaw);
+    }
+
     const data = {
       sppgId,
       jenisPanganId: parseInt(formData.get('jenisPanganId') as string),
-      standarMenuId: formData.get('standarMenuId') ? parseInt(formData.get('standarMenuId') as string) : null,
+      standarMenuId,
       tanggalPemakaian: formData.get('tanggalPemakaian') as string,
       mingguKe: parseInt(formData.get('mingguKe') as string) || null,
       volume: formData.get('volume') as string,
       satuan: formData.get('satuan') as string || 'Kg',
-      catatan: formData.get('catatan') as string || null,
+      catatan: rawCatatan || null,
     };
 
     await db.insert(sppgPemakaianBahan).values(data);
@@ -184,12 +195,23 @@ export async function getPemakaianBahan(sppgId?: number) {
       orderBy: [desc(sppgPemakaianBahan.tanggalPemakaian), desc(sppgPemakaianBahan.createdAt)]
     });
 
-    return data.map(d => ({
-      ...d,
-      sppgNama: d.sppg?.namaSppg,
-      jenisPanganNama: d.jenisPangan?.namaBahan,
-      menuNama: d.standarMenuGizi ? `[${d.standarMenuGizi.jenisMakan || 'Siang'}] ${d.standarMenuGizi.namaMenu}` : undefined
-    }));
+    return data.map(d => {
+      const isAllMeals = d.catatan?.includes('[3 Waktu Makan: Pagi, Siang, Sore]') || false;
+      let displayCatatan = d.catatan;
+      if (isAllMeals && d.catatan) {
+        displayCatatan = d.catatan.replace('[3 Waktu Makan: Pagi, Siang, Sore]', '').trim() || null;
+      }
+      return {
+        ...d,
+        sppgNama: d.sppg?.namaSppg,
+        jenisPanganNama: d.jenisPangan?.namaBahan,
+        isAllMeals,
+        catatan: displayCatatan,
+        menuNama: d.standarMenuGizi 
+          ? `[${d.standarMenuGizi.jenisMakan || 'Siang'}] ${d.standarMenuGizi.namaMenu}` 
+          : (isAllMeals ? '3 Waktu Makan (Pagi, Siang, Sore)' : undefined)
+      };
+    });
   } catch (error) {
     console.error('Error getPemakaianBahan:', error);
     return [];
