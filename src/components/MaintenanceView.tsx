@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { Wrench, Clock, Mail, Phone, RefreshCw, Lock, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Wrench, Clock, Mail, Phone, RefreshCw, ShieldCheck, AlertCircle } from 'lucide-react';
 
 interface MaintenanceViewProps {
   settings?: Record<string, string>;
@@ -113,21 +112,14 @@ export default function MaintenanceView({ settings = {} }: MaintenanceViewProps)
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+        {/* Action Button */}
+        <div className="flex items-center justify-center w-full sm:w-auto">
           <button
             onClick={handleRefresh}
-            className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 text-sm"
+            className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 text-sm"
           >
             <RefreshCw size={16} /> Muat Ulang Halaman
           </button>
-          
-          <Link
-            href="/login"
-            className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white/15 text-white border border-white/20 font-bold rounded-xl backdrop-blur-md transition-all flex items-center justify-center gap-2 text-sm"
-          >
-            <Lock size={16} className="text-amber-400" /> Masuk Petugas / Admin
-          </Link>
         </div>
       </main>
 
