@@ -49,17 +49,20 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
           {/* Logo Brand */}
           <Link href="/" className="flex items-center gap-3 group">
             {/* Lebak Logo */}
-            <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center p-1 shrink-0">
+            <div className="w-11 h-11 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center p-1.5 shrink-0 shadow-sm group-hover:border-primary-200 transition-colors">
               <img src="/LOGO-LEBAK.png" alt="Logo Lebak" className="w-full h-full object-contain" />
             </div>
             
-            <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
+            <div className="w-px h-9 bg-slate-200"></div>
             
-            <div className="flex flex-col">
-              <span className="font-heading font-extrabold text-[#0a2463] text-base leading-tight group-hover:text-primary-500 transition-colors">
-                Digitalisasi Supply Chain
+            <div className="flex flex-col justify-center leading-none">
+              <span className="font-heading font-bold text-[#0a2463] text-[0.8rem] sm:text-[0.85rem] leading-tight tracking-tight group-hover:text-primary-600 transition-colors">
+                Sistem Digitalisasi
               </span>
-              <span className="text-[0.65rem] text-slate-500 font-semibold uppercase tracking-wider hidden sm:block">
+              <span className="font-heading font-extrabold text-primary-600 text-[0.8rem] sm:text-[0.85rem] leading-tight tracking-tight">
+                Supply Chain
+              </span>
+              <span className="text-[0.625rem] text-slate-500 font-bold uppercase tracking-wider leading-tight mt-0.5">
                 Pemkab Lebak
               </span>
             </div>

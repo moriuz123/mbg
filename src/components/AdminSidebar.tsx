@@ -64,9 +64,16 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
             <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 shadow-lg shadow-primary-500/30 text-white shrink-0">
               <ShieldCheck size={24} />
             </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pemkab Lebak</span>
-              <span className="text-base font-extrabold text-slate-800 leading-tight tracking-tight">Digitalisasi Supply Chain</span>
+            <div className="flex flex-col justify-center leading-none">
+              <span className="font-heading font-bold text-slate-800 text-[0.8rem] leading-tight tracking-tight">
+                Sistem Digitalisasi
+              </span>
+              <span className="font-heading font-extrabold text-primary-600 text-[0.8rem] leading-tight tracking-tight">
+                Supply Chain
+              </span>
+              <span className="text-[0.625rem] text-slate-400 font-bold uppercase tracking-wider leading-tight mt-0.5">
+                Pemkab Lebak
+              </span>
             </div>
           </div>
           {/* Mobile Close Button */}
