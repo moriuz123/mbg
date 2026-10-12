@@ -130,7 +130,7 @@ export const standarMenuGizi = pgTable("standar_menu_gizi", {
   namaMenu: text("nama_menu").notNull(),
   deskripsi: text("deskripsi"),
   sppgId: integer("sppg_id").references(() => sppg.id),
-  jenisMakan: text("jenis_makan").default("Siang"), // 'Pagi' atau 'Siang'
+  jenisMakan: text("jenis_makan").default("Siang"), // 'Pagi', 'Siang', atau 'Sore'
   kaloriKkal: integer("kalori_kkal"),
   proteinGram: numeric("protein_gram", { precision: 5, scale: 2 }),
   karbohidratGram: numeric("karbohidrat_gram", { precision: 5, scale: 2 }),
