@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit2, Trash2, X, Save, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Save, ChevronLeft, ChevronRight, AlertCircle, Search, Filter, Clock, RotateCcw } from 'lucide-react';
 import { saveStandarMenu, deleteStandarMenu } from '@/app/actions/standarMenu';
 import Toast from '@/components/ui/Toast';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -65,12 +65,39 @@ export default function StandarMenuClient({
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterKategori, setFilterKategori] = useState('');
+  const [filterWaktuMakan, setFilterWaktuMakan] = useState('');
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const paginatedData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // Filter logic
+  const filteredData = data.filter(item => {
+    let match = true;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchName = item.namaMenu?.toLowerCase().includes(q);
+      const matchDesc = item.deskripsi?.toLowerCase().includes(q);
+      if (!matchName && !matchDesc) match = false;
+    }
+    if (filterKategori) {
+      if (item.kategoriTargetId?.toString() !== filterKategori) match = false;
+    }
+    if (filterWaktuMakan) {
+      if (item.jenisMakan !== filterWaktuMakan) match = false;
+    }
+    return match;
+  });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterKategori, filterWaktuMakan, searchQuery]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const [mounted, setMounted] = useState(false);
   
@@ -189,13 +216,79 @@ export default function StandarMenuClient({
         isLoading={isDeleting}
       />
 
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Daftar Katalog Menu</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-slate-800">Daftar Katalog Menu</h2>
         {!isAdmin && (
           <button onClick={openAddModal} className="btn btn-primary">
             <Plus size={18} /> Tambah Menu
           </button>
         )}
+      </div>
+
+      {/* Filter Toolbar */}
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between mb-4">
+        <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500 transition-all">
+          <Search size={18} className="text-slate-400 shrink-0" />
+          <input 
+            type="text" 
+            placeholder="Cari nama menu atau komposisi..." 
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent text-sm outline-none text-slate-800 placeholder-slate-400"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600">
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Filter Kategori / Jenjang */}
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus-within:border-primary-400 transition-colors">
+            <Filter size={15} className="text-slate-400 shrink-0" />
+            <select 
+              value={filterKategori} 
+              onChange={e => setFilterKategori(e.target.value)}
+              className="bg-transparent outline-none font-medium text-slate-700 cursor-pointer text-xs sm:text-sm"
+            >
+              <option value="">Semua Kategori / Jenjang</option>
+              {kategoriList.map(k => (
+                <option key={k.id} value={k.id.toString()}>{k.namaKategori}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filter Waktu Makan */}
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus-within:border-primary-400 transition-colors">
+            <Clock size={15} className="text-slate-400 shrink-0" />
+            <select 
+              value={filterWaktuMakan} 
+              onChange={e => setFilterWaktuMakan(e.target.value)}
+              className="bg-transparent outline-none font-medium text-slate-700 cursor-pointer text-xs sm:text-sm"
+            >
+              <option value="">Semua Waktu Makan</option>
+              <option value="Pagi">Makan Pagi (Sarapan)</option>
+              <option value="Siang">Makan Siang</option>
+              <option value="Sore">Makan Sore</option>
+            </select>
+          </div>
+
+          {/* Tombol Reset jika ada filter aktif */}
+          {(searchQuery || filterKategori || filterWaktuMakan) && (
+            <button 
+              onClick={() => {
+                setSearchQuery('');
+                setFilterKategori('');
+                setFilterWaktuMakan('');
+              }}
+              className="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors flex items-center gap-1 border border-rose-200"
+              title="Reset Filter"
+            >
+              <RotateCcw size={14} /> Reset
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -234,12 +327,18 @@ export default function StandarMenuClient({
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className="inline-block px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium mb-1 mr-1">
-                      {item.kategoriNama || 'Umum'}
-                    </span>
-                    <span className="inline-block px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
-                      {item.jenisMakan || 'Siang'}
-                    </span>
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      <span className="inline-block px-2.5 py-0.5 bg-slate-100 text-slate-700 text-xs rounded-full font-medium border border-slate-200">
+                        {item.kategoriNama || 'Umum'}
+                      </span>
+                      <span className={`inline-block px-2.5 py-0.5 text-xs rounded-full font-bold border ${
+                        item.jenisMakan === 'Pagi' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                        item.jenisMakan === 'Sore' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                        'bg-blue-50 text-blue-700 border-blue-200'
+                      }`}>
+                        {item.jenisMakan === 'Pagi' ? 'Makan Pagi' : item.jenisMakan === 'Sore' ? 'Makan Sore' : 'Makan Siang'}
+                      </span>
+                    </div>
                   </td>
                   <td className="p-4">
                     <span className={`inline-block px-2 py-1 text-xs rounded-full font-medium ${item.status === 'Aktif' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
@@ -266,7 +365,9 @@ export default function StandarMenuClient({
               )) : (
                 <tr>
                   <td colSpan={isAdmin ? 5 : 6} className="p-8 text-center text-slate-500">
-                    Belum ada data standar menu.
+                    {searchQuery || filterKategori || filterWaktuMakan
+                      ? 'Tidak ada menu yang sesuai dengan filter yang dipilih.'
+                      : 'Belum ada data standar menu.'}
                   </td>
                 </tr>
               )}
@@ -279,7 +380,7 @@ export default function StandarMenuClient({
       {totalPages > 1 && (
         <div className="flex items-center justify-between bg-white px-4 py-3 border border-t-0 border-slate-200 rounded-b-xl">
           <div className="text-sm text-slate-500">
-            Menampilkan <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> hingga <span className="font-medium">{Math.min(currentPage * itemsPerPage, data.length)}</span> dari <span className="font-medium">{data.length}</span> entri
+            Menampilkan <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> hingga <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredData.length)}</span> dari <span className="font-medium">{filteredData.length}</span> entri
           </div>
           <div className="flex gap-2">
             <button 
@@ -334,6 +435,7 @@ export default function StandarMenuClient({
                     <select name="jenisMakan" value={fJenisMakan} onChange={e => setFJenisMakan(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all bg-white cursor-pointer">
                       <option value="Pagi">Makan Pagi (Sarapan)</option>
                       <option value="Siang">Makan Siang</option>
+                      <option value="Sore">Makan Sore</option>
                     </select>
                   </div>
                 </div>
