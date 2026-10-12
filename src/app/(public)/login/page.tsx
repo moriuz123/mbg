@@ -42,7 +42,7 @@ export default function Login() {
       <div className="card glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
         <div className="text-center mb-8">
           <img src="/LOGO-LEBAK.png" alt="Logo Lebak" style={{ height: '64px', margin: '0 auto', marginBottom: '1rem' }} />
-          <h2 className="text-2xl font-bold">Portal Petugas MBG</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Sistem Digitalisasi Supply Chain</h2>
           <p className="text-muted mt-2 text-sm">Masuk untuk mengakses Dasbor Pengawasan</p>
         </div>
 

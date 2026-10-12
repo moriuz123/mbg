@@ -69,12 +69,12 @@ export default function TentangClient() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-              <Activity size={14} className="text-emerald-400" /> Project Digitalisasi Supply Chain
+              <Activity size={14} className="text-emerald-400" /> SSD-SUCI
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-white">
-              Digitalisasi Supply Chain <br />
-              <span className="text-emerald-400 block mt-2">Makan Bergizi Gratis</span>
+              Sistem Digitalisasi Supply Chain <br />
+              <span className="text-emerald-400 block mt-2">Kabupaten Lebak</span>
             </h1>
 
             <p className="text-slate-100 text-base sm:text-lg leading-relaxed font-normal">
