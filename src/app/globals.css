@@ -524,6 +524,13 @@ tr:hover {
   color: #1d4ed8 !important;
 }
 
+/* --- THEMATIC FOOD SECURITY / PADI PATTERN --- */
+.bg-pattern-padi {
+  background-image: url('/pattern-padi.svg');
+  background-repeat: repeat;
+  background-size: 140px 140px;
+}
+
 /* --- PRINT UTILITY STYLES --- */
 .print-only {
   display: none !important;

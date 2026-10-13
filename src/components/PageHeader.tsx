@@ -16,14 +16,8 @@ type PageHeaderProps = {
 export default function PageHeader({ title, description, breadcrumbs }: PageHeaderProps) {
   return (
     <div className="bg-gradient-to-br from-[#05112c] via-[#071840] to-[#0a235c] text-white pt-28 pb-12 rounded-b-[2.5rem] mb-10 shadow-[0_8px_30px_rgba(7,24,64,0.1)] relative overflow-hidden">
-      {/* Subtle Dot Pattern Overlay */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.04]" 
-        style={{ 
-          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-          backgroundSize: '24px 24px'
-        }}
-      ></div>
+      {/* Motif Ketahanan Pangan (Pattern Bulir Padi) */}
+      <div className="absolute inset-0 pointer-events-none bg-pattern-padi opacity-[0.07] mix-blend-screen" />
 
       {/* Decorative patterns */}
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[80px] pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>

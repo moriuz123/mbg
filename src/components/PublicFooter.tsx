@@ -18,10 +18,8 @@ export default function PublicFooter({ settings }: { settings?: Record<string, s
   return (
     <footer className="w-full bg-[#071840] text-white pt-16 pb-10 border-t-[6px] border-accent-500 relative overflow-hidden mt-auto">
       
-      {/* SPBE Style Background Pattern */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,0.03) 40px,rgba(255,255,255,0.03) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,0.03) 40px,rgba(255,255,255,0.03) 41px)'
-      }}></div>
+      {/* Motif Ketahanan Pangan (Pattern Bulir Padi) */}
+      <div className="absolute inset-0 pointer-events-none bg-pattern-padi opacity-[0.07] mix-blend-screen" />
       
       {/* Decorative Glow */}
       <div className="absolute -right-40 -bottom-40 w-[500px] h-[500px] bg-primary-600/30 rounded-full blur-[120px] pointer-events-none"></div>
