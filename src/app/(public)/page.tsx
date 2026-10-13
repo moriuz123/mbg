@@ -185,11 +185,8 @@ export default async function Public({
     <div className="min-h-screen bg-slate-50 selection:bg-accent-500 selection:text-white font-sans overflow-x-hidden">
       {/* HERO SECTION */}
       <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-40 overflow-hidden flex flex-col justify-center min-h-[90vh]" style={heroStyle}>
-        {/* Pattern Overlay (Modern Dots) */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.05) 1.5px, transparent 1.5px)',
-          backgroundSize: '24px 24px'
-        }}></div>
+        {/* Motif Ketahanan Pangan (Pattern Bulir Padi) */}
+        <div className="absolute inset-0 pointer-events-none bg-pattern-padi opacity-[0.08] mix-blend-screen" />
         
         {/* Abstract Geometry Lines */}
         <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay" style={{
