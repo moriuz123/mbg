@@ -178,7 +178,7 @@ export default async function Public({
 
   const heroBgImage = settings.hero_bg_image || '/images/mbg_tentang_hero.jpg';
   const heroStyle = { 
-    backgroundImage: `linear-gradient(135deg, rgba(7, 24, 64, 0.88) 0%, rgba(10, 36, 99, 0.80) 50%, rgba(5, 17, 44, 0.88) 100%), url(${heroBgImage})`, 
+    backgroundImage: `linear-gradient(135deg, rgba(4, 14, 38, 0.95) 0%, rgba(6, 20, 54, 0.92) 50%, rgba(3, 11, 30, 0.96) 100%), url(${heroBgImage})`, 
     backgroundSize: 'cover', 
     backgroundPosition: 'center' 
   };
@@ -189,7 +189,7 @@ export default async function Public({
       <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-40 overflow-hidden flex flex-col justify-center min-h-[90vh]" style={heroStyle}>
         {/* Motif Ketahanan Pangan (Pattern Lucide Vegan) dengan Transparansi Kanan ke Kiri */}
         <div 
-          className="absolute inset-0 pointer-events-none bg-pattern-padi opacity-[0.14] mix-blend-screen" 
+          className="absolute inset-0 pointer-events-none bg-pattern-padi opacity-[0.10] mix-blend-screen" 
           style={{
             maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0) 100%)',
             WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0) 100%)'
