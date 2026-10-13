@@ -559,59 +559,69 @@ export default function RantaiPasokClient({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedPemasok.map((pemasok) => (
-                <div 
-                  key={pemasok.pemasokId}
-                  onClick={() => setSelectedPemasok(pemasok)}
-                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-xl hover:border-primary-400 transition-all duration-300 flex flex-col justify-between cursor-pointer group"
-                >
-                  <div>
-                    {/* Header Card */}
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-slate-50 group-hover:bg-primary-50 text-slate-500 group-hover:text-primary-600 flex items-center justify-center shrink-0 transition-colors">
-                        <Truck size={24} />
-                      </div>
-                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                          {pemasok.tipePemasok || 'Lokal'}
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {pemasok.status || 'Aktif'}
-                        </span>
-                      </div>
-                    </div>
+              {paginatedPemasok.map((pemasok, idx) => {
+                const cardAccentThemes = [
+                  { border: 'border-t-emerald-500', iconBg: 'group-hover:bg-emerald-50 group-hover:text-emerald-600', link: 'text-emerald-600' },
+                  { border: 'border-t-blue-500', iconBg: 'group-hover:bg-blue-50 group-hover:text-blue-600', link: 'text-blue-600' },
+                  { border: 'border-t-amber-500', iconBg: 'group-hover:bg-amber-50 group-hover:text-amber-600', link: 'text-amber-600' },
+                  { border: 'border-t-indigo-500', iconBg: 'group-hover:bg-indigo-50 group-hover:text-indigo-600', link: 'text-indigo-600' },
+                ];
+                const theme = cardAccentThemes[idx % cardAccentThemes.length];
 
-                    <h3 className="font-bold text-lg text-slate-900 group-hover:text-primary-700 transition-colors line-clamp-1 mb-1.5">
-                      {pemasok.namaPemasok}
-                    </h3>
-
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-3">
-                      <MapPin size={14} className="text-slate-400 shrink-0" />
-                      <span className="font-semibold text-slate-700">{pemasok.wilayah}</span>
-                    </div>
-
-                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-6">
-                      {pemasok.alamatPemasok || 'Alamat operasional terdaftar di dinas.'}
-                    </p>
-                  </div>
-
-                  {/* Footer Card */}
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                return (
+                  <div 
+                    key={pemasok.pemasokId}
+                    onClick={() => setSelectedPemasok(pemasok)}
+                    className={`bg-white rounded-2xl border border-slate-200 border-t-4 ${theme.border} p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between cursor-pointer group`}
+                  >
                     <div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Suplai</div>
-                      <div className="font-black text-slate-800 text-sm">
-                        {pemasok.totalVolume > 0 
-                          ? `${pemasok.totalVolume.toLocaleString('id-ID')} Kg` 
-                          : 'Mitra Siaga'}
+                      {/* Header Card */}
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <div className={`w-12 h-12 rounded-xl bg-slate-50 ${theme.iconBg} text-slate-500 flex items-center justify-center shrink-0 transition-colors`}>
+                          <Truck size={24} />
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                            {pemasok.tipePemasok || 'Lokal'}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            {pemasok.status || 'Aktif'}
+                          </span>
+                        </div>
                       </div>
+
+                      <h3 className="font-bold text-lg text-slate-900 group-hover:text-primary-700 transition-colors line-clamp-1 mb-1.5">
+                        {pemasok.namaPemasok}
+                      </h3>
+
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-3">
+                        <MapPin size={14} className="text-slate-400 shrink-0" />
+                        <span className="font-semibold text-slate-700">{pemasok.wilayah}</span>
+                      </div>
+
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-6">
+                        {pemasok.alamatPemasok || 'Alamat operasional terdaftar di dinas.'}
+                      </p>
                     </div>
-                    
-                    <span className="text-xs font-bold text-primary-600 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                      Detail <ChevronRight size={14} />
-                    </span>
+
+                    {/* Footer Card */}
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div>
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Suplai</div>
+                        <div className="font-black text-slate-800 text-sm">
+                          {pemasok.totalVolume > 0 
+                            ? `${pemasok.totalVolume.toLocaleString('id-ID')} Kg` 
+                            : 'Mitra Siaga'}
+                        </div>
+                      </div>
+                      
+                      <span className={`text-xs font-bold ${theme.link} flex items-center gap-1 group-hover:translate-x-0.5 transition-transform`}>
+                        Detail <ChevronRight size={14} />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
