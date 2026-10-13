@@ -58,43 +58,48 @@ export default function PublicFooter({ settings }: { settings?: Record<string, s
             </div>
           </div>
           
-          {/* Column 2: Quick Links */}
+          {/* Column 2: Quick Links (Dinamis dari Pengaturan Admin) */}
           <div>
             <h4 className="font-heading font-bold text-lg mb-6 text-white flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-accent-500 block"></span> Tautan Cepat
             </h4>
-            <ul className="flex flex-col gap-4 font-medium">
-              <li>
-                <a href="https://lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Portal Lebak
-                </a>
-              </li>
-              <li>
-                <a href="https://www.bgn.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Badan Gizi Nasional
-                </a>
-              </li>
-              <li>
-                <a href="https://disketapang.lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Disketapang Kab. Lebak
-                </a>
-              </li>
-              <li>
-                <a href="https://dinkes.lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Dinkes Kab. Lebak
-                </a>
-              </li>
-              <li>
-                <a href="https://www.lapor.go.id/" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Lapor
-                </a>
-              </li>
-              <li>
-                <a href="https://Inspektorat.Lebakkab.go.id" target="_blank" rel="noreferrer" className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max">
-                  <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> Inspektorat Kab. Lebak
-                </a>
-              </li>
-            </ul>
+            {(() => {
+              const defaultQuickLinks = [
+                { title: 'Portal Lebak', url: 'https://lebakkab.go.id' },
+                { title: 'Badan Gizi Nasional', url: 'https://www.bgn.go.id' },
+                { title: 'Disketapang Kab. Lebak', url: 'https://disketapang.lebakkab.go.id' },
+                { title: 'Dinkes Kab. Lebak', url: 'https://dinkes.lebakkab.go.id' },
+                { title: 'Lapor', url: 'https://www.lapor.go.id/' },
+                { title: 'Inspektorat Kab. Lebak', url: 'https://inspektorat.lebakkab.go.id' }
+              ];
+
+              let quickLinks = defaultQuickLinks;
+              if (settings?.footer_quick_links) {
+                try {
+                  const parsed = JSON.parse(settings.footer_quick_links);
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    quickLinks = parsed;
+                  }
+                } catch (e) {}
+              }
+
+              return (
+                <ul className="flex flex-col gap-3 font-medium">
+                  {quickLinks.map((link, idx) => (
+                    <li key={idx}>
+                      <a 
+                        href={link.url} 
+                        target={link.url.startsWith('http') ? '_blank' : '_self'} 
+                        rel={link.url.startsWith('http') ? 'noreferrer' : undefined} 
+                        className="text-white/70 hover:text-accent-500 transition-colors flex items-center gap-2 group w-max"
+                      >
+                        <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-accent-500" /> {link.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
           </div>
           
           {/* Column 3: Alamat & Layanan Aduan */}

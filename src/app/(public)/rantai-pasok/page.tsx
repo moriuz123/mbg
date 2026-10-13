@@ -1,66 +1,171 @@
 import React from 'react';
-import { Truck, Package, Users, MapPin, Factory, Activity, TrendingUp } from 'lucide-react';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
-import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
+import RantaiPasokClient, { 
+  RantaiPasokStats, 
+  TopKomoditasItem, 
+  PemasokItem, 
+  WilayahStatItem 
+} from './RantaiPasokClient';
 
 export const metadata = {
-  title: 'Analitik Rantai Pasok | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
-  description: 'Transparansi rantai pasok bahan pangan dari pemasok lokal ke dapur sentral SPPG.',
+  title: 'Rantai Pasok & Mitra Pemasok | Sistem Digitalisasi Supply Chain - Pemkab Lebak',
+  description: 'Transparansi rantai pasok bahan pangan dari mitra pemasok lokal ke dapur sentral SPPG.',
 };
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 60; // Cache for 60 seconds
 
 export default async function AnalitikRantaiPasok() {
   // 1. Dapatkan Statistik Utama
-  const statsRes = await db.execute(sql`
-    SELECT 
-      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)) as total_pemasok_dalam,
-      (SELECT COUNT(*) FROM penggilingan) as total_penggilingan,
-      (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_pemasok_luar,
-      
-      (SELECT COUNT(DISTINCT pb.jenis_pangan_id) FROM sppg_pembelian_bahan pb LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE pb.tipe_sumber = 'Penggilingan' OR (pb.tipe_sumber = 'Pemasok' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL))) as total_komoditas_dalam,
-      
-      (SELECT COUNT(DISTINCT pb.jenis_pangan_id) FROM sppg_pembelian_bahan pb LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE pb.tipe_sumber = 'Pemasok' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_komoditas_luar,
-      
-      (SELECT COUNT(DISTINCT jenis_pangan_id) FROM sppg_pembelian_bahan) as total_komoditas_unik,
-      (SELECT COUNT(DISTINCT sppg_id) FROM sppg_pembelian_bahan) as total_sppg_aktif,
-      (SELECT COUNT(*) FROM sppg_pembelian_bahan) as total_transaksi
-  `);
-  
-  const stats = {
-    pemasokDalam: parseInt(statsRes[0]?.total_pemasok_dalam as string) || 0,
-    penggilingan: parseInt(statsRes[0]?.total_penggilingan as string) || 0,
-    pemasokLuar: parseInt(statsRes[0]?.total_pemasok_luar as string) || 0,
-    komoditasUnik: parseInt(statsRes[0]?.total_komoditas_unik as string) || 0,
-    komoditasDalam: parseInt(statsRes[0]?.total_komoditas_dalam as string) || 0,
-    komoditasLuar: parseInt(statsRes[0]?.total_komoditas_luar as string) || 0,
-    sppg: parseInt(statsRes[0]?.total_sppg_aktif as string) || 0,
-    transaksi: parseInt(statsRes[0]?.total_transaksi as string) || 0,
+  let stats: RantaiPasokStats = {
+    pemasokDalam: 0,
+    penggilingan: 0,
+    pemasokLuar: 0,
+    komoditasUnik: 0,
+    komoditasDalam: 0,
+    komoditasLuar: 0,
+    totalKatalogKomoditas: 0,
+    sppg: 0,
+    transaksi: 0,
+    sisaStokBerasSppg: 0,
   };
 
-  // 2. Profil Pemasok Teratas (Berdasarkan Volume)
-  const topPemasokRes = await db.execute(sql`
-    SELECT 
-      p.nama_pemasok,
-      p.tipe_pemasok,
-      kab.nama_kabupaten as wilayah,
-      SUM(pb.volume) as total_volume,
-      COUNT(DISTINCT pb.jenis_pangan_id) as jumlah_komoditas,
-      COUNT(DISTINCT pb.sppg_id) as jumlah_sppg
-    FROM pemasok p
-    JOIN sppg_pembelian_bahan pb ON p.pemasok_id = pb.pemasok_id
-    LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id
-    WHERE p.status = 'Aktif'
-    GROUP BY p.pemasok_id, p.nama_pemasok, p.tipe_pemasok, kab.nama_kabupaten
-    ORDER BY total_volume DESC
-    LIMIT 9
-  `);
+  try {
+    const statsRes = await db.execute(sql`
+      SELECT 
+        (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL)) as total_pemasok_dalam,
+        (SELECT COUNT(*) FROM penggilingan) as total_penggilingan,
+        (SELECT COUNT(*) FROM pemasok p LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE p.status = 'Aktif' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_pemasok_luar,
+        
+        (SELECT COUNT(DISTINCT pb.jenis_pangan_id) FROM sppg_pembelian_bahan pb LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE pb.tipe_sumber = 'Penggilingan' OR (pb.tipe_sumber = 'Pemasok' AND (kab.nama_kabupaten = 'Kabupaten Lebak' OR p.kabupaten_id IS NULL))) as total_komoditas_dalam,
+        
+        (SELECT COUNT(DISTINCT pb.jenis_pangan_id) FROM sppg_pembelian_bahan pb LEFT JOIN pemasok p ON pb.pemasok_id = p.pemasok_id LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id WHERE pb.tipe_sumber = 'Pemasok' AND kab.nama_kabupaten != 'Kabupaten Lebak') as total_komoditas_luar,
+        
+        (SELECT COUNT(DISTINCT jenis_pangan_id) FROM sppg_pembelian_bahan) as total_komoditas_unik,
+        (SELECT COUNT(*) FROM jenis_pangan) as total_katalog_komoditas,
+        (SELECT COUNT(DISTINCT sppg_id) FROM sppg_pembelian_bahan) as total_sppg_aktif,
+        (SELECT COUNT(*) FROM sppg_pembelian_bahan) as total_transaksi
+    `);
 
-  // 4. Sisa Stok Beras SPPG
-  let sisaStokBerasSppg = 0;
+    stats = {
+      pemasokDalam: parseInt(statsRes[0]?.total_pemasok_dalam as string) || 0,
+      penggilingan: parseInt(statsRes[0]?.total_penggilingan as string) || 0,
+      pemasokLuar: parseInt(statsRes[0]?.total_pemasok_luar as string) || 0,
+      komoditasUnik: parseInt(statsRes[0]?.total_komoditas_unik as string) || 0,
+      komoditasDalam: parseInt(statsRes[0]?.total_komoditas_dalam as string) || 0,
+      komoditasLuar: parseInt(statsRes[0]?.total_komoditas_luar as string) || 0,
+      totalKatalogKomoditas: parseInt(statsRes[0]?.total_katalog_komoditas as string) || 0,
+      sppg: parseInt(statsRes[0]?.total_sppg_aktif as string) || 0,
+      transaksi: parseInt(statsRes[0]?.total_transaksi as string) || 0,
+      sisaStokBerasSppg: 0,
+    };
+  } catch (e) {
+    console.error('Error fetching stats rantai pasok:', e);
+  }
+
+  // 2. Top Komoditas Pangan (Berdasarkan Volume)
+  let topKomoditas: TopKomoditasItem[] = [];
+  try {
+    const topKomoditasRes = await db.execute(sql`
+      SELECT 
+        jp.jenis_pangan_id as id,
+        jp.nama_bahan as nama, 
+        jp.kategori,
+        COALESCE(SUM(pb.volume), 0) as total_volume, 
+        COALESCE(pb.satuan, jp.satuan_default, 'Kg') as satuan,
+        COUNT(pb.id) as total_transaksi,
+        COUNT(DISTINCT pb.sppg_id) as jumlah_sppg,
+        COUNT(DISTINCT pb.pemasok_id) as jumlah_pemasok
+      FROM jenis_pangan jp
+      LEFT JOIN sppg_pembelian_bahan pb ON jp.jenis_pangan_id = pb.jenis_pangan_id
+      GROUP BY jp.jenis_pangan_id, jp.nama_bahan, jp.kategori, pb.satuan, jp.satuan_default
+      ORDER BY total_volume DESC, jp.nama_bahan ASC
+      LIMIT 10;
+    `);
+
+    topKomoditas = topKomoditasRes.map((r: any) => ({
+      id: Number(r.id),
+      nama: String(r.nama || ''),
+      kategori: r.kategori ? String(r.kategori) : null,
+      totalVolume: Number(r.total_volume || 0),
+      satuan: String(r.satuan || 'Kg'),
+      totalTransaksi: Number(r.total_transaksi || 0),
+      jumlahSppg: Number(r.jumlah_sppg || 0),
+      jumlahPemasok: Number(r.jumlah_pemasok || 0)
+    }));
+  } catch (e) {
+    console.error('Error fetching top komoditas:', e);
+  }
+
+  // 3. Seluruh Mitra Pemasok
+  let pemasokList: PemasokItem[] = [];
+  try {
+    const pemasokRes = await db.execute(sql`
+      SELECT 
+        p.pemasok_id as "pemasokId",
+        p.nama_pemasok as "namaPemasok",
+        p.tipe_pemasok as "tipePemasok",
+        p.status,
+        p.alamat_pemasok as "alamatPemasok",
+        p.pic_nama as "picNama",
+        p.pic_kontak as "picKontak",
+        p.kontak,
+        COALESCE(kab.nama_kabupaten, 'Kabupaten Lebak') as wilayah,
+        COALESCE(SUM(pb.volume), 0) as "totalVolume",
+        COUNT(DISTINCT pb.jenis_pangan_id) as "jumlahKomoditas",
+        COUNT(DISTINCT pb.sppg_id) as "jumlahSppg"
+      FROM pemasok p
+      LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id
+      LEFT JOIN sppg_pembelian_bahan pb ON p.pemasok_id = pb.pemasok_id
+      GROUP BY p.pemasok_id, p.nama_pemasok, p.tipe_pemasok, p.status, p.alamat_pemasok, p.pic_nama, p.pic_kontak, p.kontak, kab.nama_kabupaten
+      ORDER BY "totalVolume" DESC, p.nama_pemasok ASC;
+    `);
+
+    pemasokList = pemasokRes.map((r: any) => ({
+      pemasokId: Number(r.pemasokId),
+      namaPemasok: String(r.namaPemasok || ''),
+      tipePemasok: r.tipePemasok ? String(r.tipePemasok) : 'Lokal',
+      status: r.status ? String(r.status) : 'Aktif',
+      alamatPemasok: r.alamatPemasok ? String(r.alamatPemasok) : null,
+      wilayah: String(r.wilayah || 'Kabupaten Lebak'),
+      picNama: r.picNama ? String(r.picNama) : null,
+      picKontak: r.picKontak ? String(r.picKontak) : null,
+      kontak: r.kontak ? String(r.kontak) : null,
+      totalVolume: Number(r.totalVolume || 0),
+      jumlahKomoditas: Number(r.jumlahKomoditas || 0),
+      jumlahSppg: Number(r.jumlahSppg || 0),
+    }));
+  } catch (e) {
+    console.error('Error fetching pemasok list:', e);
+  }
+
+  // 4. Sebaran Geografis Wilayah
+  let wilayahStats: WilayahStatItem[] = [];
+  try {
+    const wilayahRes = await db.execute(sql`
+      SELECT 
+        COALESCE(kab.nama_kabupaten, 'Kabupaten Lebak') as wilayah,
+        COUNT(p.pemasok_id) as total_pemasok,
+        COALESCE(SUM(pb.volume), 0) as total_volume
+      FROM pemasok p
+      LEFT JOIN kabupaten kab ON p.kabupaten_id = kab.kabupaten_id
+      LEFT JOIN sppg_pembelian_bahan pb ON p.pemasok_id = pb.pemasok_id
+      WHERE p.status = 'Aktif'
+      GROUP BY kab.nama_kabupaten
+      ORDER BY total_pemasok DESC;
+    `);
+
+    wilayahStats = wilayahRes.map((r: any) => ({
+      wilayah: String(r.wilayah || 'Kabupaten Lebak'),
+      totalPemasok: Number(r.total_pemasok || 0),
+      totalVolume: Number(r.total_volume || 0),
+    }));
+  } catch (e) {
+    console.error('Error fetching wilayah stats:', e);
+  }
+
+  // 5. Sisa Stok Beras SPPG
   try {
     const { jenisPangan, sppgPembelianBahan, sppgPemakaianBahan } = await import("@/db/schema");
     const { ilike, inArray, sum } = await import("drizzle-orm");
@@ -73,145 +178,25 @@ export default async function AnalitikRantaiPasok() {
       
       const pakai = await db.select({ total: sum(sppgPemakaianBahan.volume) }).from(sppgPemakaianBahan).where(inArray(sppgPemakaianBahan.jenisPanganId, berasIds));
       const totalBerasKeluar = Number(pakai[0]?.total || 0);
-      sisaStokBerasSppg = totalBerasMasuk - totalBerasKeluar;
+      stats.sisaStokBerasSppg = Math.max(0, totalBerasMasuk - totalBerasKeluar);
     }
   } catch (e) {}
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-20">
       <PageHeader 
-        title="Rantai Pasok Terbuka MBG" 
+        title="Rantai Pasok & Mitra Logistik MBG" 
         description="Transparansi alur distribusi bahan pangan segar dari Mitra Pemasok Lokal ke Dapur SPPG di Kabupaten Lebak."
-        breadcrumbs={[{ label: 'Analitik Rantai Pasok' }]}
+        breadcrumbs={[{ label: 'Rantai Pasok' }]}
       />
       
-      <main className="flex-1 -mt-6">
-        <section className="relative z-10 py-10 sm:py-14">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-            {/* KPI Stats */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-12">
-              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-emerald-500 bg-white p-6 flex flex-col shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><Users size={24} /></div>
-                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mitra Pemasok</span>
-                </div>
-                <div className="text-3xl font-black text-slate-800 mb-1">{stats.pemasokDalam + stats.pemasokLuar + stats.penggilingan}</div>
-                <div className="text-sm font-medium text-slate-500 mb-3">Total Pemasok & Penggilingan</div>
-                
-                <div className="mt-auto space-y-1.5 pt-3 border-t border-slate-100">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Pemasok (Dalam Lebak)</span>
-                    <span className="font-bold text-slate-700">{stats.pemasokDalam} Mitra</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Pemasok (Luar Lebak)</span>
-                    <span className="font-bold text-slate-700">{stats.pemasokLuar} Mitra</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Penggilingan Padi (Lokal)</span>
-                    <span className="font-bold text-slate-700">{stats.penggilingan} Mitra</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-blue-500 bg-white p-6 flex flex-col shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><Package size={24} /></div>
-                  <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Bahan Baku</span>
-                </div>
-                <div className="text-3xl font-black text-slate-800 mb-1">{stats.komoditasUnik}</div>
-                <div className="text-sm font-medium text-slate-500 mb-3">Jenis Komoditas Tersuplai</div>
-                
-                <div className="mt-auto space-y-1.5 pt-3 border-t border-slate-100">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Disuplai dari Dalam</span>
-                    <span className="font-bold text-slate-700">{stats.komoditasDalam} Komoditas</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Disuplai dari Luar</span>
-                    <span className="font-bold text-slate-700">{stats.komoditasLuar} Komoditas</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-amber-500 bg-white p-6 flex flex-col shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><Factory size={24} /></div>
-                  <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-md">Penerima</span>
-                </div>
-                <div className="text-3xl font-black text-slate-800 mb-1">{stats.sppg}</div>
-                <div className="text-sm font-medium text-slate-500 mb-3">Dapur SPPG Disuplai</div>
-                
-                <div className="mt-auto pt-3 border-t border-slate-100">
-                  <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-                    <TrendingUp size={14} className="text-amber-500" /> {stats.transaksi.toLocaleString('id-ID')} Total Transaksi
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 border-t-4 border-t-indigo-500 bg-white p-6 flex flex-col shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Package size={24} /></div>
-                  <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">Inventory</span>
-                </div>
-                <div className="text-3xl font-black text-slate-800 mb-1">
-                  {sisaStokBerasSppg.toLocaleString('id-ID')} <span className="text-base font-semibold text-slate-500">Kg</span>
-                </div>
-                <div className="text-sm font-medium text-slate-500 mb-3">Sisa Stok Beras di SPPG</div>
-                
-                <div className="mt-auto pt-3 border-t border-slate-100">
-                  <div className="text-[10px] font-semibold text-slate-400">
-                    Akumulasi seluruh Dapur SPPG Aktif
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Profil Top Pemasok */}
-            <div className="mb-12">
-              <div className="flex items-end justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-800">Top Mitra Logistik</h2>
-                  <p className="text-sm text-slate-500 mt-1">Pemasok dengan volume kontribusi bahan pangan terbesar.</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {topPemasokRes.map((p: any, idx: number) => (
-                  <div key={idx} className="bg-white rounded-2xl border border-slate-200 border-t-4 border-t-slate-200 hover:border-t-emerald-500 p-6 hover:shadow-xl transition-all duration-300 group">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-slate-50 group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-600 transition-colors">
-                        <Truck size={24} />
-                      </div>
-                      <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
-                        {p.tipe_pemasok || 'Lokal'}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-800 mb-1 line-clamp-1">{p.nama_pemasok}</h3>
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mb-6">
-                      <MapPin size={14} className="text-slate-400" /> {p.wilayah || 'Kabupaten Lebak'}
-                    </div>
-                    
-                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Volume Suplai</div>
-                        <div className="font-black text-slate-800">{parseFloat(p.total_volume as string).toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-500">Kg/L</span></div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Cakupan</div>
-                        <div className="font-bold text-slate-700">{p.jumlah_sppg} Dapur</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-
-
-          </div>
-        </section>
+      <main className="container mx-auto px-4 max-w-7xl -mt-4 relative z-20">
+        <RantaiPasokClient 
+          stats={stats}
+          topKomoditas={topKomoditas}
+          pemasokList={pemasokList}
+          wilayahStats={wilayahStats}
+        />
       </main>
     </div>
   );

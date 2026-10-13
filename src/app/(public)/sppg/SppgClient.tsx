@@ -88,9 +88,17 @@ export default function SppgClient({
     setFilterDesa('');
   };
 
+  // Helper Status Operasional SPPG
+  const isOperasional = (s?: string | null) => {
+    if (!s) return false;
+    const lower = s.toLowerCase().trim();
+    return (lower.includes('operasional') || lower === 'aktif') && !lower.includes('belum');
+  };
+
   // Statistik Computations
   const totalSppg = initialData.length;
-  const totalOperasional = initialData.filter(s => s.statusOperasional === 'Operasional').length;
+  const totalOperasional = initialData.filter(s => isOperasional(s.statusOperasional)).length;
+  const totalPersiapan = Math.max(0, totalSppg - totalOperasional);
   const totalPenerima = initialData.reduce((acc, curr) => acc + curr.totalPenerima, 0);
   
   const sppgPerKecamatan = useMemo(() => {
@@ -224,7 +232,7 @@ export default function SppgClient({
                 <div 
                   key={sppg.sppgId} 
                   className="card animate-fade-in hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between p-5" 
-                  style={{ animationDelay: `${(idx % 10) * 0.05}s`, cursor: 'pointer', borderLeft: sppg.statusOperasional === 'Operasional' ? '4px solid var(--success)' : '4px solid var(--warning)', borderRadius: '0.75rem', backgroundColor: '#fff', borderTop: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}
+                  style={{ animationDelay: `${(idx % 10) * 0.05}s`, cursor: 'pointer', borderLeft: isOperasional(sppg.statusOperasional) ? '4px solid var(--success)' : '4px solid var(--warning)', borderRadius: '0.75rem', backgroundColor: '#fff', borderTop: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}
                   onClick={() => setSelectedSppg(sppg)}
                 >
                   <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 w-full">
@@ -237,7 +245,7 @@ export default function SppgClient({
                         <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--text-primary)', fontWeight: 600 }}>{sppg.namaSppg}</h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
                           <span>{sppg.idSppgCode || '-'}</span>
-                          <span className={`badge ${sppg.statusOperasional === 'Operasional' ? 'badge-success' : 'badge-warning'} ml-1`}>
+                          <span className={`badge ${isOperasional(sppg.statusOperasional) ? 'badge-success' : 'badge-warning'} ml-1`}>
                             {sppg.statusOperasional}
                           </span>
                         </div>
@@ -277,32 +285,41 @@ export default function SppgClient({
       {/* TAB CONTENT: STATISTICS */}
       {currentTab === 'statistics' && (
         <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
+            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
               <div style={{ backgroundColor: 'var(--primary-50)', padding: '1rem', borderRadius: '1rem', color: 'var(--primary-600)' }}>
-                <Building size={32} />
+                <Building size={30} />
               </div>
               <div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Total SPPG</div>
-                <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalSppg}</div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Total SPPG</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalSppg}</div>
               </div>
             </div>
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
               <div style={{ backgroundColor: 'var(--success-light)', padding: '1rem', borderRadius: '1rem', color: 'var(--success)' }}>
-                <ShieldCheck size={32} />
+                <ShieldCheck size={30} />
               </div>
               <div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>SPPG Operasional</div>
-                <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalOperasional}</div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>SPPG Operasional</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalOperasional}</div>
               </div>
             </div>
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <div style={{ backgroundColor: '#ebf5ff', padding: '1rem', borderRadius: '1rem', color: '#3b82f6' }}>
-                <Users size={32} />
+            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              <div style={{ backgroundColor: '#fff7ed', padding: '1rem', borderRadius: '1rem', color: '#ea580c' }}>
+                <Clock size={30} />
               </div>
               <div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Total Penerima Manfaat</div>
-                <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalPenerima.toLocaleString('id-ID')}</div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Tahap Persiapan</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalPersiapan}</div>
+              </div>
+            </div>
+            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              <div style={{ backgroundColor: '#ebf5ff', padding: '1rem', borderRadius: '1rem', color: '#3b82f6' }}>
+                <Users size={30} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Total Penerima Manfaat</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalPenerima.toLocaleString('id-ID')}</div>
               </div>
             </div>
           </div>
@@ -336,7 +353,7 @@ export default function SppgClient({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                  <span className={`badge ${selectedSppg.statusOperasional === 'Operasional' ? 'badge-success' : 'badge-warning'}`}>{selectedSppg.statusOperasional}</span>
+                  <span className={`badge ${isOperasional(selectedSppg.statusOperasional) ? 'badge-success' : 'badge-warning'}`}>{selectedSppg.statusOperasional}</span>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>ID: {selectedSppg.idSppgCode || 'N/A'}</span>
                 </div>
                 <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>{selectedSppg.namaSppg}</h2>
