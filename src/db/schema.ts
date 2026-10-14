@@ -923,6 +923,39 @@ export const siteSetting = pgTable("site_setting", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// ==== VISITOR ANALYTICS & STATS ====
+export const visitorLog = pgTable("visitor_log", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  visitorId: text("visitor_id").notNull(),
+  sessionId: text("session_id").notNull(),
+  path: text("path").notNull(),
+  title: text("title"),
+  referrer: text("referrer"),
+  referrerDomain: text("referrer_domain"),
+  referrerType: text("referrer_type").default("direct").notNull(), // direct, search, social, internal, referral
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  browser: text("browser"),
+  browserVersion: text("browser_version"),
+  os: text("os"),
+  device: text("device").default("desktop").notNull(), // desktop, mobile, tablet, bot
+  screenResolution: text("screen_resolution"),
+  isBot: boolean("is_bot").default(false).notNull(),
+  botName: text("bot_name"),
+  country: text("country").default("Indonesia"),
+  city: text("city"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    createdAtIdx: index("idx_visitor_log_created_at").on(table.createdAt),
+    pathIdx: index("idx_visitor_log_path").on(table.path),
+    visitorIdIdx: index("idx_visitor_log_visitor_id").on(table.visitorId),
+    isBotIdx: index("idx_visitor_log_is_bot").on(table.isBot),
+    deviceIdx: index("idx_visitor_log_device").on(table.device),
+    referrerTypeIdx: index("idx_visitor_log_referrer_type").on(table.referrerType),
+  };
+});
+
 // ==== PENGUMUMAN ====
 export const pengumuman = pgTable("pengumuman", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home, Map, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X, Settings } from 'lucide-react';
+import { Home, Map, Factory, LayoutDashboard, LogOut, Database, ChevronDown, ChevronRight, MapPin, ShoppingCart, Truck, Package, Activity, Utensils, GraduationCap, ShieldCheck, HeartPulse, Users, MessageSquare, ClipboardCheck, TestTube2, Building2, X, Settings, BarChart3, Globe } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { LogoutButtonSidebar } from './LogoutButton';
 
@@ -144,6 +144,12 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
               )}
 
               {isAdmin && (
+                <NavItem href="/admin/statistik-pengunjung" icon={BarChart3} isActive={pathname?.includes('/admin/statistik-pengunjung')}>
+                  Statistik Pengunjung
+                </NavItem>
+              )}
+
+              {isAdmin && (
                 <NavItem href="/admin/pengaduan" icon={MessageSquare} isActive={pathname?.includes('/admin/pengaduan')}>Pengaduan Masuk</NavItem>
               )}
 
@@ -171,6 +177,7 @@ export default function AdminSidebar({ userRole = 'publik', isMobileOpen = false
                     <div className="pl-4 border-l-2 border-slate-100 ml-6 space-y-1 py-1">
                       <NavItem href="/admin/pengaturan-situs/umum" icon={LayoutDashboard} isActive={pathname?.includes('/admin/pengaturan-situs/umum')} isSub>Setting Web</NavItem>
                       <NavItem href="/admin/pengaturan-situs/menu" icon={LayoutDashboard} isActive={pathname?.includes('/admin/pengaturan-situs/menu')} isSub>Kelola Menu</NavItem>
+                      <NavItem href="/admin/pengaturan-situs/seo" icon={Globe} isActive={pathname?.includes('/admin/pengaturan-situs/seo')} isSub>SEO & Indeksasi</NavItem>
                     </div>
                   </div>
                 </div>

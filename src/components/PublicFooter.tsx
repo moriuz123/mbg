@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { MapPin, Mail, Globe, ArrowRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import PublicVisitorCounter from './PublicVisitorCounter';
 
 export default function PublicFooter({ settings }: { settings?: Record<string, string> }) {
   const pathname = usePathname();
@@ -129,9 +130,14 @@ export default function PublicFooter({ settings }: { settings?: Record<string, s
 
         </div>
         
-        {/* Copyright */}
+        {/* Visitor Stats Counter & Copyright */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/50 font-medium">
-          <p>&copy; 2026 Dinas Ketahanan Pangan (Disketapang) Kabupaten Lebak. Hak Cipta Dilindungi.</p>
+          <div className="space-y-2.5 text-center md:text-left flex flex-col items-center md:items-start">
+            <p>&copy; 2026 Dinas Ketahanan Pangan (Disketapang) Kabupaten Lebak. Hak Cipta Dilindungi.</p>
+            {settings?.seo_show_visitor_counter !== 'false' && (
+              <PublicVisitorCounter />
+            )}
+          </div>
           <div className="flex items-center gap-6">
             <Link href="#" className="hover:text-white transition-colors">Kebijakan Privasi</Link>
             <Link href="#" className="hover:text-white transition-colors">Syarat & Ketentuan</Link>
