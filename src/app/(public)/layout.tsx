@@ -1,5 +1,6 @@
 import PublicNavbar from '@/components/PublicNavbar';
 import PublicFooter from '@/components/PublicFooter';
+import VisitorTracker from '@/components/VisitorTracker';
 import { getNavigationMenus, getSiteSettings } from '@/app/actions/frontend';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
@@ -41,6 +42,7 @@ export default async function PublicLayout({ children }: { children: React.React
     // If admin is browsing public site, show a warning notification bar
     return (
       <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <VisitorTracker />
         <div className="bg-amber-500 text-slate-950 px-4 py-2.5 text-xs sm:text-sm font-bold flex flex-wrap items-center justify-between sticky top-0 z-[9999] shadow-md border-b border-amber-600 gap-2">
           <div className="flex items-center gap-2">
             <AlertTriangle size={18} className="text-amber-950 shrink-0 animate-pulse" />
@@ -64,6 +66,7 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <VisitorTracker />
       <PublicNavbar dynamicMenus={dynamicMenus} />
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</main>
       <PublicFooter settings={siteSettings} />

@@ -58,8 +58,8 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
       
-      // 3. Manajemen Menu Sistem: Hanya untuk Admin
-      if (path.startsWith('/admin/master-data') && !isAdmin) {
+      // 3. Manajemen Menu Sistem, Pengaturan Situs & Statistik: Hanya untuk Admin
+      if ((path.startsWith('/admin/master-data') || path.startsWith('/admin/statistik-pengunjung') || path.startsWith('/admin/pengaturan-situs')) && !isAdmin) {
         return NextResponse.redirect(new URL('/admin?error=unauthorized', request.url));
       }
 
