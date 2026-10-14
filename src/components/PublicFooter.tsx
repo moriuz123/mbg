@@ -115,6 +115,12 @@ export default function PublicFooter({ settings }: { settings?: Record<string, s
                   {address}
                 </span>
               </div>
+
+              {/* Statistik Pengunjung di Bawah Alamat & di Atas CTA */}
+              {settings?.seo_show_visitor_counter !== 'false' && (
+                <PublicVisitorCounter />
+              )}
+
               <Link 
                 href="/pengaduan" 
                 className="flex items-center justify-between gap-3 p-4 bg-accent-500 hover:bg-[#f5b030] text-[#071840] font-bold rounded-xl shadow-lg shadow-accent-500/20 transition-all group"
@@ -130,14 +136,9 @@ export default function PublicFooter({ settings }: { settings?: Record<string, s
 
         </div>
         
-        {/* Visitor Stats Counter & Copyright */}
+        {/* Copyright */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/50 font-medium">
-          <div className="space-y-2.5 text-center md:text-left flex flex-col items-center md:items-start">
-            <p>&copy; 2026 Dinas Ketahanan Pangan (Disketapang) Kabupaten Lebak. Hak Cipta Dilindungi.</p>
-            {settings?.seo_show_visitor_counter !== 'false' && (
-              <PublicVisitorCounter />
-            )}
-          </div>
+          <p>&copy; 2026 Dinas Ketahanan Pangan (Disketapang) Kabupaten Lebak. Hak Cipta Dilindungi.</p>
           <div className="flex items-center gap-6">
             <Link href="#" className="hover:text-white transition-colors">Kebijakan Privasi</Link>
             <Link href="#" className="hover:text-white transition-colors">Syarat & Ketentuan</Link>
