@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const seo = await getSeoSettings();
-  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://mbg.lebakkab.go.id';
+  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://sdsuci.lebakkab.go.id';
   const now = new Date();
 
   return [

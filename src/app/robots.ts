@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const seo = await getSeoSettings();
-  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://mbg.lebakkab.go.id';
+  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://sdsuci.lebakkab.go.id';
   const isNoIndex = seo.seo_robots_index?.includes('noindex');
 
   if (isNoIndex) {

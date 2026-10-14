@@ -9,7 +9,7 @@ export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();
-  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://mbg.lebakkab.go.id';
+  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://sdsuci.lebakkab.go.id';
 
   const titleDefault = seo.seo_meta_title || 'Sistem Digitalisasi Supply Chain - Pemkab Lebak';
   const description = seo.seo_meta_description || 'Sistem Digitalisasi Supply Chain dan pemantauan distribusi logistik Pemerintah Kabupaten Lebak.';
@@ -85,7 +85,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const seo = await getSeoSettings();
-  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://mbg.lebakkab.go.id';
+  const baseUrl = seo.seo_canonical_url?.replace(/\/$/, '') || 'https://sdsuci.lebakkab.go.id';
 
   // Schema.org Structured Data for Government Service & Organization
   const jsonLd = {

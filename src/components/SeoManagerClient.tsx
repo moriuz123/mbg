@@ -482,7 +482,7 @@ export default function SeoManagerClient({ initialSettings }: Props) {
                   name="seo_canonical_url"
                   value={form.seo_canonical_url}
                   onChange={handleChange}
-                  placeholder="https://mbg.lebakkab.go.id"
+                  placeholder="https://sdsuci.lebakkab.go.id"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500 outline-none font-mono"
                 />
               </div>

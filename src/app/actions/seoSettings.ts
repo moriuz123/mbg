@@ -30,7 +30,7 @@ const DEFAULT_SEO_SETTINGS: SeoSettingsMap = {
   seo_meta_title: 'Sistem Digitalisasi Supply Chain MBG - Pemerintah Kabupaten Lebak',
   seo_meta_description: 'Portal resmi Sistem Digitalisasi Supply Chain Program Makan Bergizi Gratis (MBG) Pemerintah Kabupaten Lebak. Transparansi pasokan bahan pangan lokal, pemantauan dapur SPPG, dan distribusi gizi.',
   seo_meta_keywords: 'MBG Lebak, Makan Bergizi Gratis, Supply Chain MBG, Ketahanan Pangan Lebak, SPPG Lebak, Distribusi Pangan Lebak, Pemkab Lebak',
-  seo_canonical_url: 'https://mbg.lebakkab.go.id',
+  seo_canonical_url: 'https://sdsuci.lebakkab.go.id',
   seo_author: 'Dinas Ketahanan Pangan Kabupaten Lebak',
   seo_publisher: 'Pemerintah Kabupaten Lebak',
   seo_og_title: 'Sistem Digitalisasi Supply Chain MBG - Pemkab Lebak',
