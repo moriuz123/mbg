@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, MapPin, Mail, Globe, LogIn, ChevronDown } from 'lucide-react';
+import { Menu, X, LogIn } from 'lucide-react';
 
 export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any[] }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -91,10 +91,10 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
           {/* Action & Mobile Toggle */}
           <div className="flex items-center gap-3">
             <Link 
-              href="/pengaduan" 
+              href="/login" 
               className="hidden sm:flex items-center gap-2 bg-accent-500 hover:bg-[#f5b030] text-[#071840] px-5 py-2.5 rounded-full font-bold text-sm transition-all shadow-[0_4px_12px_rgba(232,160,32,0.2)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(232,160,32,0.3)]"
             >
-              <Mail size={16} /> Aduan
+              <LogIn size={16} /> Login
             </Link>
             
             <button 
@@ -131,11 +131,11 @@ export default function PublicNavbar({ dynamicMenus = [] }: { dynamicMenus?: any
             <div className="h-px bg-slate-100 my-2"></div>
             
             <Link 
-              href="/pengaduan" 
+              href="/login" 
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex justify-center items-center gap-2 bg-accent-500 text-[#071840] px-4 py-3.5 rounded-xl font-bold text-sm"
             >
-              <Mail size={18} /> Aduan
+              <LogIn size={18} /> Login
             </Link>
           </nav>
         </div>
